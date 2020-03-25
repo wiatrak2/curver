@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'untitled.ui'
+# Form implementation generated from reading ui file 'ui/main_ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -13,11 +13,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1440, 900)
+        MainWindow.resize(851, 622)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.plane = QtWidgets.QGraphicsView(self.centralwidget)
-        self.plane.setGeometry(QtCore.QRect(310, 50, 631, 541))
+        self.plane.setGeometry(QtCore.QRect(190, 20, 631, 541))
         self.plane.setObjectName("plane")
         self.addCurveButton = QtWidgets.QPushButton(self.centralwidget)
         self.addCurveButton.setGeometry(QtCore.QRect(20, 80, 113, 32))
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.setCurveType.addItem("")
         self.addPointBox = QtWidgets.QGroupBox(self.centralwidget)
         self.addPointBox.setEnabled(True)
-        self.addPointBox.setGeometry(QtCore.QRect(20, 140, 131, 191))
+        self.addPointBox.setGeometry(QtCore.QRect(20, 140, 131, 251))
         self.addPointBox.setTitle("")
         self.addPointBox.setObjectName("addPointBox")
         self.xPos = QtWidgets.QLineEdit(self.addPointBox)
@@ -43,18 +43,24 @@ class Ui_MainWindow(object):
         self.addPointButton.setGeometry(QtCore.QRect(10, 100, 113, 32))
         self.addPointButton.setObjectName("addPointButton")
         self.saveCurveButton = QtWidgets.QPushButton(self.addPointBox)
-        self.saveCurveButton.setGeometry(QtCore.QRect(10, 140, 113, 32))
+        self.saveCurveButton.setGeometry(QtCore.QRect(10, 220, 113, 32))
         self.saveCurveButton.setObjectName("saveCurveButton")
         self.curveName = QtWidgets.QLineEdit(self.addPointBox)
         self.curveName.setEnabled(True)
         self.curveName.setGeometry(QtCore.QRect(20, 20, 101, 31))
         self.curveName.setObjectName("curveName")
+        self.undoAddPointButton = QtWidgets.QPushButton(self.addPointBox)
+        self.undoAddPointButton.setGeometry(QtCore.QRect(10, 130, 113, 32))
+        self.undoAddPointButton.setObjectName("undoAddPointButton")
+        self.cancelAddCurveButton = QtWidgets.QPushButton(self.addPointBox)
+        self.cancelAddCurveButton.setGeometry(QtCore.QRect(10, 190, 113, 32))
+        self.cancelAddCurveButton.setObjectName("cancelAddCurveButton")
         self.editCurveButton = QtWidgets.QPushButton(self.centralwidget)
-        self.editCurveButton.setGeometry(QtCore.QRect(20, 340, 113, 32))
+        self.editCurveButton.setGeometry(QtCore.QRect(30, 460, 113, 32))
         self.editCurveButton.setObjectName("editCurveButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1440, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 851, 22))
         self.menubar.setObjectName("menubar")
         self.menutopbar = QtWidgets.QMenu(self.menubar)
         self.menutopbar.setObjectName("menutopbar")
@@ -75,15 +81,7 @@ class Ui_MainWindow(object):
         self.setCurveType.setItemText(0, _translate("MainWindow", "Polyline"))
         self.addPointButton.setText(_translate("MainWindow", "Add Point"))
         self.saveCurveButton.setText(_translate("MainWindow", "Done"))
+        self.undoAddPointButton.setText(_translate("MainWindow", "Undo"))
+        self.cancelAddCurveButton.setText(_translate("MainWindow", "Cancel"))
         self.editCurveButton.setText(_translate("MainWindow", "Edit Curve"))
         self.menutopbar.setTitle(_translate("MainWindow", "topbar"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

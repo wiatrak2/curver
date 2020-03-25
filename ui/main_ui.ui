@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1440</width>
-    <height>900</height>
+    <width>851</width>
+    <height>622</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QGraphicsView" name="plane">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>50</y>
+      <x>190</x>
+      <y>20</y>
       <width>631</width>
       <height>541</height>
      </rect>
@@ -61,7 +61,7 @@
       <x>20</x>
       <y>140</y>
       <width>131</width>
-      <height>191</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="title">
@@ -110,7 +110,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>220</y>
        <width>113</width>
        <height>32</height>
       </rect>
@@ -132,12 +132,38 @@
       </rect>
      </property>
     </widget>
+    <widget class="QPushButton" name="undoAddPointButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>113</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Undo</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelAddCurveButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>113</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="editCurveButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>340</y>
+      <x>30</x>
+      <y>460</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -152,7 +178,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1440</width>
+     <width>851</width>
      <height>22</height>
     </rect>
    </property>

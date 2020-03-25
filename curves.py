@@ -1,4 +1,8 @@
+from copy import deepcopy
+
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
+
+from widgets.point import Point
 
 class Curve:
     def __init__(self, curve_name):
@@ -12,6 +16,9 @@ class Curve:
         self.name = name
 
     def add_point(self, point: QtCore.QPointF, scene: QtWidgets.QGraphicsScene):
+        raise NotImplementedError
+
+    def remove_point(self, point: QtCore.QPointF, scene: QtWidgets.QGraphicsScene):
         raise NotImplementedError
 
     def delete_curve(self, scene: QtWidgets.QGraphicsScene):
@@ -36,6 +43,16 @@ class Polyline(Curve):
             self.drawn_segments.append(scene.addLine(last_x, last_y, x, y, pen=self.segmentPen))
         self.points.append(point)
 
+    def extend_from_points(self, points: [QtCore.QPointF], scene: QtWidgets.QGraphicsScene):
+        for point in points:
+            self.add_point(point, scene)
+
+    def remove_point(self, point: QtCore.QPointF, scene: QtWidgets.QGraphicsScene):
+        self.points.remove(point)
+        points = deepcopy(self.points)
+        self.delete_curve(scene)
+        self.extend_from_points(points, scene)
+
     def delete_curve(self, scene: QtWidgets.QGraphicsScene):
         while len(self.drawn_points):
             point = self.drawn_points.pop()
@@ -43,4 +60,5 @@ class Polyline(Curve):
         while len(self.drawn_segments):
             segment = self.drawn_segments.pop()
             scene.removeItem(segment)
+        self.points = []
 

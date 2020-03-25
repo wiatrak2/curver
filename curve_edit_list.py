@@ -11,7 +11,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._set_actions()
 
     def show(self, curves, *args, **kwargs):
-        print(curves)
         self.curves = curves
         self.ui.curvesList.clear()
         self.ui.curvesList.addItems(self.curves)
