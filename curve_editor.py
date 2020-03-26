@@ -61,7 +61,7 @@ class CurveEditor(QtWidgets.QMainWindow):
     def add_curve_button_action(self):
         self.ui.addPointBox.setHidden(False)
         curve_type = self.ui.setCurveType.currentText()
-        curve_id = f"{curve_type}_{len(self.curves)+1}"
+        curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
         self.ui.curveName.setText(curve_id)
         self.edited_curve = Polyline(curve_id)
         self.mode = self.modes.ADD
@@ -106,6 +106,10 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def edit_curve_button_action(self):
         self.edit_curves_list.show(self.curves)
+
+    def manage_curve_edit(self, curve_id: str, allow=True):
+        curve = self.curves[curve_id]
+        curve.manage_edit(allow=allow)
 
     def delete_curve(self, curve_id: str):
         curve = self.curves.pop(curve_id)

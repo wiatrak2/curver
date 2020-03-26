@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'curve_edit.ui'
+# Form implementation generated from reading ui file 'ui/curve_edit.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -23,6 +23,9 @@ class Ui_curveEditWindow(object):
         self.curveDeleteButton = QtWidgets.QPushButton(curveEditWindow)
         self.curveDeleteButton.setGeometry(QtCore.QRect(230, 150, 113, 32))
         self.curveDeleteButton.setObjectName("curveDeleteButton")
+        self.doneButton = QtWidgets.QPushButton(curveEditWindow)
+        self.doneButton.setGeometry(QtCore.QRect(230, 200, 113, 32))
+        self.doneButton.setObjectName("doneButton")
 
         self.retranslateUi(curveEditWindow)
         QtCore.QMetaObject.connectSlotsByName(curveEditWindow)
@@ -32,3 +35,4 @@ class Ui_curveEditWindow(object):
         curveEditWindow.setWindowTitle(_translate("curveEditWindow", "Form"))
         self.curveEditButton.setText(_translate("curveEditWindow", "Edit"))
         self.curveDeleteButton.setText(_translate("curveEditWindow", "Delete"))
+        self.doneButton.setText(_translate("curveEditWindow", "Done"))

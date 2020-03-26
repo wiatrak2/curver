@@ -3,14 +3,15 @@ from copy import deepcopy
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from widgets.point import Point
+from widgets.line import Line
 
 class Curve:
     def __init__(self, curve_name):
         self.curve_name = curve_name
         self.points = []
 
-        self.drawn_points = []
-        self.drawn_segments = []
+        self.drawn_points: [Point] = []
+        self.drawn_segments: [Line] = []
 
     def set_name(self, name: str):
         self.name = name
@@ -29,19 +30,25 @@ class Polyline(Curve):
     def __init__(self, curve_name):
         super().__init__(curve_name)
 
-        self.pointPen = QtGui.QPen(QtCore.Qt.red)
-        self.pointPen.setWidth(3)
-
         self.segmentPen = QtGui.QPen(QtCore.Qt.black)
 
     def add_point(self, point: QtCore.QPointF, scene: QtWidgets.QGraphicsScene):
-        x, y = point.x(), point.y()
-        self.drawn_points.append(scene.addEllipse(x, y, 2, 2, pen=self.pointPen))
+        drawn_point = Point(point)
+        scene.addItem(drawn_point)
         if len(self.points):
-            last_point = self.points[-1]
-            last_x, last_y = last_point.x(), last_point.y()
-            self.drawn_segments.append(scene.addLine(last_x, last_y, x, y, pen=self.segmentPen))
+            last_point, last_drawn_point = self.points[-1], self.drawn_points[-1]
+            drawn_segment = Line(last_point, point)
+            last_drawn_point.add_segment(drawn_segment)
+            drawn_point.add_segment(drawn_segment)
+            scene.addItem(drawn_segment)
+            self.drawn_segments.append(drawn_segment)
+        self.drawn_points.append(drawn_point)
         self.points.append(point)
+
+    def manage_edit(self, allow=True):
+        for point in self.drawn_points:
+            point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
+            point.edit_mode = allow
 
     def extend_from_points(self, points: [QtCore.QPointF], scene: QtWidgets.QGraphicsScene):
         for point in points:
