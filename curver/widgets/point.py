@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from widgets.segment import Segment
 
 class Point(QtWidgets.QGraphicsEllipseItem):
-    SIZE = 10
+    SIZE = 4
     def __init__(self, point: QtCore.QPointF, *args, **kwargs):
         self.point = point
         x, y = point.x(), point.y()

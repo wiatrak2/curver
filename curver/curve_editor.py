@@ -38,6 +38,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         canvas = self._create_canvas()
         self.ui.plane.setScene(canvas)
         self.ui.plane.scale(1, -1)
+        self.ui.plane.setMouseTracking(True)
         self._connect_actions()
 
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
@@ -63,13 +64,10 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_type = self.ui.setCurveType.currentText()
         curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
         self.ui.curveName.setText(curve_id)
-        self.edited_curve = Polyline(curve_id)
+        self.edited_curve = Polyline(curve_id)  # TODO: allow other curves
         self.mode = self.modes.ADD
         self.plane.notify_click = True
-
-    def add_point_scene_click_action(self, point: QtCore.QPointF):
-        scene = self.plane
-        self.edited_curve.add_point(point, scene)
+        self.plane.notify_position = True
 
     def add_point_button_action(self):
         x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
@@ -97,12 +95,15 @@ class CurveEditor(QtWidgets.QMainWindow):
             msg_box.setText("Curve with given name already exists")
             msg_box.exec_()
             return
+
         self.edited_curve.set_name(curve_id)
         self.curves[curve_id] = self.edited_curve
         self.edited_curve = None
+
         self.ui.addPointBox.setHidden(True)
         self.mode = self.modes.NONE
         self.plane.notify_click = False
+        self.plane.notify_position = False
 
     def edit_curve_button_action(self):
         self.edit_curves_list.show(self.curves)
@@ -115,8 +116,26 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve = self.curves.pop(curve_id)
         curve.delete_curve(self.plane)
 
+    # Notifications from scene handling
+
+    def _add_point_scene_click_action(self, point: QtCore.QPointF):
+        scene = self.plane
+        self.edited_curve.add_point(point, scene)
+
+    def _add_point_scene_move_action(self, point: QtCore.QPointF):
+        scene = self.plane
+        x, y = point.x(), point.y()
+        self.ui.xPos.setText(str(int(x)))
+        self.ui.yPos.setText(str(int(y)))
+
+    def notify_scene_pos(self, point: QtCore.QPointF):
+        if self.mode == self.modes.NONE:
+            return
+        if self.mode == self.modes.ADD:
+            return self._add_point_scene_move_action(point)
+
     def notify_scene_click(self, point: QtCore.QPointF):
         if self.mode == self.modes.NONE:
             return
         if self.mode == self.modes.ADD:
-            return self.add_point_scene_click_action(point)
+            return self._add_point_scene_click_action(point)
