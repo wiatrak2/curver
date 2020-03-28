@@ -36,8 +36,8 @@ class Polyline(Curve):
         drawn_point = Point(point)
         scene.addItem(drawn_point)
         if len(self.points):
-            last_point, last_drawn_point = self.points[-1], self.drawn_points[-1]
-            drawn_segment = Line(last_point, point)
+            last_drawn_point = self.drawn_points[-1]
+            drawn_segment = Line(last_drawn_point, drawn_point)
             last_drawn_point.add_segment(drawn_segment)
             drawn_point.add_segment(drawn_segment)
             scene.addItem(drawn_segment)
