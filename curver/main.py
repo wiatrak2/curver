@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 
-from curver.curve_editor import CurveEditor
+from curve_editor import CurveEditor
 
 app = QtWidgets.QApplication([])
 window = CurveEditor()

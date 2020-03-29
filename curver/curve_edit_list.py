@@ -1,8 +1,8 @@
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from ui.curve_edit_ui import Ui_curveEditWindow
+from ui.curve_edit_list_ui import Ui_curveEditWindow
 
-class CurveEditWindow(QtWidgets.QMainWindow):
+class CurvesListWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_curveEditWindow()
