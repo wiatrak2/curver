@@ -2,22 +2,20 @@ from copy import deepcopy
 
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from widgets.point import Point
-from widgets.line import Line
+from curver import widgets
 
 class Curve:
     def __init__(self, curve_name: str, scene: QtWidgets.QGraphicsScene):
         self.curve_name = curve_name
         self.scene = scene
 
-        self.points = []
-        self.drawn_points: [Point] = []
-        self.drawn_segments: [Line] = []
+        self.points: [widgets.point.Point] = []
+        self.segments: [widgets.line.Line] = []
 
     def add_point(self, point: QtCore.QPointF):
         raise NotImplementedError
 
-    def remove_point(self, point: QtCore.QPointF):
+    def delete_point(self, point: QtCore.QPointF):
         raise NotImplementedError
 
     def delete_curve(self):
@@ -29,20 +27,19 @@ class Polyline(Curve):
         super().__init__(curve_name, scene)
 
     def add_point(self, point: QtCore.QPointF):
-        drawn_point = Point(point)
-        self.scene.addItem(drawn_point)
+        new_point = widgets.point.Point(point)
+        self.scene.addItem(new_point)
         if len(self.points):
-            last_drawn_point = self.drawn_points[-1]
-            drawn_segment = Line(last_drawn_point, drawn_point)
-            last_drawn_point.add_segment(drawn_segment)
-            drawn_point.add_segment(drawn_segment)
-            self.scene.addItem(drawn_segment)
-            self.drawn_segments.append(drawn_segment)
-        self.drawn_points.append(drawn_point)
-        self.points.append(point)
+            last_point = self.points[-1]
+            new_segment = widgets.line.Line(last_point, new_point)
+            last_point.add_segment(new_segment)
+            new_point.add_segment(new_segment)
+            self.scene.addItem(new_segment)
+            self.segments.append(new_segment)
+        self.points.append(new_point)
 
     def manage_edit(self, allow=True):
-        for point in self.drawn_points:
+        for point in self.points:
             point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
             point.edit_mode = allow
 
@@ -50,18 +47,19 @@ class Polyline(Curve):
         for point in points:
             self.add_point(point)
 
-    def remove_point(self, point: QtCore.QPointF):
-        self.points.remove(point)
-        points = deepcopy(self.points)
-        self.delete_curve()
-        self.extend_from_points(points)
+    def delete_point(self, point: QtCore.QPointF):
+        if point in self.points:
+            points_copy = list(self.points)
+            self.delete_curve()
+            points_copy.remove(point)
+            points = [p.point for p in points_copy]
+            self.extend_from_points(points)
 
     def delete_curve(self):
-        while len(self.drawn_points):
-            point = self.drawn_points.pop()
+        while len(self.points):
+            point = self.points.pop()
             self.scene.removeItem(point)
-        while len(self.drawn_segments):
-            segment = self.drawn_segments.pop()
+        while len(self.segments):
+            segment = self.segments.pop()
             self.scene.removeItem(segment)
-        self.points = []
 

@@ -14,7 +14,7 @@ class Line(Segment):
 
     def _get_nearest_point(self, point: Point):
         nearest_point = None
-        nearest_dist = 1e10
+        nearest_dist = 1e100
         for p in [self.point_1, self.point_2]:
             dist_square = math.pow(p.x - point.x, 2) + math.pow(p.y - point.y, 2)
             if dist_square < nearest_dist:

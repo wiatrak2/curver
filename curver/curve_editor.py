@@ -1,18 +1,18 @@
 from enum import Enum
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from ui.main_ui import Ui_MainWindow
-from curve_edit_list import CurvesListWindow
-from curve_edit_window import CurveEditWindow
-from curves import Curve, Polyline
-from widgets.scene import CurverGraphicsScene
+from curver import curves
+from curver import widgets
+from curver.ui.main_ui import Ui_MainWindow
+from curver.curve_edit_list import CurvesListWindow
+from curver.curve_edit_window import CurveEditWindow
 
 class CurveEditor(QtWidgets.QMainWindow):
     class _Modes(Enum):
         NONE = 0
         ADD = 1
         EDIT = 2
-        DELETE = 3
+        DELETE_POINT = 3
     modes = _Modes
 
     def __init__(self):
@@ -30,7 +30,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.edit_curve_window = None
 
     @property
-    def plane(self) -> CurverGraphicsScene:
+    def plane(self) -> widgets.scene.CurverGraphicsScene:
         return self.ui.plane.scene()
 
     # Setup methods
@@ -44,7 +44,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self._connect_actions()
 
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
-        scene = CurverGraphicsScene(parent=self)
+        scene = widgets.scene.CurverGraphicsScene(parent=self)
         scene.setSceneRect(-25, -25, 500, 500)
         scene.setBackgroundBrush(QtCore.Qt.white)
         scene.addLine(0,-1000,0,1000)
@@ -75,7 +75,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_type = self.ui.setCurveType.currentText()
         curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
         self.ui.curveName.setText(curve_id)
-        self.edited_curve = Polyline(curve_id, self.plane)  # TODO: allow other curves
+        self.edited_curve = curves.Polyline(curve_id, self.plane)  # TODO: allow other curves
         self._set_mode(self.modes.ADD)
 
     def add_point_button_action(self):
@@ -85,7 +85,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def undo_add_point_button_action(self):
         if len(self.edited_curve.points):
-            self.edited_curve.remove_point(self.edited_curve.points[-1])
+            self.edited_curve.delete_point(self.edited_curve.points[-1])
 
     def cancel_add_curve_button_action(self):
         self.edited_curve.delete_curve()
@@ -118,6 +118,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve.manage_edit(allow=allow)
         self.edit_curve_window = CurveEditWindow(curve, parent=self)
         self.edit_curve_window.show()
+        self.edit_curves_list.close()
 
     def delete_curve(self, curve_id: str):
         curve = self.curves.pop(curve_id)
@@ -125,27 +126,27 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     # Notifications from scene handling
 
-    def _add_point_scene_click_action(self, point: QtCore.QPointF):
+    def _add_curve_scene_click_action(self, point: QtCore.QPointF):
         self.edited_curve.add_point(point)
 
-    def _add_point_scene_move_action(self, point: QtCore.QPointF):
+    def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
         self.ui.xPos.setText(str(int(x)))
         self.ui.yPos.setText(str(int(y)))
 
     def _edit_curve_scene_click_action(self, point: QtCore.QPointF):
-        return self.edit_curve_window.add_point(point)
+        return self.edit_curve_window.mouse_click_action(point)
 
     def notify_scene_pos(self, point: QtCore.QPointF):
         if self.mode == self.modes.NONE:
             return
         if self.mode == self.modes.ADD:
-            return self._add_point_scene_move_action(point)
+            return self._add_curve_scene_move_action(point)
 
     def notify_scene_click(self, point: QtCore.QPointF):
         if self.mode == self.modes.NONE:
             return
         if self.mode == self.modes.ADD:
-            return self._add_point_scene_click_action(point)
+            return self._add_curve_scene_click_action(point)
         if self.mode == self.modes.EDIT:
             return self._edit_curve_scene_click_action(point)
