@@ -11,20 +11,35 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         NONE            = 0
         ADD_POINT       = 1
         DELETE_POINT    = 2
+        MOVE_BY_VECTOR  = 3
     modes = _Modes
+
     def __init__(self, curve: curves.Curve, parent=None):
         super().__init__(parent)
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
         self.curve = curve
         self._set_actions()
+        self._setup_ui()
         self.mode = self.modes.NONE
+
+    def _setup_ui(self):
+        self.ui.vectorMoveBox.setHidden(True)
 
     def add_point_button(self):
         self.mode = self.modes.ADD_POINT
 
     def delete_point_button(self):
         self.mode = self.modes.DELETE_POINT
+
+    def move_by_vector_button(self):
+        self.ui.vectorMoveBox.setHidden(False)
+        self.mode = self.modes.MOVE_BY_VECTOR
+
+    def move_by_vector_final_button(self):
+        if self.mode == self.modes.MOVE_BY_VECTOR:
+            self._move_by_vector()
+        self.ui.vectorMoveBox.setHidden(True)
 
     def _add_point(self, point: QtCore.QPointF):
         self.curve.add_point(point)
@@ -47,6 +62,15 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.curve.manage_edit(allow=True)
         self.mode = self.modes.NONE
 
+    def _move_by_vector(self):
+        vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
+        vec_qt = QtCore.QPointF(vec_x, vec_y)
+        new_points = [p.point + vec_qt for p in self.curve.points]
+        self.curve.delete_curve()
+        self.curve.extend_from_points(new_points)
+        self.curve.manage_edit(allow=True)
+        self.mode = self.modes.NONE
+
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
             return self._add_point(point)
@@ -56,3 +80,5 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def _set_actions(self):
         self.ui.addPointButton.clicked.connect(self.add_point_button)
         self.ui.deletePointButton.clicked.connect(self.delete_point_button)
+        self.ui.vectorMoveButton.clicked.connect(self.move_by_vector_button)
+        self.ui.moveButton.clicked.connect(self.move_by_vector_final_button)
