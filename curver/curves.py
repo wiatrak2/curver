@@ -41,6 +41,7 @@ class Polyline(Curve):
     def manage_edit(self, allow=True):
         for point in self.points:
             point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
+            point.setFlag(QtWidgets.QGraphicsLineItem.ItemSendsGeometryChanges, allow)
             point.edit_mode = allow
 
     def extend_from_points(self, points: [QtCore.QPointF]):

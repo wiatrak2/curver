@@ -43,6 +43,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.plane.setMouseTracking(True)
         self._connect_actions()
 
+        #self.item = QtWidgets.QGraphicsEllipseItem(10,10,10,10)
+        #self.plane.addItem(self.item)
+
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
         scene = widgets.scene.CurverGraphicsScene(parent=self)
         scene.setSceneRect(-25, -25, 500, 500)
@@ -77,6 +80,10 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.curveName.setText(curve_id)
         self.edited_curve = curves.Polyline(curve_id, self.plane)  # TODO: allow other curves
         self._set_mode(self.modes.ADD)
+
+        #self.item.setPos(QtCore.QPointF(200,200))
+        #self.plane.update()
+        #self.ui.plane.update()
 
     def add_point_button_action(self):
         x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())

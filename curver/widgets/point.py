@@ -12,7 +12,9 @@ class Point(QtWidgets.QGraphicsEllipseItem):
 
         self.associated_segments: [Segment] = []
         self.edit_mode = False
-        self.edited_pos = None
+
+        self.relative_pos = QtCore.QPointF(0, 0)
+
         self._setup_appearance()
 
     @property
@@ -24,7 +26,11 @@ class Point(QtWidgets.QGraphicsEllipseItem):
         return self.point.y()
 
     def __eq__(self, other):
-        return self.point == other.point
+        if isinstance(other, Point):
+            return self.point == other.point
+        if isinstance(other, QtCore.QPointF):
+            return self.point == other
+        return False
 
     def __str__(self) -> str:
         return f"Point({self.x},{self.y})"
@@ -39,8 +45,16 @@ class Point(QtWidgets.QGraphicsEllipseItem):
     def add_segment(self, segment):
         self.associated_segments.append(segment)
 
+    def change_position(self, vec: QtCore.QPointF):
+        new_pos = self.point + vec
+        new_point = Point(new_pos)
+        for segment in self.associated_segments:
+            segment.notify_point_change(self, new_point)
+        self.relative_pos += vec
+        self.setPos(self.relative_pos)
+        self.point = new_pos
+
     def mousePressEvent(self, event):
-        self.edited_pos = self.point
         return super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -52,4 +66,5 @@ class Point(QtWidgets.QGraphicsEllipseItem):
         return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        self.relative_pos += self.pos()
         return super().mouseReleaseEvent(event)
