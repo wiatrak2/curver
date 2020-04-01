@@ -33,6 +33,9 @@ class Point(QtWidgets.QGraphicsEllipseItem):
     def __str__(self) -> str:
         return f"Point({self.x},{self.y})"
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def _setup_appearance(self):
         point_pen = QtGui.QPen(QtCore.Qt.red)
         point_pen.setWidth(3)
@@ -43,7 +46,11 @@ class Point(QtWidgets.QGraphicsEllipseItem):
     def add_segment(self, segment):
         self.associated_segments.append(segment)
 
-    def change_position(self, vec: QtCore.QPointF):
+    def set_scene_pos(self, point: QtCore.QPointF):
+        pos_change = point - self.point
+        return self.move_by_vector(pos_change)
+
+    def move_by_vector(self, vec: QtCore.QPointF):
         new_pos = self.point + vec
         new_point = Point(new_pos)
         for segment in self.associated_segments:

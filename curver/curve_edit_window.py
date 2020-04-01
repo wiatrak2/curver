@@ -1,10 +1,13 @@
 import math
+import logging
 from enum import Enum
 
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, widgets
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
+
+logger = logging.getLogger(__name__)
 
 class CurveEditWindow(QtWidgets.QMainWindow):
     class _Modes(Enum):
@@ -73,7 +76,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         vec_qt = QtCore.QPointF(vec_x, vec_y)
         for point in self.curve.points:
-            point.change_position(vec_qt)
+            point.move_by_vector(vec_qt)
         self.mode = self.modes.NONE
 
     def _permute_points(self, point: QtCore.QPointF):
@@ -81,14 +84,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         if self._edited_point is None:
             self._edited_point = nearest_point
             return
-        p_1_idx, p_2_idx = self.curve.points.index(nearest_point), self.curve.points.index(self._edited_point)
-        #self.curve.points[p_1_idx].change_position(self._edited_point)
-        #self.curve.points[p_2_idx].change_position(nearest_point)
-        curve_points = [p.point for p in self.curve.points]
-        curve_points[p_1_idx], curve_points[p_2_idx] = curve_points[p_2_idx], curve_points[p_1_idx]
-        self.curve.delete_curve()
-        self.curve.extend_from_points(curve_points)
-        self.curve.manage_edit(allow=True)
+        try:
+            p_1_idx, p_2_idx = self.curve.points.index(nearest_point), self.curve.points.index(self._edited_point)
+            self.curve.points[p_1_idx].set_scene_pos(self._edited_point)
+            self.curve.points[p_2_idx].set_scene_pos(nearest_point)
+        except ValueError as e:
+            logger.warning(f"Failure while permuting points: {self._edited_point} and {nearest_point}. Expetion: {e}")
         self._edited_point = None
         self.mode = self.modes.NONE
 
