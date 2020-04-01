@@ -11,7 +11,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         NONE = 0
         ADD = 1
         EDIT = 2
-        DELETE_POINT = 3
     modes = _Modes
 
     def __init__(self):
@@ -42,8 +41,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.plane.setMouseTracking(True)
         self._connect_actions()
 
-        #self.item = QtWidgets.QGraphicsEllipseItem(10,10,10,10)
-        #self.plane.addItem(self.item)
 
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
         scene = widgets.scene.CurverGraphicsScene(parent=self)
@@ -121,8 +118,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve.manage_edit(allow=allow)
         self.edit_curve_window = CurveEditWindow(curve, parent=self)
         utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
-        #self.edit_curve_window.setGeometry(self.geometry().x()-self.edit_curve_window.width(), self.geometry().y(),self.edit_curve_window.width(), self.edit_curve_window.height())
-        #self.edit_curve_window.mapToGlobal(QtCore.QPoint(10,10))
 
         self.edit_curve_window.show()
         self.edit_curves_list.close()

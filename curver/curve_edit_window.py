@@ -1,5 +1,6 @@
 import math
 import logging
+import numpy as np
 from enum import Enum
 
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
@@ -16,6 +17,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         DELETE_POINT    = 2
         MOVE_BY_VECTOR  = 3
         PERMUTE_POINTS  = 4
+        REVERSE_POINTS  = 5
+        ROTATE_CURVE    = 6
     modes = _Modes
 
     def __init__(self, curve: curves.Curve, parent=None):
@@ -32,6 +35,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _setup_ui(self):
         self.ui.vectorMoveBox.setHidden(True)
+        self.ui.rotateCurveBox.setHidden(True)
+        self.ui.scaleCurveBox.setHidden(True)
 
     def add_point_button(self):
         self.mode = self.modes.ADD_POINT
@@ -43,13 +48,27 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.vectorMoveBox.setHidden(False)
         self.mode = self.modes.MOVE_BY_VECTOR
 
-    def permute_points_button(self):
-        self.mode = self.modes.PERMUTE_POINTS
-
     def move_by_vector_final_button(self):
         if self.mode == self.modes.MOVE_BY_VECTOR:
             self._move_by_vector()
         self.ui.vectorMoveBox.setHidden(True)
+
+    def permute_points_button(self):
+        self.mode = self.modes.PERMUTE_POINTS
+
+    def reverse_points_button(self):
+        self.mode = self.modes.REVERSE_POINTS
+        return self._reverse_curve()
+
+    def rotate_curve_button(self):
+        self.ui.rotateCurveBox.setHidden(False)
+        self.mode = self.modes.ROTATE_CURVE
+
+    def rotate_curve_final_button(self):
+        if self.mode == self.modes.ROTATE_CURVE:
+            print("Entering function")
+            self._rotate_curve()
+        self.ui.rotateCurveBox.setHidden(True)
 
     def _add_point(self, point: QtCore.QPointF):
         self.curve.add_point(point)
@@ -93,6 +112,22 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._edited_point = None
         self.mode = self.modes.NONE
 
+    def _reverse_curve(self):
+        points = [p.point for p in self.curve.points[::-1]]
+        self.curve.delete_curve()
+        self.curve.extend_from_points(points)
+        self.mode = self.modes.NONE
+
+    def _rotate_curve(self):
+        angle = np.radians(float(self.ui.angle.text()))
+        print(angle)
+        for point in self.curve.points:
+            new_x = point.x * np.cos(angle) - point.y * np.sin(angle)
+            new_y = point.x * np.sin(angle) + point.y * np.cos(angle)
+            print(point, new_x, new_y)
+            point.set_scene_pos(QtCore.QPointF(new_x, new_y))
+        self.mode = self.modes.NONE
+
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
             return self._add_point(point)
@@ -102,6 +137,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             return
         if self.mode == self.modes.PERMUTE_POINTS:
             return self._permute_points(point)
+        if self.mode == self.modes.REVERSE_POINTS:
+            return
+        if self.mode == self.modes.ROTATE_CURVE:
+            return
 
     def _set_actions(self):
         self.ui.addPointButton.clicked.connect(self.add_point_button)
@@ -109,3 +148,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.vectorMoveButton.clicked.connect(self.move_by_vector_button)
         self.ui.moveButton.clicked.connect(self.move_by_vector_final_button)
         self.ui.permutePointsButton.clicked.connect(self.permute_points_button)
+        self.ui.reverseCurveButton.clicked.connect(self.reverse_points_button)
+        self.ui.rotateCurveButton.clicked.connect(self.rotate_curve_button)
+        self.ui.rotateButton.clicked.connect(self.rotate_curve_final_button)
