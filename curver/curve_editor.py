@@ -1,8 +1,7 @@
 from enum import Enum
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves
-from curver import widgets
+from curver import curves, widgets, utils
 from curver.ui.main_ui import Ui_MainWindow
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
@@ -81,10 +80,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.edited_curve = curves.Polyline(curve_id, self.plane)  # TODO: allow other curves
         self._set_mode(self.modes.ADD)
 
-        #self.item.setPos(QtCore.QPointF(200,200))
-        #self.plane.update()
-        #self.ui.plane.update()
-
     def add_point_button_action(self):
         x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         point = QtCore.QPointF(x, y)
@@ -116,6 +111,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self._set_mode(self.modes.NONE)
 
     def edit_curve_button_action(self):
+        utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
         self.edit_curves_list.show(self.curves)
 
     def manage_curve_edit(self, curve_id: str, allow=True):
@@ -124,6 +120,10 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve = self.curves[curve_id]
         curve.manage_edit(allow=allow)
         self.edit_curve_window = CurveEditWindow(curve, parent=self)
+        utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
+        #self.edit_curve_window.setGeometry(self.geometry().x()-self.edit_curve_window.width(), self.geometry().y(),self.edit_curve_window.width(), self.edit_curve_window.height())
+        #self.edit_curve_window.mapToGlobal(QtCore.QPoint(10,10))
+
         self.edit_curve_window.show()
         self.edit_curves_list.close()
 
