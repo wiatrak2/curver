@@ -72,16 +72,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def _move_by_vector(self):
         vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         vec_qt = QtCore.QPointF(vec_x, vec_y)
-        new_points = [p.point + vec_qt for p in self.curve.points]
-        self.curve.delete_curve()
-        self.curve.extend_from_points(new_points)
-        self.curve.manage_edit(allow=True)
+        for point in self.curve.points:
+            point.change_position(vec_qt)
         self.mode = self.modes.NONE
-        #vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
-        #vec_qt = QtCore.QPointF(vec_x, vec_y)
-        #for point in self.curve.points:
-        #    point.change_position(vec_qt)
-        #self.mode = self.modes.NONE
 
     def _permute_points(self, point: QtCore.QPointF):
         nearest_point: QtCore.QPointF = self._get_nearest_point(point)
