@@ -36,6 +36,12 @@ class Point(QtWidgets.QGraphicsEllipseItem):
     def __repr__(self) -> str:
         return str(self)
 
+    def __sub__(self, other):
+        return Point(self.point - other.point)
+
+    def __add__(self, other):
+        return Point(self.point + other.point)
+
     def _setup_appearance(self):
         point_pen = QtGui.QPen(QtCore.Qt.red)
         point_pen.setWidth(3)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/curve_edit.ui'
+# Form implementation generated from reading ui file 'curver/ui/curve_edit.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -48,15 +48,16 @@ class Ui_curveEditWindow(object):
         self.rotateCurveButton.setGeometry(QtCore.QRect(10, 250, 121, 32))
         self.rotateCurveButton.setObjectName("rotateCurveButton")
         self.rotateCurveBox = QtWidgets.QGroupBox(curveEditWindow)
-        self.rotateCurveBox.setGeometry(QtCore.QRect(130, 220, 191, 61))
+        self.rotateCurveBox.setGeometry(QtCore.QRect(130, 220, 251, 61))
+        self.rotateCurveBox.setTitle("")
         self.rotateCurveBox.setObjectName("rotateCurveBox")
-        self.angle = QtWidgets.QLineEdit(self.rotateCurveBox)
-        self.angle.setGeometry(QtCore.QRect(30, 30, 41, 31))
-        self.angle.setInputMethodHints(QtCore.Qt.ImhNone)
-        self.angle.setObjectName("angle")
-        self.rotateButton = QtWidgets.QPushButton(self.rotateCurveBox)
-        self.rotateButton.setGeometry(QtCore.QRect(80, 30, 113, 32))
-        self.rotateButton.setObjectName("rotateButton")
+        self.rotateDoneButton = QtWidgets.QPushButton(self.rotateCurveBox)
+        self.rotateDoneButton.setGeometry(QtCore.QRect(160, 30, 71, 32))
+        self.rotateDoneButton.setObjectName("rotateDoneButton")
+        self.rotationSlider = QtWidgets.QSlider(self.rotateCurveBox)
+        self.rotationSlider.setGeometry(QtCore.QRect(0, 30, 160, 22))
+        self.rotationSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.rotationSlider.setObjectName("rotationSlider")
         self.scaleCurveButton = QtWidgets.QPushButton(curveEditWindow)
         self.scaleCurveButton.setGeometry(QtCore.QRect(10, 290, 121, 32))
         self.scaleCurveButton.setObjectName("scaleCurveButton")
@@ -99,8 +100,7 @@ class Ui_curveEditWindow(object):
         self.cancelButton.setText(_translate("curveEditWindow", "Cancel"))
         self.permutePointsButton.setText(_translate("curveEditWindow", "Permute points"))
         self.rotateCurveButton.setText(_translate("curveEditWindow", "Rotate by angle"))
-        self.rotateCurveBox.setTitle(_translate("curveEditWindow", "rotateBox"))
-        self.rotateButton.setText(_translate("curveEditWindow", "Rotate"))
+        self.rotateDoneButton.setText(_translate("curveEditWindow", "Done"))
         self.scaleCurveButton.setText(_translate("curveEditWindow", "Scale"))
         self.deletePointButton.setText(_translate("curveEditWindow", "Delete point"))
         self.addPointButton.setText(_translate("curveEditWindow", "Add point"))

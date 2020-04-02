@@ -1,6 +1,7 @@
 import math
 import logging
 import numpy as np
+from copy import deepcopy
 from enum import Enum
 
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
@@ -62,13 +63,17 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def rotate_curve_button(self):
         self.ui.rotateCurveBox.setHidden(False)
+        self.ui.rotationSlider.valueChanged.connect(
+            self._rotate_curve_slider(
+                    [widgets.point.Point(p.point) for p in self.curve.points]
+                )
+            )
+        self.ui.rotationSlider.setValue(0)
         self.mode = self.modes.ROTATE_CURVE
 
     def rotate_curve_final_button(self):
-        if self.mode == self.modes.ROTATE_CURVE:
-            print("Entering function")
-            self._rotate_curve()
         self.ui.rotateCurveBox.setHidden(True)
+        self.mode = self.modes.NONE
 
     def _add_point(self, point: QtCore.QPointF):
         self.curve.add_point(point)
@@ -118,15 +123,16 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.curve.extend_from_points(points)
         self.mode = self.modes.NONE
 
-    def _rotate_curve(self):
-        angle = np.radians(float(self.ui.angle.text()))
-        print(angle)
-        for point in self.curve.points:
-            new_x = point.x * np.cos(angle) - point.y * np.sin(angle)
-            new_y = point.x * np.sin(angle) + point.y * np.cos(angle)
-            print(point, new_x, new_y)
-            point.set_scene_pos(QtCore.QPointF(new_x, new_y))
-        self.mode = self.modes.NONE
+    def _rotate_curve_slider(self, curve_positions):
+        def _rotate_curve():
+            angle = (2 * np.pi) * self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
+            point_rotate_about = self.curve.points[0]  # TODO: allow rotation over other point
+            for (point, position) in zip(self.curve.points, curve_positions):
+                point_relative_pos = position - point_rotate_about
+                new_x = round(point_relative_pos.x * np.cos(angle) - point_relative_pos.y * np.sin(angle), 2)
+                new_y = round(point_relative_pos.x * np.sin(angle) + point_relative_pos.y * np.cos(angle), 2)
+                point.set_scene_pos(QtCore.QPointF(new_x, new_y) + point_rotate_about.point)
+        return _rotate_curve
 
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
@@ -150,4 +156,4 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.permutePointsButton.clicked.connect(self.permute_points_button)
         self.ui.reverseCurveButton.clicked.connect(self.reverse_points_button)
         self.ui.rotateCurveButton.clicked.connect(self.rotate_curve_button)
-        self.ui.rotateButton.clicked.connect(self.rotate_curve_final_button)
+        self.ui.rotateDoneButton.clicked.connect(self.rotate_curve_final_button)
