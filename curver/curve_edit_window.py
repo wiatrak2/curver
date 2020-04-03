@@ -1,4 +1,4 @@
-import math
+import json
 import logging
 import numpy as np
 from copy import deepcopy
@@ -21,6 +21,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         REVERSE_POINTS  = 5
         ROTATE_CURVE    = 6
         SCALE_CURVE     = 7
+        EXPORT_CURVE    = 8
     modes = _Modes
 
     def __init__(self, curve: curves.Curve, parent=None):
@@ -90,6 +91,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveBox.setHidden(True)
         self.mode = self.modes.NONE
 
+    def export_curve_button(self):
+        self.mode = self.modes.EXPORT_CURVE
+        filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save", "curve.json", ".json")
+        self._save_curve(filename[0])
+
     def _add_point(self, point: QtCore.QPointF):
         self.curve.add_point(point)
         self.curve.manage_edit(allow=True)
@@ -99,7 +105,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         nearest_point = None
         nearest_dist = 1e100
         for p in self.curve.points:
-            dist_square = math.pow(p.x - point.x(), 2) + math.pow(p.y - point.y(), 2)
+            dist_square = np.power(p.x - point.x(), 2) + np.power(p.y - point.y(), 2)
             if dist_square < nearest_dist:
                 nearest_point = p.point
                 nearest_dist = dist_square
@@ -160,6 +166,14 @@ class CurveEditWindow(QtWidgets.QMainWindow):
                 point.set_scene_pos(new_pos.point)
         return _scale_curve
 
+    def _save_curve(self, filename):
+        curve_dict = {
+            "curve_name": self.curve.curve_name,
+            "points": [[p.x, p.y] for p in self.curve.points],
+        }
+        with open(filename, "w") as f:
+            json.dump(curve_dict, f)
+        self.mode = self.modes.NONE
 
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
@@ -186,3 +200,4 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.rotateDoneButton.clicked.connect(self.rotate_curve_final_button)
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
+        self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
