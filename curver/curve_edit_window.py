@@ -20,6 +20,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         PERMUTE_POINTS  = 4
         REVERSE_POINTS  = 5
         ROTATE_CURVE    = 6
+        SCALE_CURVE     = 7
     modes = _Modes
 
     def __init__(self, curve: curves.Curve, parent=None):
@@ -73,6 +74,20 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def rotate_curve_final_button(self):
         self.ui.rotateCurveBox.setHidden(True)
+        self.mode = self.modes.NONE
+
+    def scale_curve_button(self):
+        self.ui.scaleCurveBox.setHidden(False)
+        self.ui.scaleSlider.valueChanged.connect(
+            self._scale_curve_slider(
+                    [widgets.point.Point(p.point) for p in self.curve.points]
+                )
+            )
+        self.ui.scaleSlider.setValue(50)
+        self.mode = self.modes.SCALE_CURVE
+
+    def scale_curve_final_button(self):
+        self.ui.scaleCurveBox.setHidden(True)
         self.mode = self.modes.NONE
 
     def _add_point(self, point: QtCore.QPointF):
@@ -134,6 +149,18 @@ class CurveEditWindow(QtWidgets.QMainWindow):
                 point.set_scene_pos(QtCore.QPointF(new_x, new_y) + point_rotate_about.point)
         return _rotate_curve
 
+    def _scale_curve_slider(self, curve_positions):
+        SCALE_STEP = 0.1
+        def _scale_curve():
+            scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
+            for i, (point, position) in enumerate(zip(self.curve.points[1:], curve_positions[1:])):
+                pos_vec_to_prev = position - curve_positions[i]
+                scaled_vec = pos_vec_to_prev * scale_factor
+                new_pos = self.curve.points[i] + scaled_vec
+                point.set_scene_pos(new_pos.point)
+        return _scale_curve
+
+
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
             return self._add_point(point)
@@ -157,3 +184,5 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.reverseCurveButton.clicked.connect(self.reverse_points_button)
         self.ui.rotateCurveButton.clicked.connect(self.rotate_curve_button)
         self.ui.rotateDoneButton.clicked.connect(self.rotate_curve_final_button)
+        self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
+        self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
