@@ -30,26 +30,45 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.curve = curve
         self._set_actions()
-        self._setup_ui()
 
-        self.mode = self.modes.NONE
+        self._edition_history = []
+        self.mode = self.set_mode(self.modes.NONE)
 
         self._edited_point = None  # Used for points permutation
+        self._initial_curve = deepcopy(self.curve)
+        self._setup_ui()
+
+    def set_mode(self, new_mode):
+        if new_mode == self.modes.NONE:
+            self._edition_history.append(deepcopy(self.curve))
+        elif self.mode != self.modes.NONE:
+            self.curve.set_state(self._edition_history[-1])
+        self.mode = new_mode
+        self._update_ui()
 
     def _setup_ui(self):
-        self.ui.vectorMoveBox.setHidden(True)
-        self.ui.rotateCurveBox.setHidden(True)
-        self.ui.scaleCurveBox.setHidden(True)
+        self.ui.curveName.setText(self.curve.curve_name)
+        self._update_ui()
+
+    def _update_ui(self):
+        self.ui.vectorMoveBox.setVisible(self.mode == self.modes.MOVE_BY_VECTOR)
+        self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
+        self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
+
+    def close(self, *args, **kwargs):
+        self.curve.curve_name = self.ui.curveName.text()
+        self.parent().finish_curve_edit()
+        return super().close(*args, **kwargs)
 
     def add_point_button(self):
-        self.mode = self.modes.ADD_POINT
+        self.set_mode(self.modes.ADD_POINT)
 
     def delete_point_button(self):
-        self.mode = self.modes.DELETE_POINT
+        self.set_mode(self.modes.DELETE_POINT)
 
     def move_by_vector_button(self):
         self.ui.vectorMoveBox.setHidden(False)
-        self.mode = self.modes.MOVE_BY_VECTOR
+        self.set_mode(self.modes.MOVE_BY_VECTOR)
 
     def move_by_vector_final_button(self):
         if self.mode == self.modes.MOVE_BY_VECTOR:
@@ -57,10 +76,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.vectorMoveBox.setHidden(True)
 
     def permute_points_button(self):
-        self.mode = self.modes.PERMUTE_POINTS
+        self.set_mode(self.modes.PERMUTE_POINTS)
 
     def reverse_points_button(self):
-        self.mode = self.modes.REVERSE_POINTS
+        self.set_mode(self.modes.REVERSE_POINTS)
         return self._reverse_curve()
 
     def rotate_curve_button(self):
@@ -71,11 +90,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
                 )
             )
         self.ui.rotationSlider.setValue(0)
-        self.mode = self.modes.ROTATE_CURVE
+        self.set_mode(self.modes.ROTATE_CURVE)
 
     def rotate_curve_final_button(self):
         self.ui.rotateCurveBox.setHidden(True)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def scale_curve_button(self):
         self.ui.scaleCurveBox.setHidden(False)
@@ -85,21 +104,47 @@ class CurveEditWindow(QtWidgets.QMainWindow):
                 )
             )
         self.ui.scaleSlider.setValue(50)
-        self.mode = self.modes.SCALE_CURVE
+        self.set_mode(self.modes.SCALE_CURVE)
 
     def scale_curve_final_button(self):
         self.ui.scaleCurveBox.setHidden(True)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def export_curve_button(self):
-        self.mode = self.modes.EXPORT_CURVE
+        self.set_mode(self.modes.EXPORT_CURVE)
         filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save", "curve.json", ".json")
         self._save_curve(filename[0])
+
+    def undo_button(self):
+        if self.mode == self.modes.NONE:
+            if len(self._edition_history) < 2:
+                return
+            _ = self._edition_history.pop()  # Current state
+            previous_state = self._edition_history.pop()
+            self.curve.set_state(previous_state)
+        elif len(self._edition_history):
+            previous_state = self._edition_history.pop()
+            self.curve.set_state(previous_state)
+        self.set_mode(self.modes.NONE)
+
+        if len(self._edition_history):
+            if self.mode == self.modes.NONE:
+                last_state = self._edition_history.pop()
+            self.curve.set_state(last_state)
+        self.set_mode(self.modes.NONE)
+
+    def cancel_button(self):
+        self.set_mode(self.modes.NONE)
+        self.curve.set_state(self._initial_curve)
+
+    def done_button(self):
+        self.set_mode(self.modes.NONE)
+        self.close()
 
     def _add_point(self, point: QtCore.QPointF):
         self.curve.add_point(point)
         self.curve.manage_edit(allow=True)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def _get_nearest_point(self, point: QtCore.QPointF):
         nearest_point = None
@@ -115,14 +160,14 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         nearest_point = self._get_nearest_point(point)
         self.curve.delete_point(nearest_point)
         self.curve.manage_edit(allow=True)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def _move_by_vector(self):
         vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         vec_qt = QtCore.QPointF(vec_x, vec_y)
         for point in self.curve.points:
             point.move_by_vector(vec_qt)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def _permute_points(self, point: QtCore.QPointF):
         nearest_point: QtCore.QPointF = self._get_nearest_point(point)
@@ -136,13 +181,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         except ValueError as e:
             logger.warning(f"Failure while permuting points: {self._edited_point} and {nearest_point}. Expetion: {e}")
         self._edited_point = None
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def _reverse_curve(self):
         points = [p.point for p in self.curve.points[::-1]]
         self.curve.delete_curve()
         self.curve.extend_from_points(points)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def _rotate_curve_slider(self, curve_positions):
         def _rotate_curve():
@@ -173,7 +218,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         }
         with open(filename, "w") as f:
             json.dump(curve_dict, f)
-        self.mode = self.modes.NONE
+        self.set_mode(self.modes.NONE)
 
     def mouse_click_action(self, point: QtCore.QPointF):
         if self.mode == self.modes.ADD_POINT:
@@ -201,3 +246,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
         self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
+        self.ui.undoButton.clicked.connect(self.undo_button)
+        self.ui.cancelButton.clicked.connect(self.cancel_button)
+        self.ui.doneButton.clicked.connect(self.done_button)

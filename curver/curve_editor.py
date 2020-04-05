@@ -100,7 +100,7 @@ class CurveEditor(QtWidgets.QMainWindow):
             msg_box.exec_()
             return
 
-        self.edited_curve.name = curve_name
+        self.edited_curve.curve_name = curve_name
         self.curves[curve_name] = self.edited_curve
         self.edited_curve = None
 
@@ -108,19 +108,39 @@ class CurveEditor(QtWidgets.QMainWindow):
         self._set_mode(self.modes.NONE)
 
     def edit_curve_button_action(self):
-        utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
+        #utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
         self.edit_curves_list.show(self.curves)
 
     def manage_curve_edit(self, curve_id: str, allow=True):
         self._set_mode(self.modes.EDIT)
 
-        curve = self.curves[curve_id]
-        curve.manage_edit(allow=allow)
-        self.edit_curve_window = CurveEditWindow(curve, parent=self)
+        self.edited_curve = self.curves.pop(curve_id)
+        self.edited_curve.manage_edit(allow=allow)
+        self.edit_curve_window = CurveEditWindow(self.edited_curve, parent=self)
         utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
 
         self.edit_curve_window.show()
         self.edit_curves_list.close()
+
+    def finish_curve_edit(self):
+        self.curves[self.edited_curve.curve_name] = self.edited_curve
+        self._set_mode(self.modes.NONE)
+        self.edited_curve.manage_edit(allow=False)
+        self.edited_curve = None
+
+    def _handle_curve_name(self, curve):
+        new_name = curve.curve_name
+        old_name = self.edited_curve.curve_name
+        if new_name != old_name and new_name in self.curves:
+            msg_box = QtWidgets.QMessageBox(self)
+            msg_box.setText(
+                            (f"Curve named as {new_name} already exists.\n")
+                            (f"Changing curve name to the previous one {old_name}).")
+                        )
+            msg_box.exec_()
+            curve.curve_name = old_name
+        self.curves.pop(old_name)
+        self.curves[new_name] = curve
 
     def delete_curve(self, curve_id: str):
         curve = self.curves.pop(curve_id)

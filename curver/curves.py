@@ -12,6 +12,9 @@ class Curve:
         self.points: [widgets.point.Point] = []
         self.segments: [widgets.line.Line] = []
 
+    def set_state(self, other):
+        raise NotImplementedError
+
     def add_point(self, point: QtCore.QPointF):
         raise NotImplementedError
 
@@ -25,6 +28,12 @@ class Polyline(Curve):
     type = "Polyline"
     def __init__(self, curve_name: str, scene: QtWidgets.QGraphicsScene):
         super().__init__(curve_name, scene)
+
+    def set_state(self, other):
+        self.delete_curve()
+        points = [p.point for p in other.points]
+        self.extend_from_points(points)
+        self.curve_name = other.curve_name
 
     def add_point(self, point: QtCore.QPointF):
         new_point = widgets.point.Point(point)
