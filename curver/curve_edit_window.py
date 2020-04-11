@@ -34,16 +34,16 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._set_actions()
 
         self._edition_history = []
-        self.mode = self.set_mode(self.modes.NONE)
+        self.mode = self.modes.NONE
 
         self._edited_point = None  # Used for points permutation
         self._initial_curve = deepcopy(self.curve)
         self._setup_ui()
 
     def set_mode(self, new_mode):
-        if new_mode == self.modes.NONE:
+        if self.mode == self.modes.NONE or new_mode == self.modes.NONE:
             self._edition_history.append(deepcopy(self.curve))
-        elif self.mode != self.modes.NONE:
+        else:
             self.curve.set_state(self._edition_history[-1])
         self.mode = new_mode
         self._update_ui()
@@ -58,10 +58,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
 
-    def close(self, *args, **kwargs):
+    def _finish_edit(self):
         self.curve.curve_name = self.ui.curveName.text()
         self.parent().finish_curve_edit()
-        return super().close(*args, **kwargs)
+
+    def closeEvent(self, e):
+        self._finish_edit()
+        return super().closeEvent(e)
 
     def notify_scene_pos(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
@@ -125,14 +128,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._save_curve(filename[0])
 
     def undo_button(self):
-        if self.mode == self.modes.NONE:
-            if len(self._edition_history) < 2:
-                return
-            _ = self._edition_history.pop()  # Current state
+        if self.mode == self.modes.NONE and len(self._edition_history) > 1:
+            _ = self._edition_history.pop()  # previous state
             previous_state = self._edition_history.pop()
             self.curve.set_state(previous_state)
         elif len(self._edition_history):
-            previous_state = self._edition_history.pop()
+            previous_state = self._edition_history[-1]
             self.curve.set_state(previous_state)
         self.set_mode(self.modes.NONE)
 
@@ -148,6 +149,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def done_button(self):
         self.set_mode(self.modes.NONE)
+        self._finish_edit()
         self.close()
 
     def _add_point(self, point: QtCore.QPointF):

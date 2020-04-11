@@ -42,6 +42,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def _setup_editor_ui(self):
         self.ui.addPointBox.setHidden(True)
+        self.ui.setCurveType.addItems(curves.types.keys())
         canvas = self._create_canvas()
         self.ui.plane.setScene(canvas)
         self.ui.plane.scale(1, -1)
@@ -80,9 +81,10 @@ class CurveEditor(QtWidgets.QMainWindow):
     def add_curve_button_action(self):
         self.ui.addPointBox.setHidden(False)
         curve_type = self.ui.setCurveType.currentText()
+        curve_cls = curves.types[curve_type]
         curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
         self.ui.curveName.setText(curve_id)
-        self.edited_curve = curves.Polyline(curve_id, self.plane)  # TODO: allow other curves
+        self.edited_curve = curve_cls(curve_id, self.plane)
         self._set_mode(self.modes.ADD)
 
     def add_point_button_action(self):

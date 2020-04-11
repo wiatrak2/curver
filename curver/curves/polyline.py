@@ -3,7 +3,7 @@ from copy import deepcopy
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import widgets
-from curver.curves.curve import Curve
+from curver.curves import Curve
 
 class Polyline(Curve):
     type = "Polyline"

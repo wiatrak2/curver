@@ -13,6 +13,12 @@ class Line(Segment):
         self.segment = QtCore.QLineF(self.point_1.point, self.point_2.point)
         super().__init__(self.segment, *args, **kwargs)
 
+    def __str__(self) -> str:
+        return f"Line({self.point_1}, {self.point_2})"
+
+    def __repr__(self) -> str:
+        return str(self)
+
     def __deepcopy__(self, memo):
         new_line = Line(self.point_1, self.point_2)
         return new_line

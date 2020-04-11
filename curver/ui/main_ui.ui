@@ -46,7 +46,7 @@
       <x>30</x>
       <y>130</y>
       <width>131</width>
-      <height>301</height>
+      <height>281</height>
      </rect>
     </property>
     <property name="title">
@@ -143,21 +143,6 @@
       <string>Cancel</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="setCurveType">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>104</width>
-       <height>26</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>Polyline</string>
-      </property>
-     </item>
-    </widget>
    </widget>
    <widget class="QPushButton" name="editCurveButton">
     <property name="geometry">
@@ -170,6 +155,16 @@
     </property>
     <property name="text">
      <string>Edit Curve</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="setCurveType">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>60</y>
+      <width>104</width>
+      <height>26</height>
+     </rect>
     </property>
    </widget>
   </widget>
