@@ -1,10 +1,17 @@
+import json
+import logging
 from enum import Enum
+
+import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, widgets, utils
 from curver.ui.main_ui import Ui_MainWindow
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
+
+daiquiri.setup(level=logging.INFO)
+logger = daiquiri.getLogger(__name__)
 
 class CurveEditor(QtWidgets.QMainWindow):
     class _Modes(Enum):
@@ -57,6 +64,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.cancelAddCurveButton.clicked.connect(self.cancel_add_curve_button_action)
         self.ui.saveCurveButton.clicked.connect(self.save_curve_button_action)
         self.ui.editCurveButton.clicked.connect(self.edit_curve_button_action)
+        self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
 
     def _set_mode(self, mode):
         self.mode = mode
@@ -111,6 +119,27 @@ class CurveEditor(QtWidgets.QMainWindow):
         utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
         self.edit_curves_list.show(self.curves)
 
+    def import_curve_action(self):
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, "Import curve", filter="*.json")
+        self._import_curve(filename[0])
+
+    def _import_curve(self, filename):
+        logger.info(f"Importing curve from {filename}.")
+        try:
+            with open(filename, "r") as f:
+                curve_info = json.load(f)
+        except:
+            logger.warning(f"Could not load curve from {filename}.")
+            return
+        curve_cls = curves.types[curve_info.get("type", curves.Curve)]
+        curve_name = curve_info.get("curve_name", "")
+        curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
+        curve = curve_cls(curve_name, self.plane)
+        curve.extend_from_points(curve_points)
+        self.curves[curve_name] = curve
+        logger.info(f"Curve {curve_name} of type {curve.type} with {len(curve_points)} points defined successfully imported.")
+        self._set_mode(self.modes.NONE)
+
     def manage_curve_edit(self, curve_id: str, allow=True):
         self._set_mode(self.modes.EDIT)
 
@@ -127,20 +156,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         self._set_mode(self.modes.NONE)
         self.edited_curve.manage_edit(allow=False)
         self.edited_curve = None
-
-    def _handle_curve_name(self, curve):
-        new_name = curve.curve_name
-        old_name = self.edited_curve.curve_name
-        if new_name != old_name and new_name in self.curves:
-            msg_box = QtWidgets.QMessageBox(self)
-            msg_box.setText(
-                            (f"Curve named as {new_name} already exists.\n")
-                            (f"Changing curve name to the previous one {old_name}).")
-                        )
-            msg_box.exec_()
-            curve.curve_name = old_name
-        self.curves.pop(old_name)
-        self.curves[new_name] = curve
 
     def delete_curve(self, curve_id: str):
         curve = self.curves.pop(curve_id)

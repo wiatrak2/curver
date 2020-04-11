@@ -4,12 +4,14 @@ import numpy as np
 from copy import deepcopy
 from enum import Enum
 
+import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, widgets
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
 
-logger = logging.getLogger(__name__)
+daiquiri.setup(level=logging.INFO)
+logger = daiquiri.getLogger(__name__)
 
 class CurveEditWindow(QtWidgets.QMainWindow):
     class _Modes(Enum):
@@ -227,6 +229,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _save_curve(self, filename):
         curve_dict = {
+            "type": self.curve.type,
             "curve_name": self.curve.curve_name,
             "points": [[p.x, p.y] for p in self.curve.points],
         }
