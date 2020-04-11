@@ -108,7 +108,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self._set_mode(self.modes.NONE)
 
     def edit_curve_button_action(self):
-        #utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
+        utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
         self.edit_curves_list.show(self.curves)
 
     def manage_curve_edit(self, curve_id: str, allow=True):
@@ -156,6 +156,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.xPos.setText(str(int(x)))
         self.ui.yPos.setText(str(int(y)))
 
+    def _edit_curve_scene_move_action(self, point: QtCore.QPointF):
+        self.edit_curve_window.notify_scene_pos(point)
+
     def _edit_curve_scene_click_action(self, point: QtCore.QPointF):
         return self.edit_curve_window.mouse_click_action(point)
 
@@ -164,6 +167,8 @@ class CurveEditor(QtWidgets.QMainWindow):
             return
         if self.mode == self.modes.ADD:
             return self._add_curve_scene_move_action(point)
+        if self.mode == self.modes.EDIT:
+            return self._edit_curve_scene_move_action(point)
 
     def notify_scene_click(self, point: QtCore.QPointF):
         if self.mode == self.modes.NONE:

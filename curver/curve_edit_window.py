@@ -51,6 +51,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._update_ui()
 
     def _update_ui(self):
+        self.ui.addPointBox.setVisible(self.mode == self.modes.ADD_POINT)
         self.ui.vectorMoveBox.setVisible(self.mode == self.modes.MOVE_BY_VECTOR)
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
@@ -60,8 +61,18 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.parent().finish_curve_edit()
         return super().close(*args, **kwargs)
 
+    def notify_scene_pos(self, point: QtCore.QPointF):
+        x, y = point.x(), point.y()
+        if self.mode == self.modes.ADD_POINT:
+            self.ui.addXPos.setText(str(int(x)))
+            self.ui.addYPos.setText(str(int(y)))
+
     def add_point_button(self):
         self.set_mode(self.modes.ADD_POINT)
+
+    def add_point_final_button(self):
+        if self.mode == self.modes.ADD_POINT:
+            self._add_from_coordinates()
 
     def delete_point_button(self):
         self.set_mode(self.modes.DELETE_POINT)
@@ -73,7 +84,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def move_by_vector_final_button(self):
         if self.mode == self.modes.MOVE_BY_VECTOR:
             self._move_by_vector()
-        self.ui.vectorMoveBox.setHidden(True)
 
     def permute_points_button(self):
         self.set_mode(self.modes.PERMUTE_POINTS)
@@ -83,7 +93,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         return self._reverse_curve()
 
     def rotate_curve_button(self):
-        self.ui.rotateCurveBox.setHidden(False)
         self.ui.rotationSlider.valueChanged.connect(
             self._rotate_curve_slider(
                     [widgets.point.Point(p.point) for p in self.curve.points]
@@ -97,7 +106,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.NONE)
 
     def scale_curve_button(self):
-        self.ui.scaleCurveBox.setHidden(False)
         self.ui.scaleSlider.valueChanged.connect(
             self._scale_curve_slider(
                     [widgets.point.Point(p.point) for p in self.curve.points]
@@ -107,7 +115,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.SCALE_CURVE)
 
     def scale_curve_final_button(self):
-        self.ui.scaleCurveBox.setHidden(True)
         self.set_mode(self.modes.NONE)
 
     def export_curve_button(self):
@@ -142,6 +149,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _add_point(self, point: QtCore.QPointF):
+        self.curve.add_point(point)
+        self.curve.manage_edit(allow=True)
+        self.set_mode(self.modes.NONE)
+
+    def _add_from_coordinates(self):
+        x, y = float(self.ui.addXPos.text()), float(self.ui.addYPos.text())
+        point = QtCore.QPointF(x, y)
         self.curve.add_point(point)
         self.curve.manage_edit(allow=True)
         self.set_mode(self.modes.NONE)
@@ -236,6 +250,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _set_actions(self):
         self.ui.addPointButton.clicked.connect(self.add_point_button)
+        self.ui.addButton.clicked.connect(self.add_point_final_button)
         self.ui.deletePointButton.clicked.connect(self.delete_point_button)
         self.ui.vectorMoveButton.clicked.connect(self.move_by_vector_button)
         self.ui.moveButton.clicked.connect(self.move_by_vector_final_button)
