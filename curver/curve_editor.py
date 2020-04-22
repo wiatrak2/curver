@@ -9,6 +9,7 @@ from curver import curves, widgets, utils
 from curver.ui.main_ui import Ui_MainWindow
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
+from copy import deepcopy
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -137,7 +138,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_name = curve_info.get("curve_name", "")
         curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
         curve = curve_cls(curve_name, self.plane)
-        curve.extend_from_points(curve_points)
+        curve.create_from_points(curve_points)
         self.curves[curve_name] = curve
         logger.info(f"Curve {curve_name} of type {curve.type} with {len(curve_points)} points defined successfully imported.")
         self._set_mode(self.modes.NONE)
