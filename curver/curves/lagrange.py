@@ -13,13 +13,15 @@ logger = daiquiri.getLogger(__name__)
 
 class Lagrange(Curve):
     type = "Lagrange"
-    def __init__(self, curve_name: str, scene: QtWidgets.QGraphicsScene):
-        super().__init__(curve_name, scene)
+    def __init__(self, curve_name: str):
+        super().__init__(curve_name)
         self.curve_name = curve_name
-        self.scene = scene
 
         self.points: [widgets.point.Point] = []
         self.segments: [widgets.InterpolationCurve] = []
+
+        self._rotation_angle = 0.
+        self._scale_factor = 1.
 
     @property
     def _w(self):
@@ -29,9 +31,7 @@ class Lagrange(Curve):
         return np.power(np.prod(denoms, axis=1), -1)
 
     def _remove_segments(self):
-        while len(self.segments):
-            segment = self.segments.pop()
-            self.scene.removeItem(segment)
+        self.segments = []
 
     def interpolate(self, x):
         xs = np.array([p.x for p in self.points])
@@ -40,16 +40,24 @@ class Lagrange(Curve):
         denom = np.sum(self._w / (x - xs))
         return enom / denom
 
+    def set_mode(self, mode):
+        if mode == self.modes.NONE and self.mode != self.modes.NONE:
+            self.rotate_curve(self._rotation_angle, overwrite_angle=False)
+            self.scale_curve(self._scale_factor, overwrite_factor=False)
+        elif mode != self.modes.NONE:
+            self.rotate_curve(0, overwrite_angle=False)
+            self.scale_curve(1, overwrite_factor=False)
+        self.mode = mode
+
     def set_state(self, other):
         self.delete_curve()
         points = [p.point for p in other.points]
-        self.extend_from_points(points)
+        self._create_from_points(points)
         self.curve_name = other.curve_name
 
     def add_point(self, point: QtCore.QPointF):
         new_point = widgets.point.Point(point)
         new_point.add_segment(self)
-        self.scene.addItem(new_point)
         self.points.append(new_point)
         if len(self.points) > 1:
             self._remove_segments()
@@ -65,7 +73,6 @@ class Lagrange(Curve):
         for i, point in enumerate(self.points[1:]):
             prev_point = self.points[i]
             curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self.interpolate)
-            self.scene.addItem(curve_segment)
             self.segments.append(curve_segment)
 
     def _create_from_points(self, points: [QtCore.QPointF]):
@@ -74,7 +81,6 @@ class Lagrange(Curve):
         self.points = [widgets.point.Point(p) for p in points]
         logger.info(f"Creating curve from points: {self.points}.")
         for p in self.points:
-            self.scene.addItem(p)
             p.add_segment(self)
         self._create_segments()
 
@@ -86,45 +92,34 @@ class Lagrange(Curve):
             points = [p.point for p in points_copy]
             self._create_from_points(points)
 
+    def rotate_curve(self, angle: float, overwrite_angle=True, *args, **kwargs):
+        if overwrite_angle:
+            print(angle)
+            self._rotation_angle = angle
+        angle = 360 * angle
+        for item in self.segments + self.points:
+            item.setTransformOriginPoint(self.points[0].point)
+            item.setRotation(angle)
+
+    def scale_curve(self, scale_factor: float, overwrite_factor=True, *args, **kwargs):
+        if overwrite_factor:
+            self._scale_factor = scale_factor
+        for item in self.segments + self.points:
+            item.setTransformOriginPoint(self.points[0].point)
+            item.setScale(scale_factor)
+
     def delete_curve(self):
         while len(self.points):
             point = self.points.pop()
             logger.info(f"Removing point {point}")
-            self.scene.removeItem(point)
         while len(self.segments):
             segment = self.segments.pop()
             logger.info(f"Removing segment {segment}")
-            self.scene.removeItem(segment)
 
-    def _get_nearest_point(self, point: widgets.point.Point):
-        nearest_point = None
-        nearest_point_idx = None
-        nearest_dist = 1e100
-        for i, p in enumerate(self.points):
-            dist_square = np.power(p.x - point.x, 2) + np.power(p.y - point.y, 2)
-            if dist_square < nearest_dist:
-                nearest_point = p
-                nearest_point_idx = i
-                nearest_dist = dist_square
-        return nearest_point, nearest_point_idx
-
-    def notify_point_change(self, old_point: widgets.point.Point, new_point: widgets.point.Point):
-        #_, point_idx = self._get_nearest_point(old_point)
-        #self.points[point_idx].point = new_point.point
+    def notify_point_change(self, *args, **kwargs):
         self._remove_segments()
         self._create_segments()
-        return
 
-        points = [p.point for p in self.points]
-        points[point_idx] = new_point.point
-        self.delete_curve()
-        self._create_from_points(points)
-        self.manage_edit()
-        return
-
-
-        _, point_idx = self._get_nearest_point(old_point)
-        self.points[point_idx] = new_point
-        points = [p.point for p in self.points]
-        self.delete_curve()
-        self.extend_from_points(points)
+    def display(self, scene: QtWidgets.QGraphicsScene):
+        for item in self.points + self.segments:
+            scene.addItem(item)

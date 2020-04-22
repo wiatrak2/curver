@@ -7,24 +7,14 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, widgets
+from curver import curves, widgets, utils
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
 class CurveEditWindow(QtWidgets.QMainWindow):
-    class _Modes(Enum):
-        NONE            = 0
-        ADD_POINT       = 1
-        DELETE_POINT    = 2
-        MOVE_BY_VECTOR  = 3
-        PERMUTE_POINTS  = 4
-        REVERSE_POINTS  = 5
-        ROTATE_CURVE    = 6
-        SCALE_CURVE     = 7
-        EXPORT_CURVE    = 8
-    modes = _Modes
+    modes = utils.CurveModes
 
     def __init__(self, curve: curves.Curve, parent=None):
         super().__init__(parent)
@@ -46,6 +36,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         else:
             self.curve.set_state(self._edition_history[-1])
         self.mode = new_mode
+        self.curve.set_mode(new_mode)
         self._update_ui()
 
     def _setup_ui(self):
@@ -149,7 +140,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def done_button(self):
         self.set_mode(self.modes.NONE)
-        self._finish_edit()
         self.close()
 
     def _add_point(self, point: QtCore.QPointF):
@@ -209,24 +199,15 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _rotate_curve_slider(self, curve_positions):
         def _rotate_curve():
-            angle = (2 * np.pi) * self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
-            point_rotate_about = self.curve.points[0]  # TODO: allow rotation over other point
-            for (point, position) in zip(self.curve.points, curve_positions):
-                point_relative_pos = position - point_rotate_about
-                new_x = round(point_relative_pos.x * np.cos(angle) - point_relative_pos.y * np.sin(angle), 2)
-                new_y = round(point_relative_pos.x * np.sin(angle) + point_relative_pos.y * np.cos(angle), 2)
-                point.set_scene_pos(QtCore.QPointF(new_x, new_y) + point_rotate_about.point)
+            angle = self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
+            self.curve.rotate_curve(angle, curve_positions)
         return _rotate_curve
 
     def _scale_curve_slider(self, curve_positions):
         SCALE_STEP = 0.1
         def _scale_curve():
             scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
-            for i, (point, position) in enumerate(zip(self.curve.points[1:], curve_positions[1:])):
-                pos_vec_to_prev = position - curve_positions[i]
-                scaled_vec = pos_vec_to_prev * scale_factor
-                new_pos = self.curve.points[i] + scaled_vec
-                point.set_scene_pos(new_pos.point)
+            self.curve.scale_curve(scale_factor, curve_positions)
         return _scale_curve
 
     def _save_curve(self, filename):

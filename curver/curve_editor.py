@@ -9,6 +9,7 @@ from curver import curves, widgets, utils
 from curver.ui.main_ui import Ui_MainWindow
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
+from copy import deepcopy
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -84,7 +85,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_cls = curves.types[curve_type]
         curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
         self.ui.curveName.setText(curve_id)
-        self.edited_curve = curve_cls(curve_id, self.plane)
+        self.edited_curve = curve_cls(curve_id)
         self._set_mode(self.modes.ADD)
 
     def add_point_button_action(self):
@@ -167,6 +168,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
         self.edited_curve.add_point(point)
+        self.edited_curve.display(self.plane)
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
