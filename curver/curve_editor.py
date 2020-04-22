@@ -35,6 +35,8 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.edit_curves_list = CurvesListWindow(self)
         self.edit_curve_window = None
 
+        self.curve_items = {}
+
     @property
     def plane(self) -> widgets.scene.CurverGraphicsScene:
         return self.ui.plane.scene()
@@ -168,7 +170,11 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
         self.edited_curve.add_point(point)
-        self.edited_curve.display(self.plane)
+        segments = self.edited_curve.get_items()
+        if self.edited_curve.curve_name in self.curve_items:
+            self.plane.destroyItemGroup(self.curve_items[self.edited_curve.curve_name])
+        self.curve_items[self.edited_curve.curve_name] = self.plane.createItemGroup(segments)
+
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()

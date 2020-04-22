@@ -10,8 +10,7 @@ class Curve:
 
         self.mode = self.modes.NONE
 
-        self.points: [widgets.point.Point] = []
-        self.segments: [widgets.line.Line] = []
+        self.points: [QtCore.QPointF] = []
 
     def set_mode(self, mode):
         raise NotImplementedError
@@ -34,5 +33,5 @@ class Curve:
     def delete_curve(self):
         raise NotImplementedError
 
-    def display(self, scene: QtWidgets.QGraphicsScene):
+    def get_items(self) -> [QtWidgets.QGraphicsItem]:
         raise NotImplementedError

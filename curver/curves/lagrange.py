@@ -121,5 +121,6 @@ class Lagrange(Curve):
         self._create_segments()
 
     def display(self, scene: QtWidgets.QGraphicsScene):
+        self._create_segments()
         for item in self.points + self.segments:
             scene.addItem(item)

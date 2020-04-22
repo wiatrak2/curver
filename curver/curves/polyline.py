@@ -21,6 +21,9 @@ class Polyline(Curve):
         self.curve_name = other.curve_name
 
     def add_point(self, point: QtCore.QPointF):
+        self.points.append(point)
+        return
+
         new_point = widgets.point.Point(point)
         if len(self.points):
             last_point = self.points[-1]
@@ -31,6 +34,7 @@ class Polyline(Curve):
         self.points.append(new_point)
 
     def manage_edit(self, allow=True):
+        return
         for point in self.points:
             point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
             point.setFlag(QtWidgets.QGraphicsLineItem.ItemSendsGeometryChanges, allow)
@@ -70,6 +74,25 @@ class Polyline(Curve):
         while len(self.segments):
             segment = self.segments.pop()
 
-    def display(self, scene: QtWidgets.QGraphicsScene):
-        for item in self.points + self.segments:
-            scene.addItem(item)
+    def _get_nearest_point(self, point: QtCore.QPointF):
+        nearest_point = None
+        nearest_dist = 1e100
+        for p in self.points:
+            dist_square = np.power(p.x() - point.x, 2) + np.power(p.y() - point.y, 2)
+            if dist_square < nearest_dist:
+                nearest_point = p
+                nearest_dist = dist_square
+        return nearest_point
+
+    def notify_point_change(self, old_point, new_point):
+        point = self._get_nearest_point(old_point)
+        self.points[self.points.index(point)] = new_point.point
+
+    def get_items(self) -> [QtWidgets.QGraphicsItem]:
+        points = [widgets.point.Point(p) for p in self.points]
+        for point in points:
+            point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, True)
+            point.edit_mode = True
+            point.add_segment(self)
+        lines = [widgets.line.Line(points[i], points[i+1]) for i in range(len(points)-1)]
+        return points + lines
