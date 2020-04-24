@@ -100,7 +100,6 @@ class Lagrange(Curve):
 
     def rotate_curve(self, angle: float, overwrite_angle=True, *args, **kwargs):
         if overwrite_angle:
-            print(angle)
             self._rotation_angle = angle
         angle = 360 * angle
         for item in self.segments + self.points:
