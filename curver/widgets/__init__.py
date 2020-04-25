@@ -1,3 +1,4 @@
+from curver.widgets.item import Item
 import curver.widgets.line
 import curver.widgets.point
 import curver.widgets.scene

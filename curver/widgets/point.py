@@ -2,9 +2,10 @@ from copy import deepcopy
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
+from curver.widgets import Item
 from widgets.segment import Segment
 
-class Point(QtWidgets.QGraphicsEllipseItem):
+class Point(QtWidgets.QGraphicsEllipseItem, Item):
     SIZE = 4
     def __init__(self, point: QtCore.QPointF, *args, **kwargs):
         self.point = point
@@ -12,7 +13,6 @@ class Point(QtWidgets.QGraphicsEllipseItem):
         size_offset = self.SIZE / 2
         super().__init__(x - size_offset, y - size_offset, self.SIZE, self.SIZE, *args, **kwargs)
 
-        self.associated_segments: [Segment] = []
         self.edit_mode = False
 
         self._setup_appearance()
@@ -31,6 +31,9 @@ class Point(QtWidgets.QGraphicsEllipseItem):
         if isinstance(other, QtCore.QPointF):
             return self.point == other
         return False
+
+    def __hash__(self):
+        return hash((self.x, self.y))
 
     def __str__(self) -> str:
         return f"Point({self.x},{self.y})"
@@ -60,9 +63,6 @@ class Point(QtWidgets.QGraphicsEllipseItem):
         self.setPen(point_pen)
         self.setBrush(point_brush)
 
-    def add_segment(self, segment):
-        self.associated_segments.append(segment)
-
     def set_scene_pos(self, point: QtCore.QPointF):
         pos_change = point - self.point
         return self.move_by_vector(pos_change)
@@ -81,8 +81,8 @@ class Point(QtWidgets.QGraphicsEllipseItem):
     def mouseMoveEvent(self, event):
         if self.edit_mode:
             new_pos = Point(event.scenePos())
-            for segment in self.associated_segments:
-                segment.notify_point_change(new_pos, new_pos)
+            for controller in self.controllers:
+                controller.notify_point_change(self, new_pos)
             self.point = new_pos.point
         return super().mouseMoveEvent(event)
 

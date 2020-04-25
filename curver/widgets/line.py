@@ -13,6 +13,9 @@ class Line(Segment):
         self.segment = QtCore.QLineF(self.point_1.point, self.point_2.point)
         super().__init__(self.segment, *args, **kwargs)
 
+    def __hash__(self):
+        return hash((self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y))
+
     def __str__(self) -> str:
         return f"Line({self.point_1}, {self.point_2})"
 

@@ -143,8 +143,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _add_point(self, point: QtCore.QPointF):
-        self.curve.add_point(point)
-        self.curve.manage_edit(allow=True)
+        self.parent().add_point(point)
         self.set_mode(self.modes.NONE)
 
     def _add_from_coordinates(self):

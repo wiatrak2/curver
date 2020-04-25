@@ -19,7 +19,7 @@ class CurvesListWindow(QtWidgets.QMainWindow):
     def edit(self):
         selected_curve_item = self.ui.curvesList.currentItem()
         curve_name = selected_curve_item.text()
-        self.parent().manage_curve_edit(curve_name, allow=True)
+        self.parent().manage_curve_edit(curve_name)
 
     def delete(self):
         selected_curve_item = self.ui.curvesList.currentItem()

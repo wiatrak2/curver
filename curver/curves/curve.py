@@ -12,6 +12,10 @@ class Curve:
 
         self.points: [QtCore.QPointF] = []
 
+    @property
+    def id(self) -> str:
+        return self.curve_name
+
     def set_mode(self, mode):
         raise NotImplementedError
 

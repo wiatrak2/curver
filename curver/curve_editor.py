@@ -38,7 +38,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.curve_items = {}
 
     @property
-    def plane(self) -> widgets.scene.CurverGraphicsScene:
+    def scene(self) -> widgets.scene.CurverGraphicsScene:
         return self.ui.plane.scene()
 
     # Setup methods
@@ -73,11 +73,18 @@ class CurveEditor(QtWidgets.QMainWindow):
     def _set_mode(self, mode):
         self.mode = mode
         if self.mode == self.modes.NONE:
-            self.plane.notify_click = False
-            self.plane.notify_position = False
+            self.scene.notify_click = False
+            self.scene.notify_position = False
         elif self.mode == self.modes.ADD or self.mode == self.modes.EDIT:
-            self.plane.notify_click = True
-            self.plane.notify_position = True
+            self.scene.notify_click = True
+            self.scene.notify_position = True
+
+    # Controller functions:
+
+    def add_point(self, point: QtCore.QPointF):
+        self.edited_curve.add_point(point)
+        self._draw_curve(self.edited_curve)
+        self._set_curve_points_moveability(self.edited_curve.id, allow=self.mode == self.modes.EDIT)
 
     # Button actions
 
@@ -116,7 +123,6 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.edited_curve.curve_name = curve_name
         self.curves[curve_name] = self.edited_curve
         self.edited_curve = None
-
         self.ui.addPointBox.setHidden(True)
         self._set_mode(self.modes.NONE)
 
@@ -139,17 +145,23 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_cls = curves.types[curve_info.get("type", curves.Curve)]
         curve_name = curve_info.get("curve_name", "")
         curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
-        curve = curve_cls(curve_name, self.plane)
+        curve = curve_cls(curve_name, self.scene)
         curve.extend_from_points(curve_points)
         self.curves[curve_name] = curve
         logger.info(f"Curve {curve_name} of type {curve.type} with {len(curve_points)} points defined successfully imported.")
         self._set_mode(self.modes.NONE)
 
-    def manage_curve_edit(self, curve_id: str, allow=True):
+    def _set_curve_points_moveability(self, curve_id: str, allow=True):
+        curve_points, _ = self.curve_items[curve_id]
+        for point in curve_points:
+            point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
+            point.edit_mode = allow
+
+    def manage_curve_edit(self, curve_id: str):
         self._set_mode(self.modes.EDIT)
 
+        self._set_curve_points_moveability(curve_id, allow=True)
         self.edited_curve = self.curves.pop(curve_id)
-        self.edited_curve.manage_edit(allow=allow)
         self.edit_curve_window = CurveEditWindow(self.edited_curve, parent=self)
         utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
 
@@ -157,7 +169,8 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.edit_curves_list.close()
 
     def finish_curve_edit(self):
-        self.curves[self.edited_curve.curve_name] = self.edited_curve
+        self.curves[self.edited_curve.id] = self.edited_curve
+        self._set_curve_points_moveability(self.edited_curve.id, allow=False)
         self._set_mode(self.modes.NONE)
         self.edited_curve.manage_edit(allow=False)
         self.edited_curve = None
@@ -166,15 +179,25 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve = self.curves.pop(curve_id)
         curve.delete_curve()
 
+    def _draw_curve(self, curve, draw_points=True):
+        points, segments = curve.get_items()
+        items = points + segments if draw_points else segments
+        for item in items:
+            item.add_controller(self)
+            self.scene.addItem(item)
+
+        if curve.id in self.curve_items:
+            curve_points, curve_segments = self.curve_items.pop(curve.id)
+            curve_rm_items = curve_points + curve_segments if draw_points else curve_segments
+            for item in curve_rm_items:
+                self.scene.removeItem(item)
+        self.curve_items[curve.id] = points, segments
+
     # Notifications from scene handling
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
         self.edited_curve.add_point(point)
-        segments = self.edited_curve.get_items()
-        if self.edited_curve.curve_name in self.curve_items:
-            self.plane.destroyItemGroup(self.curve_items[self.edited_curve.curve_name])
-        self.curve_items[self.edited_curve.curve_name] = self.plane.createItemGroup(segments)
-
+        self._draw_curve(self.edited_curve)
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
@@ -202,3 +225,10 @@ class CurveEditor(QtWidgets.QMainWindow):
             return self._add_curve_scene_click_action(point)
         if self.mode == self.modes.EDIT:
             return self._edit_curve_scene_click_action(point)
+
+    # Point position change handling
+
+    def notify_point_change(self, old_point, new_point):
+        self.edited_curve.point_pos_change(old_point, new_point)
+        self._draw_curve(self.edited_curve, draw_points=False)
+
