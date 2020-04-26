@@ -3,11 +3,10 @@ from copy import deepcopy
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from widgets.segment import Segment
-from widgets.point import Point
+from curver import widgets
 
-class Line(Segment):
-    def __init__(self, point_1: Point, point_2: Point, *args, **kwargs):
+class Line(widgets.Segment):
+    def __init__(self, point_1: widgets.Point, point_2: widgets.Point, *args, **kwargs):
         self.point_1 = point_1
         self.point_2 = point_2
         self.segment = QtCore.QLineF(self.point_1.point, self.point_2.point)
@@ -26,7 +25,7 @@ class Line(Segment):
         new_line = Line(self.point_1, self.point_2)
         return new_line
 
-    def _get_nearest_point(self, point: Point):
+    def _get_nearest_point(self, point: widgets.Point):
         nearest_point = None
         nearest_dist = 1e100
         for p in [self.point_1, self.point_2]:
@@ -36,7 +35,7 @@ class Line(Segment):
                 nearest_dist = dist_square
         return nearest_point
 
-    def notify_point_change(self, old_point: Point, new_point: Point):
+    def notify_point_change(self, old_point: widgets.Point, new_point: widgets.Point):
         point = self._get_nearest_point(old_point)
         if point == self.point_1:
             self.point_1 = new_point

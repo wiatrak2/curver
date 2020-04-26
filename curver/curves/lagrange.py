@@ -15,27 +15,20 @@ class Lagrange(Curve):
     type = "Lagrange"
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
-        self.curve_id = curve_id
-
-        self.points: [widgets.point.Point] = []
-        self.segments: [widgets.InterpolationCurve] = []
 
         self._rotation_angle = 0.
         self._scale_factor = 1.
 
     @property
     def _w(self):
-        xs_all = np.array([p.x for p in self.points])
+        xs_all = np.array([p.x() for p in self.points])
         xs = np.array([np.delete(xs_all, i) for i in range(len(xs_all))])
         denoms = xs_all[:, None] - xs
         return np.power(np.prod(denoms, axis=1), -1)
 
-    def _remove_segments(self):
-        self.segments = []
-
     def interpolate(self, x):
-        xs = np.array([p.x for p in self.points])
-        ys = np.array([p.y for p in self.points])
+        xs = np.array([p.x() for p in self.points])
+        ys = np.array([p.y() for p in self.points])
         enom = np.sum(self._w * ys / (x - xs))
         denom = np.sum(self._w / (x - xs))
         return enom / denom
@@ -50,24 +43,11 @@ class Lagrange(Curve):
         self.mode = mode
 
     def set_state(self, other):
-        self.delete_curve()
-        points = [p.point for p in other.points]
-        self._create_from_points(points)
+        self.points = other.points
         self.curve_id = other.curve_id
 
     def add_point(self, point: QtCore.QPointF):
-        new_point = widgets.point.Point(point)
-        new_point.add_segment(self)
-        self.points.append(new_point)
-        if len(self.points) > 1:
-            self._remove_segments()
-            self._create_segments()
-
-    def manage_edit(self, allow=True):
-        for point in self.points:
-            point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
-            point.setFlag(QtWidgets.QGraphicsLineItem.ItemSendsGeometryChanges, allow)
-            point.edit_mode = allow
+        self.points.append(point)
 
     def _create_segments(self):
         for i, point in enumerate(self.points[1:]):
@@ -86,15 +66,10 @@ class Lagrange(Curve):
 
     def delete_point(self, point: QtCore.QPointF):
         if point in self.points:
-            points_copy = list(self.points)
-            self.delete_curve()
-            points_copy.remove(point)
-            points = [p.point for p in points_copy]
-            self._create_from_points(points)
+            self.points.remove(point)
 
     def rotate_curve(self, angle: float, overwrite_angle=True, *args, **kwargs):
         if overwrite_angle:
-            print(angle)
             self._rotation_angle = angle
         angle = 360 * angle
         for item in self.segments + self.points:
@@ -112,15 +87,12 @@ class Lagrange(Curve):
         while len(self.points):
             point = self.points.pop()
             logger.info(f"Removing point {point}")
-        while len(self.segments):
-            segment = self.segments.pop()
-            logger.info(f"Removing segment {segment}")
 
-    def notify_point_change(self, *args, **kwargs):
-        self._remove_segments()
-        self._create_segments()
-
-    def display(self, scene: QtWidgets.QGraphicsScene):
-        self._create_segments()
-        for item in self.points + self.segments:
-            scene.addItem(item)
+    def get_items(self):
+        points = [widgets.point.Point(p) for p in self.points]
+        segments = []
+        for i, point in enumerate(points[1:]):
+            prev_point = points[i]
+            curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self.interpolate)
+            segments.append(curve_segment)
+        return points, segments

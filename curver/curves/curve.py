@@ -16,6 +16,9 @@ class Curve:
     def id(self) -> str:
         return self.curve_id
 
+    def __str__(self) -> str:
+        return f"{self.type}({self.points})"
+
     def set_mode(self, mode):
         raise NotImplementedError
 
@@ -52,7 +55,7 @@ class Curve:
     def delete_curve(self):
         raise NotImplementedError
 
-    def get_nearest_point(self, point: widgets.point.Point) -> QtCore.QPointF:
+    def get_nearest_point(self, point: widgets.Point) -> QtCore.QPointF:
         raise NotImplementedError
 
     def get_items(self) -> [QtWidgets.QGraphicsItem]:

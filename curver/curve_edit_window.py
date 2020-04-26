@@ -7,7 +7,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, widgets, utils, curve_controller
+from curver import curves, utils, curve_controller
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
 
 daiquiri.setup(level=logging.INFO)
@@ -29,19 +29,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self._set_actions()
 
-        self._edition_history = []
         self.mode = self.modes.NONE
 
         self._edited_point = None  # Used for points permutation
         self._setup_ui()
 
     def set_mode(self, new_mode):
-        if self.mode == self.modes.NONE or new_mode == self.modes.NONE:
-            pass
-            #elf._edition_history.append(deepcopy(self.curve))
-        else:
-            pass
-        #self.set_curve_state(self._edition_history[-1])
         self.mode = new_mode
         self.controller.set_curve_mode(new_mode)
         self._update_ui()
@@ -118,25 +111,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._save_curve(filename[0])
 
     def undo_button(self):
-        raise NotImplementedError
-        if self.mode == self.modes.NONE and len(self._edition_history) > 1:
-            _ = self._edition_history.pop()  # previous state
-            previous_state = self._edition_history.pop()
-            self.curve.set_state(previous_state)
-        elif len(self._edition_history):
-            previous_state = self._edition_history[-1]
-            self.curve.set_state(previous_state)
-        self.set_mode(self.modes.NONE)
-
-        if len(self._edition_history):
-            if self.mode == self.modes.NONE:
-                last_state = self._edition_history.pop()
-            self.curve.set_state(last_state)
-        self.set_mode(self.modes.NONE)
+        self.controller.undo_curve_edit()
 
     def cancel_button(self):
         self.set_mode(self.modes.NONE)
-        self.curve.set_state(self._initial_curve)
+        self.controller.edit_curve_cancel()
+        self.close()
 
     def done_button(self):
         self.set_mode(self.modes.NONE)
@@ -151,16 +131,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         point = QtCore.QPointF(x, y)
         self.controller.add_point(point)
         self.set_mode(self.modes.NONE)
-
-    def _get_nearest_point(self, point: QtCore.QPointF):
-        nearest_point = None
-        nearest_dist = 1e100
-        for p in self.curve.points:
-            dist_square = np.power(p.x - point.x(), 2) + np.power(p.y - point.y(), 2)
-            if dist_square < nearest_dist:
-                nearest_point = p.point
-                nearest_dist = dist_square
-        return nearest_point
 
     def _delete_point(self, point: QtCore.QPointF):
         self.controller.delete_point(point)

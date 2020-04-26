@@ -13,38 +13,25 @@ logger = daiquiri.getLogger(__name__)
 
 class Polyline(Curve):
     type = "Polyline"
-    def __init__(self, curve_name: str):
-        super().__init__(curve_name)
+    def __init__(self, curve_id: str):
+        super().__init__(curve_id)
         self._edition_relative_position: [QtCore.QPointF] = None
 
     def set_mode(self, mode):
-        logger.info(f"Setting mode {mode}.")
         self.mode = mode
         if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
             self._edition_relative_position = deepcopy(self.points)
 
     def set_state(self, other):
         self.delete_curve()
-        points = [p.point for p in other.points]
-        self.set_points(points)
-        self.curve_name = other.curve_name
+        self.set_points(other.points)
+        self.curve_id = other.curve_id
 
     def set_points(self, points: [QtCore.QPointF]):
         self.points = points
 
     def add_point(self, point: QtCore.QPointF):
         self.points.append(point)
-        logger.info(f"Added point {point}. All points: {self.points}")
-        return
-
-        new_point = widgets.point.Point(point)
-        if len(self.points):
-            last_point = self.points[-1]
-            new_segment = widgets.line.Line(last_point, new_point)
-            last_point.add_segment(new_segment)
-            new_point.add_segment(new_segment)
-            self.segments.append(new_segment)
-        self.points.append(new_point)
 
     def manage_edit(self, allow=True):
         return

@@ -3,7 +3,6 @@ from copy import deepcopy
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from curver.widgets import Item
-from widgets.segment import Segment
 
 class Point(QtWidgets.QGraphicsEllipseItem, Item):
     SIZE = 4

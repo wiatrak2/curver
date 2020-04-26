@@ -27,7 +27,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.controller = curve_controller.CurveController(self.scene)
 
     @property
-    def scene(self) -> widgets.scene.CurverGraphicsScene:
+    def scene(self) -> widgets.CurverGraphicsScene:
         return self.ui.plane.scene()
 
     # Setup methods
@@ -43,7 +43,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
 
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
-        scene = widgets.scene.CurverGraphicsScene(parent=self)
+        scene = widgets.CurverGraphicsScene(parent=self)
         scene.setSceneRect(-25, -25, 500, 500)
         scene.setBackgroundBrush(QtCore.Qt.white)
         scene.addLine(0,-1000,0,1000)
