@@ -18,18 +18,18 @@ class CurvesListWindow(QtWidgets.QMainWindow):
 
     def edit(self):
         selected_curve_item = self.ui.curvesList.currentItem()
-        curve_name = selected_curve_item.text()
-        self.parent().manage_curve_edit(curve_name)
+        curve_id = selected_curve_item.text()
+        self.parent().edit_curve_start(curve_id)
 
     def delete(self):
         selected_curve_item = self.ui.curvesList.currentItem()
-        curve_name = selected_curve_item.text()
+        curve_id = selected_curve_item.text()
         self.ui.curvesList.takeItem(self.ui.curvesList.currentRow())
-        self.parent().delete_curve(curve_name)
+        self.parent().delete_curve(curve_id)
 
     def done(self):
-        for curve_name in self.curves:
-            self.parent().manage_curve_edit(curve_name, allow=False)
+        for curve_id in self.curves:
+            self.parent().edit_curve_start(curve_id, allow=False)
         self.close()
 
     def _set_actions(self):

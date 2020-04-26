@@ -13,9 +13,9 @@ logger = daiquiri.getLogger(__name__)
 
 class Lagrange(Curve):
     type = "Lagrange"
-    def __init__(self, curve_name: str):
-        super().__init__(curve_name)
-        self.curve_name = curve_name
+    def __init__(self, curve_id: str):
+        super().__init__(curve_id)
+        self.curve_id = curve_id
 
         self.points: [widgets.point.Point] = []
         self.segments: [widgets.InterpolationCurve] = []
@@ -53,7 +53,7 @@ class Lagrange(Curve):
         self.delete_curve()
         points = [p.point for p in other.points]
         self._create_from_points(points)
-        self.curve_name = other.curve_name
+        self.curve_id = other.curve_id
 
     def add_point(self, point: QtCore.QPointF):
         new_point = widgets.point.Point(point)

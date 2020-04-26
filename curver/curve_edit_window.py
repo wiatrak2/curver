@@ -7,7 +7,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, widgets, utils
+from curver import curves, widgets, utils, curve_controller
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
 
 daiquiri.setup(level=logging.INFO)
@@ -16,31 +16,38 @@ logger = daiquiri.getLogger(__name__)
 class CurveEditWindow(QtWidgets.QMainWindow):
     modes = utils.CurveModes
 
-    def __init__(self, curve: curves.Curve, parent=None):
+    def __init__(self, curve_id: str, parent=None, controller: curve_controller.CurveController = None):
         super().__init__(parent)
+        self.curve_id = curve_id
+        if controller is None:
+            assert parent.controller, "parent of CurveEditWindow must have `controller` attribute"
+            self.controller: curve_controller.CurveController = parent.controller
+        else:
+            self.controller: curve_controller.CurveController = controller
+
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
-        self.curve = curve
         self._set_actions()
 
         self._edition_history = []
         self.mode = self.modes.NONE
 
         self._edited_point = None  # Used for points permutation
-        self._initial_curve = deepcopy(self.curve)
         self._setup_ui()
 
     def set_mode(self, new_mode):
         if self.mode == self.modes.NONE or new_mode == self.modes.NONE:
-            self._edition_history.append(deepcopy(self.curve))
+            pass
+            #elf._edition_history.append(deepcopy(self.curve))
         else:
-            self.curve.set_state(self._edition_history[-1])
+            pass
+        #self.set_curve_state(self._edition_history[-1])
         self.mode = new_mode
-        self.curve.set_mode(new_mode)
+        self.controller.set_curve_mode(new_mode)
         self._update_ui()
 
     def _setup_ui(self):
-        self.ui.curveName.setText(self.curve.curve_name)
+        self.ui.curveName.setText(self.curve_id)
         self._update_ui()
 
     def _update_ui(self):
@@ -50,8 +57,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
 
     def _finish_edit(self):
-        self.curve.curve_name = self.ui.curveName.text()
-        self.parent().finish_curve_edit()
+        self.controller.rename_curve(self.curve_id, self.ui.curveName.text())
+        self.parent().edit_curve_finish()
 
     def closeEvent(self, e):
         self._finish_edit()
@@ -89,26 +96,18 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         return self._reverse_curve()
 
     def rotate_curve_button(self):
-        self.ui.rotationSlider.valueChanged.connect(
-            self._rotate_curve_slider(
-                    [widgets.point.Point(p.point) for p in self.curve.points]
-                )
-            )
-        self.ui.rotationSlider.setValue(0)
         self.set_mode(self.modes.ROTATE_CURVE)
+        self.ui.rotationSlider.valueChanged.connect(self._rotate_curve_slider)
+        self.ui.rotationSlider.setValue(0)
 
     def rotate_curve_final_button(self):
         self.ui.rotateCurveBox.setHidden(True)
         self.set_mode(self.modes.NONE)
 
     def scale_curve_button(self):
-        self.ui.scaleSlider.valueChanged.connect(
-            self._scale_curve_slider(
-                    [widgets.point.Point(p.point) for p in self.curve.points]
-                )
-            )
-        self.ui.scaleSlider.setValue(50)
         self.set_mode(self.modes.SCALE_CURVE)
+        self.ui.scaleSlider.valueChanged.connect(self._scale_curve_slider)
+        self.ui.scaleSlider.setValue(50)
 
     def scale_curve_final_button(self):
         self.set_mode(self.modes.NONE)
@@ -119,6 +118,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._save_curve(filename[0])
 
     def undo_button(self):
+        raise NotImplementedError
         if self.mode == self.modes.NONE and len(self._edition_history) > 1:
             _ = self._edition_history.pop()  # previous state
             previous_state = self._edition_history.pop()
@@ -143,14 +143,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _add_point(self, point: QtCore.QPointF):
-        self.parent().add_point(point)
+        self.controller.add_point(point)
         self.set_mode(self.modes.NONE)
 
     def _add_from_coordinates(self):
         x, y = float(self.ui.addXPos.text()), float(self.ui.addYPos.text())
         point = QtCore.QPointF(x, y)
-        self.curve.add_point(point)
-        self.curve.manage_edit(allow=True)
+        self.controller.add_point(point)
         self.set_mode(self.modes.NONE)
 
     def _get_nearest_point(self, point: QtCore.QPointF):
@@ -164,57 +163,38 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         return nearest_point
 
     def _delete_point(self, point: QtCore.QPointF):
-        nearest_point = self._get_nearest_point(point)
-        self.curve.delete_point(nearest_point)
-        self.curve.manage_edit(allow=True)
+        self.controller.delete_point(point)
         self.set_mode(self.modes.NONE)
 
     def _move_by_vector(self):
         vec_x, vec_y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         vec_qt = QtCore.QPointF(vec_x, vec_y)
-        for point in self.curve.points:
-            point.move_by_vector(vec_qt)
+        self.controller.move_curve(vec_qt)
         self.set_mode(self.modes.NONE)
 
     def _permute_points(self, point: QtCore.QPointF):
-        nearest_point: QtCore.QPointF = self._get_nearest_point(point)
         if self._edited_point is None:
-            self._edited_point = nearest_point
+            self._edited_point = point
             return
-        try:
-            p_1_idx, p_2_idx = self.curve.points.index(nearest_point), self.curve.points.index(self._edited_point)
-            self.curve.points[p_1_idx].set_scene_pos(self._edited_point)
-            self.curve.points[p_2_idx].set_scene_pos(nearest_point)
-        except ValueError as e:
-            logger.warning(f"Failure while permuting points: {self._edited_point} and {nearest_point}. Expetion: {e}")
+        self.controller.permute_points(self._edited_point, point)
         self._edited_point = None
         self.set_mode(self.modes.NONE)
 
     def _reverse_curve(self):
-        points = [p.point for p in self.curve.points[::-1]]
-        self.curve.delete_curve()
-        self.curve.extend_from_points(points)
+        self.controller.reverse_curve()
         self.set_mode(self.modes.NONE)
 
     def _rotate_curve_slider(self, curve_positions):
-        def _rotate_curve():
-            angle = self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
-            self.curve.rotate_curve(angle, curve_positions)
-        return _rotate_curve
+        angle = self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
+        self.controller.rotate_curve(angle)
 
-    def _scale_curve_slider(self, curve_positions):
+    def _scale_curve_slider(self):
         SCALE_STEP = 0.1
-        def _scale_curve():
-            scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
-            self.curve.scale_curve(scale_factor, curve_positions)
-        return _scale_curve
+        scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
+        self.controller.scale_curve(scale_factor)
 
     def _save_curve(self, filename):
-        curve_dict = {
-            "type": self.curve.type,
-            "curve_name": self.curve.curve_name,
-            "points": [[p.x, p.y] for p in self.curve.points],
-        }
+        curve_dict = self.controller.serialize_curve()
         with open(filename, "w") as f:
             json.dump(curve_dict, f)
         self.set_mode(self.modes.NONE)
