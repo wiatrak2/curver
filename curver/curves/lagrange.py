@@ -19,6 +19,12 @@ class Lagrange(Curve):
         self._rotation_angle = 0.
         self._scale_factor = 1.
 
+        self._edition_relative_position = None
+
+    @property
+    def is_movable(self):
+        return self._rotation_angle == 0 and self._scale_factor == 1
+
     @property
     def _w(self):
         xs_all = np.array([p.x() for p in self.points])
@@ -33,60 +39,74 @@ class Lagrange(Curve):
         denom = np.sum(self._w / (x - xs))
         return enom / denom
 
+    def _make_moveable(self):
+        self._rotation_angle = 0.
+        self._scale_factor = 1.
+
     def set_mode(self, mode):
-        if mode == self.modes.NONE and self.mode != self.modes.NONE:
-            self.rotate_curve(self._rotation_angle, overwrite_angle=False)
-            self.scale_curve(self._scale_factor, overwrite_factor=False)
-        elif mode != self.modes.NONE:
-            self.rotate_curve(0, overwrite_angle=False)
-            self.scale_curve(1, overwrite_factor=False)
+        if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
+            self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
     def set_state(self, other):
         self.points = other.points
         self.curve_id = other.curve_id
 
+    def set_points(self, points: [QtCore.QPointF]):
+        points.sort(key = lambda p: p.x())
+        self.points = points
+
     def add_point(self, point: QtCore.QPointF):
-        self.points.append(point)
-
-    def _create_segments(self):
-        for i, point in enumerate(self.points[1:]):
-            prev_point = self.points[i]
-            curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self.interpolate)
-            self.segments.append(curve_segment)
-
-    def _create_from_points(self, points: [QtCore.QPointF]):
-        sorted_points = points
-        sorted_points.sort(key = lambda p: p.x())
-        self.points = [widgets.point.Point(p) for p in points]
-        logger.info(f"Creating curve from points: {self.points}.")
-        for p in self.points:
-            p.add_segment(self)
-        self._create_segments()
+        if self.is_movable:
+            self.points.append(point)
+            self.points.sort(key = lambda p: p.x())
+        else:
+            self._make_moveable()
 
     def delete_point(self, point: QtCore.QPointF):
+        if self.is_movable:
+            if point in self.points:
+                self.points.remove(point)
+        else:
+            self._make_moveable()
+
+    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF):
         if point in self.points:
-            self.points.remove(point)
+            self.points[self.points.index(point)] += vector
 
-    def rotate_curve(self, angle: float, overwrite_angle=True, *args, **kwargs):
-        if overwrite_angle:
-            self._rotation_angle = angle
-        angle = 360 * angle
-        for item in self.segments + self.points:
-            item.setTransformOriginPoint(self.points[0].point)
-            item.setRotation(angle)
+    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
+        pass
 
-    def scale_curve(self, scale_factor: float, overwrite_factor=True, *args, **kwargs):
-        if overwrite_factor:
-            self._scale_factor = scale_factor
-        for item in self.segments + self.points:
-            item.setTransformOriginPoint(self.points[0].point)
-            item.setScale(scale_factor)
+    def move_curve(self, vector: QtCore.QPointF, *args, **kwargs):
+        for point in self.points:
+            point += vector
+
+    def reverse_curve(self, *args, **kwargs):
+        pass
+
+    def rotate_curve(self, angle_factor: float, *args, **kwargs):
+        self._rotation_angle = angle_factor
+
+    def scale_curve(self, scale_factor: float, *args, **kwargs):
+        self._scale_factor = scale_factor
 
     def delete_curve(self):
-        while len(self.points):
-            point = self.points.pop()
-            logger.info(f"Removing point {point}")
+        self.points = []
+
+    def get_nearest_point(self, point: QtCore.QPointF):
+        nearest_point = None
+        nearest_dist = 1e100
+        for p in self.points:
+            dist_square = np.power(p.x() - point.x(), 2) + np.power(p.y() - point.y(), 2)
+            if dist_square < nearest_dist:
+                nearest_point = p
+                nearest_dist = dist_square
+        return nearest_point
+
+    def point_pos_change(self, old_point: widgets.point.Point, new_point: widgets.point.Point):
+        point = self.get_nearest_point(old_point.point)
+        self.points[self.points.index(point)] = new_point.point
+        self.points.sort(key = lambda p: p.x())
 
     def get_items(self):
         points = [widgets.point.Point(p) for p in self.points]
@@ -95,4 +115,13 @@ class Lagrange(Curve):
             prev_point = points[i]
             curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self.interpolate)
             segments.append(curve_segment)
+
+            angle = 360 * self._rotation_angle
+            point.setTransformOriginPoint(self.points[0])
+            point.setRotation(angle)
+            point.setScale(self._scale_factor)
+            curve_segment.setTransformOriginPoint(self.points[0])
+            curve_segment.setRotation(angle)
+            curve_segment.setScale(self._scale_factor)
+
         return points, segments

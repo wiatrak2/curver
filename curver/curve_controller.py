@@ -201,10 +201,12 @@ class CurveController:
         self._set_curve_points_moveability(curve.id, allow = self.mode == self.modes.EDIT)
 
     def _set_curve_points_moveability(self, curve_id: str, allow=True):
-        curve_points = self.curve_entry[curve_id].points
-        for point in curve_points:
-            point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
-            point.edit_mode = allow
+        curve = self.curves[curve_id]
+        if curve.is_movable:
+            curve_points = self.curve_entry[curve_id].points
+            for point in curve_points:
+                point.setFlag(QtWidgets.QGraphicsLineItem.ItemIsMovable, allow)
+                point.edit_mode = allow
 
     # Point position change handling
 

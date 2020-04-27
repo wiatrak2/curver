@@ -13,6 +13,10 @@ class Curve:
         self.points: [QtCore.QPointF] = []
 
     @property
+    def is_movable(self) -> bool:
+        return True
+
+    @property
     def id(self) -> str:
         return self.curve_id
 
