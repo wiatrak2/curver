@@ -19,8 +19,6 @@ class Lagrange(Curve):
         self._rotation_angle = 0.
         self._scale_factor = 1.
 
-        self._edition_relative_position = None
-
     @property
     def is_movable(self):
         return self._rotation_angle == 0 and self._scale_factor == 1
@@ -32,20 +30,11 @@ class Lagrange(Curve):
         denoms = xs_all[:, None] - xs
         return np.power(np.prod(denoms, axis=1), -1)
 
-    def interpolate(self, x):
-        xs = np.array([p.x() for p in self.points])
-        ys = np.array([p.y() for p in self.points])
-        enom = np.sum(self._w * ys / (x - xs))
-        denom = np.sum(self._w / (x - xs))
-        return enom / denom
-
     def _make_moveable(self):
         self._rotation_angle = 0.
         self._scale_factor = 1.
 
     def set_mode(self, mode):
-        if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
-            self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
     def set_state(self, other):
@@ -108,12 +97,19 @@ class Lagrange(Curve):
         self.points[self.points.index(point)] = new_point.point
         self.points.sort(key = lambda p: p.x())
 
+    def _interpolate(self, x, *args, **kwargs):
+        xs = np.array([p.x() for p in self.points])
+        ys = np.array([p.y() for p in self.points])
+        enom = np.sum(self._w * ys / (x - xs))
+        denom = np.sum(self._w / (x - xs))
+        return QtCore.QPointF(x, enom / denom)
+
     def get_items(self):
         points = [widgets.point.Point(p) for p in self.points]
         segments = []
         for i, point in enumerate(points[1:]):
             prev_point = points[i]
-            curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self.interpolate)
+            curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self._interpolate)
             segments.append(curve_segment)
 
             angle = 360 * self._rotation_angle
