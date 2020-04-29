@@ -13,13 +13,15 @@ from curver import curves, utils, widgets
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
+
 class CurveEntry:
     def __init__(self, curve: curves.Curve):
         self.curve = curve
         self.visible = True
-        self.points: [widgets.Point]         = []
-        self.segments: [widgets.Segment]     = []
+        self.points: [widgets.Point] = []
+        self.segments: [widgets.Segment] = []
         self.edition_history: [curves.Curve] = []
+
 
 class CurveController:
     modes = utils.ControllerModes
@@ -96,7 +98,9 @@ class CurveController:
     def add_point(self, point: QtCore.QPointF, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
         curve.add_point(point)
-        logger.info(f"Curve {curve.id}: Added point {point}. All points: {curve.points}")
+        logger.info(
+            f"Curve {curve.id}: Added point {point}. All points: {curve.points}"
+        )
         self._draw_curve(curve)
 
     def delete_point_idx(self, idx, curve_id: str = None):
@@ -105,7 +109,9 @@ class CurveController:
             curve.delete_point(curve.points[idx])
             self._draw_curve(curve)
         except IndexError:
-            logger.info(f"Failed no remove point with index {idx} from curve with points {curve.points}.")
+            logger.info(
+                f"Failed no remove point with index {idx} from curve with points {curve.points}."
+            )
 
     def delete_point(self, point: QtCore.QPointF, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
@@ -113,18 +119,24 @@ class CurveController:
         curve.delete_point(rm_point)
         self._draw_curve(curve)
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, curve_id: str = None):
+    def move_point(
+        self, point: QtCore.QPointF, vector: QtCore.QPointF, curve_id: str = None
+    ):
         curve = self.curves.get(curve_id, self._edited_curve)
         move_point = curve.get_nearest_point(point)
         curve.move_point(move_point, vector)
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, curve_id: str = None):
+    def permute_points(
+        self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, curve_id: str = None
+    ):
         curve = self.curves.get(curve_id, self._edited_curve)
         p_1, p_2 = curve.get_nearest_point(point_1), curve.get_nearest_point(point_2)
         curve.permute_points(p_1, p_2)
         self._draw_curve(curve)
 
-    def add_curve(self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF]):
+    def add_curve(
+        self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF]
+    ):
         curve = curve_cls(curve_id)
         curve.set_points(curve_points)
         self.curves[curve_id] = curve
@@ -202,14 +214,16 @@ class CurveController:
 
         curve_entry = self.curve_entry[curve.id]
         curve_points, curve_segments = curve_entry.points, curve_entry.segments
-        curve_rm_items = curve_points + curve_segments if draw_points else curve_segments
+        curve_rm_items = (
+            curve_points + curve_segments if draw_points else curve_segments
+        )
         for item in curve_rm_items:
             self.scene.removeItem(item)
 
         curve_entry.segments = segments
         if draw_points:
             curve_entry.points = points
-        self._set_curve_points_moveability(curve.id, allow = self.mode == self.modes.EDIT)
+        self._set_curve_points_moveability(curve.id, allow=self.mode == self.modes.EDIT)
 
     def _set_curve_points_moveability(self, curve_id: str, allow=True):
         curve = self.curves[curve_id]

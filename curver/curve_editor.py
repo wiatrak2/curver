@@ -14,8 +14,10 @@ from copy import deepcopy
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
+
 class CurveEditor(QtWidgets.QMainWindow):
     modes = utils.ControllerModes
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -48,20 +50,21 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.plane.setMouseTracking(True)
         self._connect_actions()
 
-
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
         scene = widgets.CurverGraphicsScene(parent=self)
         scene.setSceneRect(-25, -25, 500, 500)
         scene.setBackgroundBrush(QtCore.Qt.white)
-        scene.addLine(0,-1000,0,1000)
-        scene.addLine(-1000,0,1000,0)
+        scene.addLine(0, -1000, 0, 1000)
+        scene.addLine(-1000, 0, 1000, 0)
         return scene
 
     def _connect_actions(self):
         self.ui.addCurveButton.clicked.connect(self.add_curve_button_action)
         self.ui.addPointButton.clicked.connect(self.add_point_button_action)
         self.ui.undoAddPointButton.clicked.connect(self.undo_add_point_button_action)
-        self.ui.cancelAddCurveButton.clicked.connect(self.cancel_add_curve_button_action)
+        self.ui.cancelAddCurveButton.clicked.connect(
+            self.cancel_add_curve_button_action
+        )
         self.ui.saveCurveButton.clicked.connect(self.save_curve_button_action)
         self.ui.editCurveButton.clicked.connect(self.edit_curve_button_action)
         self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
@@ -112,7 +115,9 @@ class CurveEditor(QtWidgets.QMainWindow):
             self.edit_curves_list.show(self.controller.curves)
 
     def import_curve_action(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(self, "Import curve", filter="*.json")
+        filename = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Import curve", filter="*.json"
+        )
         self._import_curve(filename[0])
 
     def _import_curve(self, filename):
@@ -127,7 +132,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_id = curve_info.get("curve_id", "")
         curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
         self.controller.add_curve(curve_id, curve_cls, curve_points)
-        logger.info(f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points defined successfully imported.")
+        logger.info(
+            f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points defined successfully imported."
+        )
 
     def edit_curve_start(self, curve_id: str):
         self.controller.edit_curve_start(curve_id)

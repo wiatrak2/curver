@@ -4,13 +4,17 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 from curver.widgets import Item
 
+
 class Point(QtWidgets.QGraphicsEllipseItem, Item):
     SIZE = 4
+
     def __init__(self, point: QtCore.QPointF, *args, **kwargs):
         self.point = point
         x, y = point.x(), point.y()
         size_offset = self.SIZE / 2
-        super().__init__(x - size_offset, y - size_offset, self.SIZE, self.SIZE, *args, **kwargs)
+        super().__init__(
+            x - size_offset, y - size_offset, self.SIZE, self.SIZE, *args, **kwargs
+        )
 
         self.edit_mode = False
 

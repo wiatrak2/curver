@@ -13,14 +13,22 @@ from curver.ui.curve_edit_ui import Ui_curveEditWindow
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
+
 class CurveEditWindow(QtWidgets.QMainWindow):
     modes = utils.CurveModes
 
-    def __init__(self, curve_id: str, parent=None, controller: curve_controller.CurveController = None):
+    def __init__(
+        self,
+        curve_id: str,
+        parent=None,
+        controller: curve_controller.CurveController = None,
+    ):
         super().__init__(parent)
         self.curve_id = curve_id
         if controller is None:
-            assert parent.controller, "parent of CurveEditWindow must have `controller` attribute"
+            assert (
+                parent.controller
+            ), "parent of CurveEditWindow must have `controller` attribute"
             self.controller: curve_controller.CurveController = parent.controller
         else:
             self.controller: curve_controller.CurveController = controller
@@ -107,7 +115,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def export_curve_button(self):
         self.set_mode(self.modes.EXPORT_CURVE)
-        filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save", "curve.json", ".json")
+        filename = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save", "curve.json", ".json"
+        )
         self._save_curve(filename[0])
 
     def undo_button(self):

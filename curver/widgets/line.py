@@ -5,15 +5,22 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 from curver import widgets
 
+
 class Line(widgets.Segment):
-    def __init__(self, point_1: widgets.Point, point_2: widgets.Point, pen: QtGui.QPen = None, *args, **kwargs):
+    def __init__(
+        self,
+        point_1: widgets.Point,
+        point_2: widgets.Point,
+        pen: QtGui.QPen = None,
+        *args,
+        **kwargs,
+    ):
         self.point_1 = point_1
         self.point_2 = point_2
         self.segment = QtCore.QLineF(self.point_1.point, self.point_2.point)
         super().__init__(self.segment, *args, **kwargs)
 
         self.pen = self._setup_appearance(pen)
-
 
     def __hash__(self):
         return hash((self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y))

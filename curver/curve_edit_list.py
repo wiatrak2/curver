@@ -3,6 +3,7 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from curver.curve_controller import CurveController
 from curver.ui.curve_edit_list_ui import Ui_curveEditWindow
 
+
 class CurvesListWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)

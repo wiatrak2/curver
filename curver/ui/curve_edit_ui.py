@@ -115,7 +115,9 @@ class Ui_curveEditWindow(object):
         self.vectorMoveBox.setTitle(_translate("curveEditWindow", "vectorMoveBox"))
         self.moveButton.setText(_translate("curveEditWindow", "Move"))
         self.cancelButton.setText(_translate("curveEditWindow", "Cancel"))
-        self.permutePointsButton.setText(_translate("curveEditWindow", "Permute points"))
+        self.permutePointsButton.setText(
+            _translate("curveEditWindow", "Permute points")
+        )
         self.rotateCurveButton.setText(_translate("curveEditWindow", "Rotate by angle"))
         self.rotateDoneButton.setText(_translate("curveEditWindow", "Done"))
         self.scaleCurveButton.setText(_translate("curveEditWindow", "Scale"))

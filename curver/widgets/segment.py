@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from curver.widgets import Item
 
+
 class Segment(QtWidgets.QGraphicsLineItem, Item):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

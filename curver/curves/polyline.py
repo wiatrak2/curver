@@ -10,8 +10,10 @@ from curver.curves import BaseCurve
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
+
 class Polyline(BaseCurve):
     type = "Polyline"
+
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
         self._edition_relative_position: [QtCore.QPointF] = None
@@ -23,5 +25,7 @@ class Polyline(BaseCurve):
 
     def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
         points = [widgets.point.Point(p) for p in self.points]
-        lines = [widgets.line.Line(points[i], points[i+1]) for i in range(len(points)-1)]
+        lines = [
+            widgets.line.Line(points[i], points[i + 1]) for i in range(len(points) - 1)
+        ]
         return points, lines

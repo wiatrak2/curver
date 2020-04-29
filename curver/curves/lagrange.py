@@ -11,20 +11,19 @@ from curver.curves import BaseCurve
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
+
 class Lagrange(BaseCurve):
     type = "Lagrange"
+
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
 
-        self._rotation_angle = 0.
-        self._scale_factor = 1.
+        self._rotation_angle = 0.0
+        self._scale_factor = 1.0
 
     @property
     def is_movable(self):
         return self._rotation_angle == 0 and self._scale_factor == 1
-
-        self._rotation_angle = 0.
-        self._scale_factor = 1.
 
     @property
     def _w(self):
@@ -34,20 +33,20 @@ class Lagrange(BaseCurve):
         return np.power(np.prod(denoms, axis=1), -1)
 
     def _make_moveable(self):
-        self._rotation_angle = 0.
-        self._scale_factor = 1.
+        self._rotation_angle = 0.0
+        self._scale_factor = 1.0
 
     def set_mode(self, mode):
         self.mode = mode
 
     def set_points(self, points: [QtCore.QPointF]):
-        points.sort(key = lambda p: p.x())
+        points.sort(key=lambda p: p.x())
         self.points = points
 
     def add_point(self, point: QtCore.QPointF):
         if self.is_movable:
             self.points.append(point)
-            self.points.sort(key = lambda p: p.x())
+            self.points.sort(key=lambda p: p.x())
         else:
             self._make_moveable()
 
@@ -70,9 +69,11 @@ class Lagrange(BaseCurve):
     def scale_curve(self, scale_factor: float, *args, **kwargs):
         self._scale_factor = scale_factor
 
-    def point_pos_change(self, old_point: widgets.point.Point, new_point: widgets.point.Point):
+    def point_pos_change(
+        self, old_point: widgets.point.Point, new_point: widgets.point.Point
+    ):
         super().point_pos_change(old_point, new_point)
-        self.points.sort(key = lambda p: p.x())
+        self.points.sort(key=lambda p: p.x())
 
     def _interpolate(self, x, *args, **kwargs):
         xs = np.array([p.x() for p in self.points])
@@ -86,7 +87,9 @@ class Lagrange(BaseCurve):
         segments = []
         for i, point in enumerate(points[1:]):
             prev_point = points[i]
-            curve_segment = widgets.interpolation_curve.InterpolationCurve(prev_point, point, self._interpolate)
+            curve_segment = widgets.interpolation_curve.InterpolationCurve(
+                prev_point, point, self._interpolate
+            )
             segments.append(curve_segment)
 
             angle = 360 * self._rotation_angle

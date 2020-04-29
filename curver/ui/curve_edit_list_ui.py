@@ -39,4 +39,6 @@ class Ui_curveEditWindow(object):
         self.curveEditButton.setText(_translate("curveEditWindow", "Edit"))
         self.curveDeleteButton.setText(_translate("curveEditWindow", "Delete"))
         self.doneButton.setText(_translate("curveEditWindow", "Done"))
-        self.changeCurveVisibilityButton.setText(_translate("curveEditWindow", "Show/Hide"))
+        self.changeCurveVisibilityButton.setText(
+            _translate("curveEditWindow", "Show/Hide")
+        )

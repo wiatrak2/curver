@@ -2,9 +2,11 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import widgets, utils
 
+
 class Curve:
     modes = utils.CurveModes
     type = "Curve"
+
     def __init__(self, curve_id: str):
         self.curve_id = curve_id
 
@@ -22,9 +24,6 @@ class Curve:
 
     def __str__(self) -> str:
         return f"{self.type}({self.points})"
-
-    def set_mode(self, mode):
-        raise NotImplementedError
 
     def set_mode(self, mode):
         raise NotImplementedError

@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 
+
 class CurverGraphicsScene(QtWidgets.QGraphicsScene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
