@@ -5,7 +5,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, widgets, utils
+from curver import curves, widgets, utils, curve_controller
 from curver.ui.main_ui import Ui_MainWindow
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
@@ -15,34 +15,32 @@ daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
 class CurveEditor(QtWidgets.QMainWindow):
-    class _Modes(Enum):
-        NONE = 0
-        ADD = 1
-        EDIT = 2
-    modes = _Modes
-
+    modes = utils.ControllerModes
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self._setup_editor_ui()
 
-        self.curves = {}
-        self.edited_curve = None
+        self.controller = curve_controller.CurveController(self.scene)
 
         self.mode = self.modes.NONE
+        self._update_ui()
 
-        self.edit_curves_list = CurvesListWindow(self)
+        self.edit_curves_list = None
         self.edit_curve_window = None
 
     @property
-    def plane(self) -> widgets.scene.CurverGraphicsScene:
+    def scene(self) -> widgets.CurverGraphicsScene:
         return self.ui.plane.scene()
 
     # Setup methods
 
+    def set_mode(self, new_mode):
+        self.mode = new_mode
+        self._update_ui()
+
     def _setup_editor_ui(self):
-        self.ui.addPointBox.setHidden(True)
         self.ui.setCurveType.addItems(curves.types.keys())
         canvas = self._create_canvas()
         self.ui.plane.setScene(canvas)
@@ -52,7 +50,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
 
     def _create_canvas(self) -> QtWidgets.QGraphicsScene:
-        scene = widgets.scene.CurverGraphicsScene(parent=self)
+        scene = widgets.CurverGraphicsScene(parent=self)
         scene.setSceneRect(-25, -25, 500, 500)
         scene.setBackgroundBrush(QtCore.Qt.white)
         scene.addLine(0,-1000,0,1000)
@@ -68,59 +66,50 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.editCurveButton.clicked.connect(self.edit_curve_button_action)
         self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
 
-    def _set_mode(self, mode):
-        self.mode = mode
-        if self.mode == self.modes.NONE:
-            self.plane.notify_click = False
-            self.plane.notify_position = False
-        elif self.mode == self.modes.ADD or self.mode == self.modes.EDIT:
-            self.plane.notify_click = True
-            self.plane.notify_position = True
+    def _update_ui(self):
+        self.ui.addPointBox.setVisible(self.mode == self.modes.ADD)
 
     # Button actions
 
     def add_curve_button_action(self):
-        self.ui.addPointBox.setHidden(False)
-        curve_type = self.ui.setCurveType.currentText()
-        curve_cls = curves.types[curve_type]
-        curve_id = f"{curve_type}_{len(self.curves)+1}"  # TODO: unique names, even after removing curve
-        self.ui.curveName.setText(curve_id)
-        self.edited_curve = curve_cls(curve_id, self.plane)
-        self._set_mode(self.modes.ADD)
+        if self.mode == self.modes.NONE:
+            self.set_mode(self.modes.ADD)
+            curve_type = self.ui.setCurveType.currentText()
+            curve_cls = curves.types[curve_type]
+            curve_id = f"{curve_type}_{len(self.controller.curves)+1}"  # TODO: unique names, even after removing curve
+            self.ui.curveName.setText(curve_id)
+            self.controller.create_curve_start(curve_id, curve_cls)
 
     def add_point_button_action(self):
         x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
         point = QtCore.QPointF(x, y)
-        self.edited_curve.add_point(point)
+        self.controller.add_point(point)
 
     def undo_add_point_button_action(self):
-        if len(self.edited_curve.points):
-            self.edited_curve.delete_point(self.edited_curve.points[-1])
+        self.controller.delete_point_idx(-1)
 
     def cancel_add_curve_button_action(self):
-        self.edited_curve.delete_curve()
-        self.edited_curve = None
+        self.controller.delete_curve()
         self.ui.addPointBox.setHidden(True)
-        self._set_mode(self.modes.NONE)
 
     def save_curve_button_action(self):
-        curve_name = self.ui.curveName.text()
-        if curve_name in self.curves:
+        curve_id = self.ui.curveName.text()
+        curve_id_success = self.controller.rename_curve(curve_id)
+        if not curve_id_success:
             msg_box = QtWidgets.QMessageBox(self)
             msg_box.setText("Curve with given name already exists")
             msg_box.exec_()
             return
 
-        self.edited_curve.curve_name = curve_name
-        self.curves[curve_name] = self.edited_curve
-        self.edited_curve = None
-
-        self.ui.addPointBox.setHidden(True)
-        self._set_mode(self.modes.NONE)
+        self.controller.create_curve_finish()
+        self.set_mode(self.modes.NONE)
 
     def edit_curve_button_action(self):
-        utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
-        self.edit_curves_list.show(self.curves)
+        if self.mode == self.modes.NONE:
+            self.set_mode(self.modes.EDIT)
+            self.edit_curves_list = CurvesListWindow(self)
+            utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
+            self.edit_curves_list.show(self.controller.curves)
 
     def import_curve_action(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, "Import curve", filter="*.json")
@@ -135,39 +124,31 @@ class CurveEditor(QtWidgets.QMainWindow):
             logger.warning(f"Could not load curve from {filename}.")
             return
         curve_cls = curves.types[curve_info.get("type", curves.Curve)]
-        curve_name = curve_info.get("curve_name", "")
+        curve_id = curve_info.get("curve_id", "")
         curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
-        curve = curve_cls(curve_name, self.plane)
-        curve.create_from_points(curve_points)
-        self.curves[curve_name] = curve
-        logger.info(f"Curve {curve_name} of type {curve.type} with {len(curve_points)} points defined successfully imported.")
-        self._set_mode(self.modes.NONE)
+        self.controller.add_curve(curve_id, curve_cls, curve_points)
+        logger.info(f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points defined successfully imported.")
 
-    def manage_curve_edit(self, curve_id: str, allow=True):
-        self._set_mode(self.modes.EDIT)
-
-        self.edited_curve = self.curves.pop(curve_id)
-        self.edited_curve.manage_edit(allow=allow)
-        self.edit_curve_window = CurveEditWindow(self.edited_curve, parent=self)
+    def edit_curve_start(self, curve_id: str):
+        self.controller.edit_curve_start(curve_id)
+        self.edit_curve_window = CurveEditWindow(curve_id, parent=self)
         utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
-
         self.edit_curve_window.show()
-        self.edit_curves_list.close()
 
-    def finish_curve_edit(self):
-        self.curves[self.edited_curve.curve_name] = self.edited_curve
-        self._set_mode(self.modes.NONE)
-        self.edited_curve.manage_edit(allow=False)
-        self.edited_curve = None
+    def edit_curve_finish(self):
+        self.controller.edit_curve_finish()
+        self.set_mode(self.modes.NONE)
+
+    def edit_curve_list_close(self):
+        self.set_mode(self.modes.NONE)
 
     def delete_curve(self, curve_id: str):
-        curve = self.curves.pop(curve_id)
-        curve.delete_curve()
+        self.controller.delete_curve(curve_id)
 
     # Notifications from scene handling
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
-        self.edited_curve.add_point(point)
+        self.controller.add_point(point)
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
@@ -181,17 +162,17 @@ class CurveEditor(QtWidgets.QMainWindow):
         return self.edit_curve_window.mouse_click_action(point)
 
     def notify_scene_pos(self, point: QtCore.QPointF):
-        if self.mode == self.modes.NONE:
+        if self.controller.mode == self.controller.modes.NONE:
             return
-        if self.mode == self.modes.ADD:
+        if self.controller.mode == self.controller.modes.ADD:
             return self._add_curve_scene_move_action(point)
-        if self.mode == self.modes.EDIT:
+        if self.controller.mode == self.controller.modes.EDIT:
             return self._edit_curve_scene_move_action(point)
 
     def notify_scene_click(self, point: QtCore.QPointF):
-        if self.mode == self.modes.NONE:
+        if self.controller.mode == self.controller.modes.NONE:
             return
-        if self.mode == self.modes.ADD:
+        if self.controller.mode == self.controller.modes.ADD:
             return self._add_curve_scene_click_action(point)
-        if self.mode == self.modes.EDIT:
+        if self.controller.mode == self.controller.modes.EDIT:
             return self._edit_curve_scene_click_action(point)
