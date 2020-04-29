@@ -1,7 +1,9 @@
 from curver.curves.curve import Curve
+from curver.curves.base_curve import BaseCurve
 from curver.curves.polyline import Polyline
 from curver.curves.lagrange import Lagrange
 from curver.curves.bezier import Bezier
+
 
 types = {
     Polyline.type: Polyline,

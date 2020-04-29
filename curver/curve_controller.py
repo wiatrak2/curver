@@ -16,16 +16,13 @@ logger = daiquiri.getLogger(__name__)
 class CurveEntry:
     def __init__(self, curve: curves.Curve):
         self.curve = curve
+        self.visible = True
         self.points: [widgets.Point]         = []
         self.segments: [widgets.Segment]     = []
         self.edition_history: [curves.Curve] = []
 
 class CurveController:
-    class _Modes(Enum):
-        NONE = 0
-        ADD = 1
-        EDIT = 2
-    modes = _Modes
+    modes = utils.ControllerModes
 
     def __init__(self, scene: QtWidgets.QGraphicsScene):
         self.scene = scene
@@ -177,6 +174,20 @@ class CurveController:
         self.curves[curve_id_new] = curve
         self.curve_entry[curve_id_new] = curve_entry
         return True
+
+    def change_curve_visibility(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.info(f"Changing visibility of {curve_id}.")
+        curve_entry = self.curve_entry[curve_id]
+        curve_visibility = curve_entry.visible
+        curve_items = curve_entry.points + curve_entry.segments
+        for item in curve_items:
+            if curve_visibility:
+                self.scene.removeItem(item)
+            else:
+                self.scene.addItem(item)
+        curve_entry.visible = not curve_visibility
 
     def serialize_curve(self, curve_id: str = None) -> dict:
         curve = self.curves.get(curve_id, self._edited_curve)

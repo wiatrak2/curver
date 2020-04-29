@@ -1,17 +1,17 @@
 import logging
-import numpy as np
 from copy import deepcopy
 
 import daiquiri
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+import numpy as np
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from curver import widgets
-from curver.curves import Curve
+from curver.curves import BaseCurve
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
 
-class Lagrange(Curve):
+class Lagrange(BaseCurve):
     type = "Lagrange"
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
@@ -37,10 +37,6 @@ class Lagrange(Curve):
     def set_mode(self, mode):
         self.mode = mode
 
-    def set_state(self, other):
-        self.points = other.points
-        self.curve_id = other.curve_id
-
     def set_points(self, points: [QtCore.QPointF]):
         points.sort(key = lambda p: p.x())
         self.points = points
@@ -59,16 +55,8 @@ class Lagrange(Curve):
         else:
             self._make_moveable()
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF):
-        if point in self.points:
-            self.points[self.points.index(point)] += vector
-
     def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
         pass
-
-    def move_curve(self, vector: QtCore.QPointF, *args, **kwargs):
-        for point in self.points:
-            point += vector
 
     def reverse_curve(self, *args, **kwargs):
         pass
@@ -79,22 +67,8 @@ class Lagrange(Curve):
     def scale_curve(self, scale_factor: float, *args, **kwargs):
         self._scale_factor = scale_factor
 
-    def delete_curve(self):
-        self.points = []
-
-    def get_nearest_point(self, point: QtCore.QPointF):
-        nearest_point = None
-        nearest_dist = 1e100
-        for p in self.points:
-            dist_square = np.power(p.x() - point.x(), 2) + np.power(p.y() - point.y(), 2)
-            if dist_square < nearest_dist:
-                nearest_point = p
-                nearest_dist = dist_square
-        return nearest_point
-
     def point_pos_change(self, old_point: widgets.point.Point, new_point: widgets.point.Point):
-        point = self.get_nearest_point(old_point.point)
-        self.points[self.points.index(point)] = new_point.point
+        super().point_pos_change(old_point, new_point)
         self.points.sort(key = lambda p: p.x())
 
     def _interpolate(self, x, *args, **kwargs):
@@ -104,7 +78,7 @@ class Lagrange(Curve):
         denom = np.sum(self._w / (x - xs))
         return QtCore.QPointF(x, enom / denom)
 
-    def get_items(self):
+    def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
         points = [widgets.point.Point(p) for p in self.points]
         segments = []
         for i, point in enumerate(points[1:]):

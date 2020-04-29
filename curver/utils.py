@@ -13,6 +13,11 @@ class CurveModes(Enum):
     SCALE_CURVE     = 7
     EXPORT_CURVE    = 8
 
+class ControllerModes(Enum):
+    NONE    = 0
+    ADD     = 1
+    EDIT    = 2
+
 def set_widget_geometry(child: QtWidgets.QWidget, parent: QtWidgets.QWidget, mode="left"):
     c_w, c_h = child.width(), child.height()
     p_w, p_h = parent.width(), parent.height()
