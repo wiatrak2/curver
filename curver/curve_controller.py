@@ -18,6 +18,7 @@ class CurveEntry:
     def __init__(self, curve: curves.Curve):
         self.curve = curve
         self.visible = True, True, True  # points, segments, details
+        self.line_pen = QtGui.QPen(QtCore.Qt.black)
         self.points: [widgets.Point] = []
         self.segments: [widgets.Segment] = []
         self.details: [QtWidgets.QGraphicsItem] = []
@@ -275,6 +276,14 @@ class CurveController:
         points_visible, segments_visible, _ = curve_entry.visible
         self.curve_entry[curve_id].visible = (points_visible, segments_visible, make_visible)
 
+    def change_curve_color(self, color: QtGui.QColor, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Changing {curve_id} color to {color.name()}.")
+        curve_entry = self.curve_entry[curve_id]
+        curve_entry.line_pen.setColor(color)
+        self._draw_curve(curve_entry.curve)
+
     def serialize_curve(self, curve_id: str = None) -> dict:
         curve = self.curves.get(curve_id, self._edited_curve)
         return curve.serialize_curve()
@@ -289,7 +298,9 @@ class CurveController:
         control_points_line_pen: QtGui.QPen = None,
     ):
 
-
+        curve_entry = self.curve_entry[curve.id]
+        if segments_pen is None:
+            segments_pen = curve_entry.line_pen
         points, segments, details = curve.get_items(
             points_pen=points_pen,
             segments_pen=segments_pen,
@@ -306,7 +317,6 @@ class CurveController:
             item.add_controller(self)
             self.scene.addItem(item)
 
-        curve_entry = self.curve_entry[curve.id]
         curve_points, curve_segments, curve_details = curve_entry.points, curve_entry.segments, curve_entry.details
         curve_rm_items = curve_segments.copy()
         if draw_points:

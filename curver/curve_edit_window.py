@@ -9,6 +9,7 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, utils, curve_controller
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
+from curver.curve_graphics_editor import CurveGraphicsEditWindow
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -35,11 +36,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
+        self.color_picker = QtWidgets.QColorDialog(self)
         self._set_actions()
 
         self.mode = self.modes.NONE
 
         self._edited_point = None  # Used for points permutation
+
         self._setup_ui()
 
     def set_mode(self, new_mode):
@@ -49,6 +52,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _setup_ui(self):
         self.ui.curveName.setText(self.curve_id)
+        utils.set_widget_geometry(self.color_picker, self, mode="left")
+        self.color_picker.exec_()
         self._update_ui()
 
     def _update_ui(self):
@@ -132,6 +137,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.NONE)
         self.close()
 
+    def _color_picker_action(self, e):
+        color = self.color_picker.currentColor()
+        self.controller.change_curve_color(color, self.curve_id)
+
     def _add_point(self, point: QtCore.QPointF):
         self.controller.add_point(point)
         self.set_mode(self.modes.NONE)
@@ -209,3 +218,4 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.undoButton.clicked.connect(self.undo_button)
         self.ui.cancelButton.clicked.connect(self.cancel_button)
         self.ui.doneButton.clicked.connect(self.done_button)
+        self.color_picker.currentColorChanged.connect(self._color_picker_action)
