@@ -26,9 +26,9 @@
   <widget class="QPushButton" name="curveEditButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>220</x>
      <y>160</y>
-     <width>113</width>
+     <width>140</width>
      <height>32</height>
     </rect>
    </property>
@@ -39,9 +39,9 @@
   <widget class="QPushButton" name="curveDeleteButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>220</x>
      <y>190</y>
-     <width>113</width>
+     <width>140</width>
      <height>32</height>
     </rect>
    </property>
@@ -52,9 +52,9 @@
   <widget class="QPushButton" name="doneButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>220</x>
      <y>250</y>
-     <width>113</width>
+     <width>140</width>
      <height>32</height>
     </rect>
    </property>
@@ -65,14 +65,27 @@
   <widget class="QPushButton" name="changeCurveVisibilityButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>220</x>
      <y>40</y>
-     <width>113</width>
+     <width>140</width>
      <height>32</height>
     </rect>
    </property>
    <property name="text">
     <string>Show/Hide</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="changePointsVisibilityButton">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>70</y>
+     <width>140</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Show/Hide Points</string>
    </property>
   </widget>
  </widget>

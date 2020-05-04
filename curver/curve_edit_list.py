@@ -19,7 +19,6 @@ class CurvesListWindow(QtWidgets.QMainWindow):
     def closeEvent(self, e):
         for curve_id in self.curves:
             self.controller.hide_curve_details(curve_id)
-            self.controller.hide_curve_points(curve_id)
         self.parent().edit_curve_list_close()
         return super().closeEvent(e)
 
@@ -39,6 +38,11 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         curve_id = selected_curve_item.text()
         self.controller.change_curve_visibility(curve_id)
 
+    def change_points_visibility(self):
+        selected_curve_item = self.ui.curvesList.currentItem()
+        curve_id = selected_curve_item.text()
+        self.controller.change_curve_points_visibility(curve_id)
+
     def edit(self):
         selected_curve_item = self.ui.curvesList.currentItem()
         curve_id = selected_curve_item.text()
@@ -55,6 +59,7 @@ class CurvesListWindow(QtWidgets.QMainWindow):
 
     def _set_actions(self):
         self.ui.changeCurveVisibilityButton.clicked.connect(self.change_visibility)
+        self.ui.changePointsVisibilityButton.clicked.connect(self.change_points_visibility)
         self.ui.curveEditButton.clicked.connect(self.edit)
         self.ui.curveDeleteButton.clicked.connect(self.delete)
         self.ui.doneButton.clicked.connect(self.done)

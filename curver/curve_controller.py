@@ -57,7 +57,6 @@ class CurveController:
         self.curve_entry[curve_id] = CurveEntry(self._edited_curve)
 
     def create_curve_finish(self):
-        self.hide_curve_points()
         self.hide_curve_details()
         self._edited_curve = None
         self._set_mode(self.modes.NONE)
@@ -254,6 +253,16 @@ class CurveController:
             self.hide_curve(curve_id)
         else:
             self.show_curve(curve_id)
+
+    def change_curve_points_visibility(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        curve_entry = self.curve_entry[curve_id]
+        logger.info(f"Changing visibility of {curve_id} points.")
+        if curve_entry.visible[0]:
+            self.hide_curve_points(curve_id)
+        else:
+            self.show_curve_points(curve_id)
 
     def _set_points_visibility(self, curve_id: str, make_visible=True):
         curve_entry = self.curve_entry[curve_id]
