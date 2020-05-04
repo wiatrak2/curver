@@ -64,7 +64,13 @@ class Curve:
     def get_nearest_point(self, point: widgets.Point) -> QtCore.QPointF:
         raise NotImplementedError
 
-    def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
+    def get_items(
+        self, *args, **kwargs
+    ) -> (
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+    ):
         raise NotImplementedError
 
     def serialize_curve(self) -> dict:

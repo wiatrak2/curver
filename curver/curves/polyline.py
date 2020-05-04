@@ -2,7 +2,7 @@ import logging
 from copy import deepcopy
 
 import daiquiri
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from curver import widgets
 from curver.curves import BaseCurve
@@ -23,9 +23,20 @@ class Polyline(BaseCurve):
         if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
             self._edition_relative_position = deepcopy(self.points)
 
-    def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
-        points = [widgets.point.Point(p) for p in self.points]
+    def get_items(
+        self,
+        points_pen: QtGui.QPen = None,
+        segments_pen: QtGui.QPen = None,
+        *args,
+        **kwargs
+    ) -> (
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+    ):
+        points = [widgets.point.Point(p, pen=points_pen) for p in self.points]
         lines = [
-            widgets.line.Line(points[i], points[i + 1]) for i in range(len(points) - 1)
+            widgets.line.Line(points[i], points[i + 1], pen=segments_pen)
+            for i in range(len(points) - 1)
         ]
-        return points, lines
+        return points, lines, []

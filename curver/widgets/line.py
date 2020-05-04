@@ -20,7 +20,8 @@ class Line(widgets.Segment):
         self.segment = QtCore.QLineF(self.point_1.point, self.point_2.point)
         super().__init__(self.segment, *args, **kwargs)
 
-        self.pen = self._setup_appearance(pen)
+        self.pen = pen
+        self._setup_appearance(pen)
 
     def __hash__(self):
         return hash((self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y))
@@ -36,8 +37,7 @@ class Line(widgets.Segment):
         return new_line
 
     def _setup_appearance(self, pen: QtGui.QPen):
-        if pen is None:
-            pen = QtGui.QPen(QtCore.Qt.black)
-            pen.setWidth(1)
-        self.setPen(pen)
-        return pen
+        if self.pen is None:
+            self.pen = QtGui.QPen(QtCore.Qt.black)
+            self.pen.setWidth(1)
+        self.setPen(self.pen)

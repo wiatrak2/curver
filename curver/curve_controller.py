@@ -17,9 +17,10 @@ logger = daiquiri.getLogger(__name__)
 class CurveEntry:
     def __init__(self, curve: curves.Curve):
         self.curve = curve
-        self.visible = True
+        self.visible = True, True, True  # points, segments, details
         self.points: [widgets.Point] = []
         self.segments: [widgets.Segment] = []
+        self.details: [QtWidgets.QGraphicsItem] = []
         self.edition_history: [curves.Curve] = []
 
 
@@ -55,6 +56,8 @@ class CurveController:
         self.curve_entry[curve_id] = CurveEntry(self._edited_curve)
 
     def create_curve_finish(self):
+        self.hide_curve_points()
+        self.hide_curve_details()
         self._edited_curve = None
         self._set_mode(self.modes.NONE)
 
@@ -64,6 +67,7 @@ class CurveController:
         self._edited_curve = self.curves[curve_id]
         self._initial_edited_curve = deepcopy(self._edited_curve)
         self.curve_entry[curve_id].edition_history = []
+        self.show_curve(curve_id)
 
     def edit_curve_finish(self):
         self._set_curve_points_moveability(self._edited_curve.id, allow=False)
@@ -75,6 +79,7 @@ class CurveController:
         logger.info(f"Setting initial state = {self._initial_edited_curve.points}")
         self._edited_curve.set_state(self._initial_edited_curve)
         self._draw_curve(self._edited_curve)
+        self._set_curve_points_moveability(self._edited_curve.id, allow=False)
         self._set_mode(self.modes.NONE)
 
     def set_curve_mode(self, mode, curve_id: str = None):
@@ -149,7 +154,7 @@ class CurveController:
         curve = self.curves.pop(curve_id)
         curve_entry = self.curve_entry.pop(curve_id)
         curve.delete_curve()
-        for item in curve_entry.points + curve_entry.segments:
+        for item in curve_entry.points + curve_entry.segments + curve_entry.details:
             self.scene.removeItem(item)
 
     def move_curve(self, vector: QtCore.QPointF, curve_id: str = None):
@@ -187,42 +192,135 @@ class CurveController:
         self.curve_entry[curve_id_new] = curve_entry
         return True
 
+    def show_curve(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Showing {curve_id}.")
+        self.show_curve_points(curve_id)
+        self.show_curve_segments(curve_id)
+        self.show_curve_details(curve_id)
+
+    def hide_curve(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Hiding {curve_id}.")
+        self.hide_curve_points(curve_id)
+        self.hide_curve_segments(curve_id)
+        self.hide_curve_details(curve_id)
+
+    def show_curve_points(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Showing {curve_id} points.")
+        self._set_points_visibility(curve_id, True)
+
+    def hide_curve_points(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Hiding {curve_id} points.")
+        self._set_points_visibility(curve_id, False)
+
+    def show_curve_segments(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Showing {curve_id} segments.")
+        self._set_segments_visibility(curve_id, True)
+
+    def hide_curve_segments(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Hiding {curve_id} segments.")
+        self._set_segments_visibility(curve_id, False)
+
+    def show_curve_details(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Showing {curve_id} details.")
+        self._set_details_visibility(curve_id, True)
+
+    def hide_curve_details(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.debug(f"Hiding {curve_id} details.")
+        self._set_details_visibility(curve_id, False)
+
     def change_curve_visibility(self, curve_id: str = None):
         if curve_id is None:
             curve_id = self._edited_curve.id
-        logger.info(f"Changing visibility of {curve_id}.")
         curve_entry = self.curve_entry[curve_id]
-        curve_visibility = curve_entry.visible
-        curve_items = curve_entry.points + curve_entry.segments
-        for item in curve_items:
-            if curve_visibility:
-                self.scene.removeItem(item)
-            else:
-                self.scene.addItem(item)
-        curve_entry.visible = not curve_visibility
+        logger.info(f"Changing visibility of {curve_id}. Point/segmets/details visibility: {curve_entry.visible}")
+        if any(curve_entry.visible):
+            self.hide_curve(curve_id)
+        else:
+            self.show_curve(curve_id)
+
+    def _set_points_visibility(self, curve_id: str, make_visible=True):
+        curve_entry = self.curve_entry[curve_id]
+        for point in curve_entry.points:
+            point.setVisible(make_visible)
+        _, segments_visible, details_visible = curve_entry.visible
+        self.curve_entry[curve_id].visible = (make_visible, segments_visible, details_visible)
+
+    def _set_segments_visibility(self, curve_id: str, make_visible=True):
+        curve_entry = self.curve_entry[curve_id]
+        for segment in curve_entry.segments:
+            segment.setVisible(make_visible)
+        points_visible, _, details_visible = curve_entry.visible
+        self.curve_entry[curve_id].visible = (points_visible, make_visible, details_visible)
+
+    def _set_details_visibility(self, curve_id: str, make_visible=True):
+        curve_entry = self.curve_entry[curve_id]
+        for detail in curve_entry.details:
+            detail.setVisible(make_visible)
+        points_visible, segments_visible, _ = curve_entry.visible
+        self.curve_entry[curve_id].visible = (points_visible, segments_visible, make_visible)
 
     def serialize_curve(self, curve_id: str = None) -> dict:
         curve = self.curves.get(curve_id, self._edited_curve)
         return curve.serialize_curve()
 
-    def _draw_curve(self, curve, draw_points=True):
-        points, segments = curve.get_items()
-        curve_new_items = points + segments if draw_points else segments
+    def _draw_curve(
+        self,
+        curve,
+        draw_points=True,
+        draw_details=True,
+        points_pen: QtGui.QPen = None,
+        segments_pen: QtGui.QPen = None,
+        control_points_line_pen: QtGui.QPen = None,
+    ):
+
+
+        points, segments, details = curve.get_items(
+            points_pen=points_pen,
+            segments_pen=segments_pen,
+            control_points_line_pen=control_points_line_pen,
+        )
+
+        curve_new_items = segments.copy()
+        if draw_points:
+            curve_new_items += points.copy()
+        if draw_details:
+            curve_new_items += details.copy()
+
         for item in curve_new_items:
             item.add_controller(self)
             self.scene.addItem(item)
 
         curve_entry = self.curve_entry[curve.id]
-        curve_points, curve_segments = curve_entry.points, curve_entry.segments
-        curve_rm_items = (
-            curve_points + curve_segments if draw_points else curve_segments
-        )
+        curve_points, curve_segments, curve_details = curve_entry.points, curve_entry.segments, curve_entry.details
+        curve_rm_items = curve_segments.copy()
+        if draw_points:
+            curve_rm_items += curve_points.copy()
+        if draw_details:
+            curve_rm_items += curve_details.copy()
         for item in curve_rm_items:
             self.scene.removeItem(item)
 
         curve_entry.segments = segments
         if draw_points:
             curve_entry.points = points
+        if draw_details:
+            curve_entry.details = details
         self._set_curve_points_moveability(curve.id, allow=self.mode == self.modes.EDIT)
 
     def _set_curve_points_moveability(self, curve_id: str, allow=True):

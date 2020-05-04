@@ -82,13 +82,23 @@ class Lagrange(BaseCurve):
         denom = np.sum(self._w / (x - xs))
         return QtCore.QPointF(x, enom / denom)
 
-    def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
-        points = [widgets.point.Point(p) for p in self.points]
+    def get_items(
+        self,
+        points_pen: QtGui.QPen = None,
+        segments_pen: QtGui.QPen = None,
+        *args,
+        **kwargs
+    ) -> (
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+    ):
+        points = [widgets.point.Point(p, pen=points_pen) for p in self.points]
         segments = []
         for i, point in enumerate(points[1:]):
             prev_point = points[i]
             curve_segment = widgets.interpolation_curve.InterpolationCurve(
-                prev_point, point, self._interpolate
+                prev_point, point, self._interpolate, pen=segments_pen
             )
             segments.append(curve_segment)
 
@@ -100,4 +110,4 @@ class Lagrange(BaseCurve):
             curve_segment.setRotation(angle)
             curve_segment.setScale(self._scale_factor)
 
-        return points, segments
+        return points, segments, []

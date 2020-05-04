@@ -89,5 +89,11 @@ class BaseCurve(Curve):
         point = self.get_nearest_point(old_point.point)
         self.points[self.points.index(point)] = new_point.point
 
-    def get_items(self, *args, **kwargs) -> [QtWidgets.QGraphicsItem]:
+    def get_items(
+        self, *args, **kwargs
+    ) -> (
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+        [QtWidgets.QGraphicsItem],
+    ):
         raise NotImplementedError

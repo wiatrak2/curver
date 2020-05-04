@@ -17,6 +17,9 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self._set_actions()
 
     def closeEvent(self, e):
+        for curve_id in self.curves:
+            self.controller.hide_curve_details(curve_id)
+            self.controller.hide_curve_points(curve_id)
         self.parent().edit_curve_list_close()
         return super().closeEvent(e)
 
@@ -24,7 +27,12 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self.curves = curves
         self.ui.curvesList.clear()
         self.ui.curvesList.addItems(self.curves)
+        self._setup_ui()
         return super().show(*args, **kwargs)
+
+    def _setup_ui(self):
+        for curve_id in self.curves:
+            self.controller.show_curve(curve_id)
 
     def change_visibility(self):
         selected_curve_item = self.ui.curvesList.currentItem()

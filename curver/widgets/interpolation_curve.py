@@ -13,6 +13,7 @@ class InterpolationCurve(widgets.GroupSegment):
         point_2: widgets.Point,
         interpolation,
         interval=1,
+        pen: QtGui.QPen = None,
         *args,
         **kwargs
     ):
@@ -21,6 +22,7 @@ class InterpolationCurve(widgets.GroupSegment):
         self.point_2 = point_2
         self.interpolation = interpolation
         self.interval = interval
+        self.pen = pen
         self._segments = []
         self._construct_curve()
 
@@ -42,6 +44,6 @@ class InterpolationCurve(widgets.GroupSegment):
             + [self.point_2]
         )
         for i in range(len(points) - 1):
-            segment = widgets.Line(points[i], points[i + 1])
+            segment = widgets.Line(points[i], points[i + 1], pen=self.pen)
             self.addToGroup(segment)
             self._segments.append(segment)
