@@ -59,7 +59,9 @@ class CurvesListWindow(QtWidgets.QMainWindow):
 
     def _set_actions(self):
         self.ui.changeCurveVisibilityButton.clicked.connect(self.change_visibility)
-        self.ui.changePointsVisibilityButton.clicked.connect(self.change_points_visibility)
+        self.ui.changePointsVisibilityButton.clicked.connect(
+            self.change_points_visibility
+        )
         self.ui.curveEditButton.clicked.connect(self.edit)
         self.ui.curveDeleteButton.clicked.connect(self.delete)
         self.ui.doneButton.clicked.connect(self.done)

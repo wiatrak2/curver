@@ -7,7 +7,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, utils, curve_controller
+from curver import curves, utils, curve_controller, curve_join_window
 from curver.ui.curve_edit_ui import Ui_curveEditWindow
 
 daiquiri.setup(level=logging.INFO)
@@ -35,11 +35,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
-        self.color_picker = QtWidgets.QColorDialog(self)
+        self.color_picker = QtWidgets.QColorDialog(parent=self)
         self._set_actions()
 
         self.mode = self.modes.NONE
 
+        self._curve_join_window = None
         self._edited_point = None  # Used for points permutation
 
         self._setup_ui()
@@ -123,6 +124,15 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             self, "Save", "curve.json", ".json"
         )
         self._save_curve(filename[0])
+
+    def join_button(self):
+        curve_ids = self.controller.curve_ids()
+        curve_ids.remove(self.curve_id)
+        self._curve_join_window = curve_join_window.CurveJoinWindow(
+            self.curve_id, curve_ids, parent=self
+        )
+        utils.set_widget_geometry(self._curve_join_window, self.parent(), "right")
+        self._curve_join_window.show()
 
     def undo_button(self):
         self.controller.undo_curve_edit()
@@ -214,6 +224,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
         self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
+        self.ui.joinWithCurveButton.clicked.connect(self.join_button)
         self.ui.undoButton.clicked.connect(self.undo_button)
         self.ui.cancelButton.clicked.connect(self.cancel_button)
         self.ui.doneButton.clicked.connect(self.done_button)

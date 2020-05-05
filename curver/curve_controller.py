@@ -50,6 +50,9 @@ class CurveController:
             self.scene.notify_click = True
             self.scene.notify_position = True
 
+    def curve_ids(self) -> [str]:
+        return list(self.curves.keys())
+
     def create_curve_start(self, curve_id: str, curve_cls: curves.Curve):
         self._set_mode(self.modes.ADD)
         self._edited_curve = curve_cls(curve_id)
@@ -192,6 +195,30 @@ class CurveController:
         self.curve_entry[curve_id_new] = curve_entry
         return True
 
+    def join_curves(
+        self,
+        left_curve_id: str,
+        right_curve_id: str,
+        join_to_first_point=True,
+        move_left_curve=True,
+    ):
+        left_curve = self.curves[left_curve_id]
+        right_curve = self.curves[right_curve_id]
+        if move_left_curve:
+            move_vec = (
+                right_curve.points[0] - left_curve.points[0]
+                if join_to_first_point
+                else right_curve.points[-1] - left_curve.points[0]
+            )
+            self.move_curve(move_vec, left_curve)
+        else:
+            move_vec = (
+                left_curve.points[0] - right_curve.points[0]
+                if join_to_first_point
+                else left_curve.points[-1] - right_curve.points[0]
+            )
+            self.move_curve(move_vec, right_curve)
+
     def show_curve(self, curve_id: str = None):
         if curve_id is None:
             curve_id = self._edited_curve.id
@@ -248,7 +275,9 @@ class CurveController:
         if curve_id is None:
             curve_id = self._edited_curve.id
         curve_entry = self.curve_entry[curve_id]
-        logger.info(f"Changing visibility of {curve_id}. Point/segmets/details visibility: {curve_entry.visible}")
+        logger.info(
+            f"Changing visibility of {curve_id}. Point/segmets/details visibility: {curve_entry.visible}"
+        )
         if any(curve_entry.visible):
             self.hide_curve(curve_id)
         else:
@@ -269,21 +298,33 @@ class CurveController:
         for point in curve_entry.points:
             point.setVisible(make_visible)
         _, segments_visible, details_visible = curve_entry.visible
-        self.curve_entry[curve_id].visible = (make_visible, segments_visible, details_visible)
+        self.curve_entry[curve_id].visible = (
+            make_visible,
+            segments_visible,
+            details_visible,
+        )
 
     def _set_segments_visibility(self, curve_id: str, make_visible=True):
         curve_entry = self.curve_entry[curve_id]
         for segment in curve_entry.segments:
             segment.setVisible(make_visible)
         points_visible, _, details_visible = curve_entry.visible
-        self.curve_entry[curve_id].visible = (points_visible, make_visible, details_visible)
+        self.curve_entry[curve_id].visible = (
+            points_visible,
+            make_visible,
+            details_visible,
+        )
 
     def _set_details_visibility(self, curve_id: str, make_visible=True):
         curve_entry = self.curve_entry[curve_id]
         for detail in curve_entry.details:
             detail.setVisible(make_visible)
         points_visible, segments_visible, _ = curve_entry.visible
-        self.curve_entry[curve_id].visible = (points_visible, segments_visible, make_visible)
+        self.curve_entry[curve_id].visible = (
+            points_visible,
+            segments_visible,
+            make_visible,
+        )
 
     def change_curve_color(self, color: QtGui.QColor, curve_id: str = None):
         if curve_id is None:
@@ -326,7 +367,11 @@ class CurveController:
             item.add_controller(self)
             self.scene.addItem(item)
 
-        curve_points, curve_segments, curve_details = curve_entry.points, curve_entry.segments, curve_entry.details
+        curve_points, curve_segments, curve_details = (
+            curve_entry.points,
+            curve_entry.segments,
+            curve_entry.details,
+        )
         curve_rm_items = curve_segments.copy()
         if draw_points:
             curve_rm_items += curve_points.copy()

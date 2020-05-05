@@ -354,6 +354,19 @@
     </property>
    </widget>
   </widget>
+  <widget class="QPushButton" name="joinWithCurveButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>395</y>
+     <width>121</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Join with curve</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -31,7 +31,8 @@ def set_widget_geometry(
         offset = (p_h - c_h) / 2
         child.setGeometry(p_x - c_w, p_y + offset, c_w, c_h)
     elif mode == "right":
-        pass
+        offset = (p_h - c_h) / 2
+        child.setGeometry(p_x + p_w, p_y + offset, c_w, c_h)
     elif mode == "top":
         pass
     elif mode == "bottom":
