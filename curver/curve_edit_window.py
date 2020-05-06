@@ -63,6 +63,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
 
     def _finish_edit(self):
+        self.color_picker.close()
+        if self._curve_join_window:
+            self._curve_join_window.close()
         self.controller.rename_curve(self.curve_id, self.ui.curveName.text())
         self.parent().edit_curve_finish()
 
@@ -126,6 +129,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._save_curve(filename[0])
 
     def join_button(self):
+        self.set_mode(self.modes.JOIN_CURVE)
         curve_ids = self.controller.curve_ids()
         curve_ids.remove(self.curve_id)
         self._curve_join_window = curve_join_window.CurveJoinWindow(
@@ -210,6 +214,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             return
         if self.mode == self.modes.ROTATE_CURVE:
             return
+        if self.mode == self.modes.JOIN_CURVE:
+            if self._curve_join_window.mouse_click_action(point):
+                self.close()
 
     def _set_actions(self):
         self.ui.addPointButton.clicked.connect(self.add_point_button)

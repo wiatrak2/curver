@@ -13,6 +13,8 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
 
         self.curve_id = curve_id
         self.curves = curves
+        self._split_curve_mode = False
+
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
         self._set_actions()
@@ -38,10 +40,29 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
             self.curve_id, self.selected_curve, join_to_first_point=False
         )
 
-    def done(self):
+    def _merge_button(self):
+        self.controller.merge_curves(self.curve_id, self.selected_curve)
+
+    def _split_curve_button(self):
+        self._split_curve_mode = True
+
+    def _done_button(self):
         self.close()
+
+    def _split_curve(self, point: QtCore.QPointF):
+        self.controller.split_curve(point, self.curve_id)
+
+    def mouse_click_action(self, point: QtCore.QPointF) -> bool:
+        if self._split_curve_mode:
+            self._split_curve(point)
+            self._split_curve_mode = False
+            return True
+        return False
+
 
     def _set_actions(self):
         self.ui.moveToFirstButton.clicked.connect(self._move_to_first_button)
         self.ui.moveToLastButton.clicked.connect(self._move_to_last_button)
-        self.ui.doneButton.clicked.connect(self.done)
+        self.ui.mergeButton.clicked.connect(self._merge_button)
+        self.ui.splitCurveButton.clicked.connect(self._split_curve_button)
+        self.ui.doneButton.clicked.connect(self._done_button)

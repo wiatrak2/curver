@@ -13,6 +13,7 @@ class CurveModes(Enum):
     ROTATE_CURVE = 6
     SCALE_CURVE = 7
     EXPORT_CURVE = 8
+    JOIN_CURVE = 9
 
 
 class ControllerModes(Enum):

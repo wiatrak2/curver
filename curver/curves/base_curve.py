@@ -28,6 +28,9 @@ class BaseCurve(Curve):
         if point in self.points:
             self.points[self.points.index(point)] += vector
 
+    def add_points(self, points: [QtCore.QPointF]):
+        self.points += points
+
     def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
         if point_1 in self.points and point_2 in self.points:
             p_1_idx, p_2_idx = self.points.index(point_1), self.points.index(point_2)

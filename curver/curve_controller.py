@@ -36,7 +36,6 @@ class CurveController:
 
         self._edited_curve = None
 
-        self._edition_history = []
         self._initial_edited_curve = None
 
         self.mode = self.modes.NONE
@@ -73,10 +72,11 @@ class CurveController:
         self.show_curve(curve_id)
 
     def edit_curve_finish(self):
-        self._set_curve_points_moveability(self._edited_curve.id, allow=False)
-        self._edited_curve = None
-        self._initial_edited_curve = None
-        self._set_mode(self.modes.NONE)
+        if self._edited_curve:
+            self._set_curve_points_moveability(self._edited_curve.id, allow=False)
+            self._edited_curve = None
+            self._initial_edited_curve = None
+            self._set_mode(self.modes.NONE)
 
     def edit_curve_cancel(self):
         logger.info(f"Setting initial state = {self._initial_edited_curve.points}")
@@ -134,6 +134,11 @@ class CurveController:
         move_point = curve.get_nearest_point(point)
         curve.move_point(move_point, vector)
 
+    def add_points(self, points: [QtCore.QPointF], curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        curve.add_points(points)
+        self._draw_curve(curve)
+
     def permute_points(
         self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, curve_id: str = None
     ):
@@ -148,6 +153,7 @@ class CurveController:
         curve = curve_cls(curve_id)
         curve.set_points(curve_points)
         self.curves[curve_id] = curve
+        self.curve_entry[curve_id] = CurveEntry(curve)
         self._draw_curve(curve)
 
     def delete_curve(self, curve_id: str = None):
@@ -188,6 +194,9 @@ class CurveController:
         if curve_id_new in self.curves and curve_id_old != curve_id_new:
             logger.info("Failed to rename the curve.")
             return False
+        if curve_id_old not in self.curves:
+            logger.info(f"Curve {curve_id_old} not found.")
+            return False
         curve = self.curves.pop(curve_id_old)
         curve_entry = self.curve_entry.pop(curve_id_old)
         curve.curve_id = curve_id_new
@@ -195,29 +204,43 @@ class CurveController:
         self.curve_entry[curve_id_new] = curve_entry
         return True
 
+    def split_curve(self, point: QtCore.QPointF, curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        split_point = curve.get_nearest_point(point)
+        split_point_idx = curve.points.index(split_point)
+        left_curve_id = f"{curve_id}_L"
+        right_curve_id = f"{curve_id}_R"
+        self.add_curve(left_curve_id, type(curve), curve.points[:split_point_idx])
+        self.add_curve(right_curve_id, type(curve), curve.points[split_point_idx:])
+        self._draw_curve(self.curves[left_curve_id])
+        self._draw_curve(self.curves[right_curve_id])
+        self.delete_curve(curve_id)
+        self._edited_curve = None
+
     def join_curves(
         self,
         left_curve_id: str,
         right_curve_id: str,
         join_to_first_point=True,
-        move_left_curve=True,
     ):
+        self.set_curve_mode(utils.CurveModes.MOVE_BY_VECTOR, left_curve_id)
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
-        if move_left_curve:
-            move_vec = (
-                right_curve.points[0] - left_curve.points[0]
-                if join_to_first_point
-                else right_curve.points[-1] - left_curve.points[0]
-            )
-            self.move_curve(move_vec, left_curve)
-        else:
-            move_vec = (
-                left_curve.points[0] - right_curve.points[0]
-                if join_to_first_point
-                else left_curve.points[-1] - right_curve.points[0]
-            )
-            self.move_curve(move_vec, right_curve)
+
+        move_vec = (
+            right_curve.points[0] - left_curve.points[0]
+            if join_to_first_point
+            else right_curve.points[-1] - left_curve.points[0]
+        )
+        self.move_curve(move_vec, left_curve)
+
+
+    def merge_curves(self, left_curve_id: str, right_curve_id: str, join_to_first_point=True):
+        self.set_curve_mode(utils.CurveModes.ADD_POINT, left_curve_id)
+        left_curve = self.curves[left_curve_id]
+        right_curve = self.curves[right_curve_id]
+        self.add_points(right_curve.points, left_curve_id)
+        self.delete_curve(right_curve_id)
 
     def show_curve(self, curve_id: str = None):
         if curve_id is None:
