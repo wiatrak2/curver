@@ -58,7 +58,6 @@ class Bezier(BaseCurve):
     ):
         control_points = [widgets.Point(p, pen=points_pen) for p in self.points]
         points = [widgets.Point(self.points[0])]
-        segments = []
 
         for t in range(n):
             x = t / (n - 1)

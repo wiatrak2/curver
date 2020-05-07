@@ -354,7 +354,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="joinWithCurveButton">
+  <widget class="QPushButton" name="joinSplitButton">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -364,7 +364,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Join with curve</string>
+    <string>Join / Split</string>
    </property>
   </widget>
  </widget>

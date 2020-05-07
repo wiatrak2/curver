@@ -103,9 +103,9 @@ class Ui_curveEditWindow(object):
         self.addButton = QtWidgets.QPushButton(self.addPointBox)
         self.addButton.setGeometry(QtCore.QRect(110, 10, 113, 32))
         self.addButton.setObjectName("addButton")
-        self.joinWithCurveButton = QtWidgets.QPushButton(curveEditWindow)
-        self.joinWithCurveButton.setGeometry(QtCore.QRect(10, 395, 121, 32))
-        self.joinWithCurveButton.setObjectName("joinWithCurveButton")
+        self.joinSplitButton = QtWidgets.QPushButton(curveEditWindow)
+        self.joinSplitButton.setGeometry(QtCore.QRect(10, 395, 121, 32))
+        self.joinSplitButton.setObjectName("joinSplitButton")
 
         self.retranslateUi(curveEditWindow)
         QtCore.QMetaObject.connectSlotsByName(curveEditWindow)
@@ -131,6 +131,4 @@ class Ui_curveEditWindow(object):
         self.reverseCurveButton.setText(_translate("curveEditWindow", "Reverse points"))
         self.scaleDoneButton.setText(_translate("curveEditWindow", "Done"))
         self.addButton.setText(_translate("curveEditWindow", "Add"))
-        self.joinWithCurveButton.setText(
-            _translate("curveEditWindow", "Join with curve")
-        )
+        self.joinSplitButton.setText(_translate("curveEditWindow", "Join / Split"))

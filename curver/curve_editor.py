@@ -94,6 +94,7 @@ class CurveEditor(QtWidgets.QMainWindow):
     def cancel_add_curve_button_action(self):
         self.controller.delete_curve()
         self.ui.addPointBox.setHidden(True)
+        self.set_mode(self.modes.NONE)
 
     def save_curve_button_action(self):
         curve_id = self.ui.curveName.text()

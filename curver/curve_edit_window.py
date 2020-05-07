@@ -35,7 +35,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
-        self.color_picker = QtWidgets.QColorDialog(parent=self)
+        self.color_picker = QtWidgets.QColorDialog(QtCore.Qt.black, parent=self)
         self._set_actions()
 
         self.mode = self.modes.NONE
@@ -231,7 +231,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
         self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
-        self.ui.joinWithCurveButton.clicked.connect(self.join_button)
+        self.ui.joinSplitButton.clicked.connect(self.join_button)
         self.ui.undoButton.clicked.connect(self.undo_button)
         self.ui.cancelButton.clicked.connect(self.cancel_button)
         self.ui.doneButton.clicked.connect(self.done_button)

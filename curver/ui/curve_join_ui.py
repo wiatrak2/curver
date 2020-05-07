@@ -23,14 +23,11 @@ class Ui_curveEditWindow(object):
         self.moveToFirstButton = QtWidgets.QPushButton(curveEditWindow)
         self.moveToFirstButton.setGeometry(QtCore.QRect(220, 40, 140, 32))
         self.moveToFirstButton.setObjectName("moveToFirstButton")
-        self.moveToLastButton = QtWidgets.QPushButton(curveEditWindow)
-        self.moveToLastButton.setGeometry(QtCore.QRect(220, 70, 140, 32))
-        self.moveToLastButton.setObjectName("moveToLastButton")
         self.splitCurveButton = QtWidgets.QPushButton(curveEditWindow)
-        self.splitCurveButton.setGeometry(QtCore.QRect(220, 170, 140, 32))
+        self.splitCurveButton.setGeometry(QtCore.QRect(220, 150, 140, 32))
         self.splitCurveButton.setObjectName("splitCurveButton")
         self.mergeButton = QtWidgets.QPushButton(curveEditWindow)
-        self.mergeButton.setGeometry(QtCore.QRect(220, 100, 140, 32))
+        self.mergeButton.setGeometry(QtCore.QRect(220, 70, 140, 32))
         self.mergeButton.setObjectName("mergeButton")
 
         self.retranslateUi(curveEditWindow)
@@ -40,7 +37,8 @@ class Ui_curveEditWindow(object):
         _translate = QtCore.QCoreApplication.translate
         curveEditWindow.setWindowTitle(_translate("curveEditWindow", "Form"))
         self.doneButton.setText(_translate("curveEditWindow", "Done"))
-        self.moveToFirstButton.setText(_translate("curveEditWindow", "Move to first point"))
-        self.moveToLastButton.setText(_translate("curveEditWindow", "Move to last point"))
+        self.moveToFirstButton.setText(
+            _translate("curveEditWindow", "Move to first point")
+        )
         self.splitCurveButton.setText(_translate("curveEditWindow", "Split Curve"))
         self.mergeButton.setText(_translate("curveEditWindow", "Merge"))

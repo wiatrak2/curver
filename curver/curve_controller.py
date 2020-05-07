@@ -60,6 +60,7 @@ class CurveController:
 
     def create_curve_finish(self):
         self.hide_curve_details()
+        self.hide_curve_points()
         self._edited_curve = None
         self._set_mode(self.modes.NONE)
 
@@ -70,10 +71,14 @@ class CurveController:
         self._initial_edited_curve = deepcopy(self._edited_curve)
         self.curve_entry[curve_id].edition_history = []
         self.show_curve(curve_id)
+        self._draw_curve(self._edited_curve)
 
-    def edit_curve_finish(self):
-        if self._edited_curve:
-            self._set_curve_points_moveability(self._edited_curve.id, allow=False)
+    def edit_curve_finish(self, curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        if curve:
+            self._set_curve_points_moveability(curve.id, allow=False)
+            self.hide_curve_points(curve.id)
+            self.hide_curve_details(curve.id)
             self._edited_curve = None
             self._initial_edited_curve = None
             self._set_mode(self.modes.NONE)
@@ -150,6 +155,9 @@ class CurveController:
     def add_curve(
         self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF]
     ):
+        logger.info(
+            f"Adding curve {curve_id} of class {curve_cls} with points {curve_points}"
+        )
         curve = curve_cls(curve_id)
         curve.set_points(curve_points)
         self.curves[curve_id] = curve
@@ -208,6 +216,7 @@ class CurveController:
         curve = self.curves.get(curve_id, self._edited_curve)
         split_point = curve.get_nearest_point(point)
         split_point_idx = curve.points.index(split_point)
+        logger.info(f"Spliting curve {curve_id}. Split point idx: {split_point_idx}")
         left_curve_id = f"{curve_id}_L"
         right_curve_id = f"{curve_id}_R"
         self.add_curve(left_curve_id, type(curve), curve.points[:split_point_idx])
@@ -216,31 +225,31 @@ class CurveController:
         self._draw_curve(self.curves[right_curve_id])
         self.delete_curve(curve_id)
         self._edited_curve = None
+        self.edit_curve_finish(left_curve_id)
+        self.edit_curve_finish(right_curve_id)
 
-    def join_curves(
-        self,
-        left_curve_id: str,
-        right_curve_id: str,
-        join_to_first_point=True,
-    ):
+    def join_curves(self, left_curve_id: str, right_curve_id: str):
         self.set_curve_mode(utils.CurveModes.MOVE_BY_VECTOR, left_curve_id)
+        logger.info(f"Moving curve {left_curve_id} to the position of {right_curve_id}")
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
 
-        move_vec = (
-            right_curve.points[0] - left_curve.points[0]
-            if join_to_first_point
-            else right_curve.points[-1] - left_curve.points[0]
-        )
+        move_vec = right_curve.points[0] - left_curve.points[0]
         self.move_curve(move_vec, left_curve)
+        self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
 
-
-    def merge_curves(self, left_curve_id: str, right_curve_id: str, join_to_first_point=True):
+    def merge_curves(
+        self, left_curve_id: str, right_curve_id: str, join_to_first_point=True
+    ):
         self.set_curve_mode(utils.CurveModes.ADD_POINT, left_curve_id)
+        logger.info(f"Merging curves: {left_curve_id}, {right_curve_id}")
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
+        if left_curve.points[-1] == right_curve.points[0]:
+            right_curve.points.pop(0)
         self.add_points(right_curve.points, left_curve_id)
         self.delete_curve(right_curve_id)
+        self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
 
     def show_curve(self, curve_id: str = None):
         if curve_id is None:
@@ -315,6 +324,23 @@ class CurveController:
             self.hide_curve_points(curve_id)
         else:
             self.show_curve_points(curve_id)
+
+    def expose_curve(self, curve_id: str = None):
+        logger.info(f"Exposing {curve_id}")
+        curve = self.curves.get(curve_id, self._edited_curve)
+        segments_pen = QtGui.QPen(QtCore.Qt.black)
+        segments_pen.setWidth(3)
+        self._draw_curve(curve, segments_pen=segments_pen)
+
+    def quit_expose_curve(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        if curve_id in self.curve_entry:
+            curve_entry = self.curve_entry[curve_id]
+            self._draw_curve(curve_entry.curve)
+            self._set_points_visibility(curve_id, curve_entry.visible[0])
+            self._set_segments_visibility(curve_id, curve_entry.visible[1])
+            self._set_details_visibility(curve_id, curve_entry.visible[2])
 
     def _set_points_visibility(self, curve_id: str, make_visible=True):
         curve_entry = self.curve_entry[curve_id]
