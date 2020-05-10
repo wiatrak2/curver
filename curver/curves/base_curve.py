@@ -6,32 +6,32 @@ from curver.curves import Curve
 
 
 class BaseCurve(Curve):
-    def set_mode(self, mode):
+    def set_mode(self, mode, *args, **kwargs):
         raise NotImplementedError
 
-    def set_state(self, other):
+    def set_state(self, other, *args, **kwargs):
         self.delete_curve()
         self.set_points(other.points)
         self.curve_id = other.curve_id
 
-    def set_points(self, points: [QtCore.QPointF]):
+    def set_points(self, points: [QtCore.QPointF], *args, **kwargs):
         self.points = points
 
-    def add_point(self, point: QtCore.QPointF):
+    def add_point(self, point: QtCore.QPointF, *args, **kwargs):
         self.points.append(point)
 
-    def delete_point(self, point: QtCore.QPointF):
+    def delete_point(self, point: QtCore.QPointF, *args, **kwargs):
         if point in self.points:
             self.points.remove(point)
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF):
+    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
         if point in self.points:
             self.points[self.points.index(point)] += vector
 
-    def add_points(self, points: [QtCore.QPointF]):
+    def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
         self.points += points
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
+    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
         if point_1 in self.points and point_2 in self.points:
             p_1_idx, p_2_idx = self.points.index(point_1), self.points.index(point_2)
             self.points[p_1_idx], self.points[p_2_idx] = (

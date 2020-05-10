@@ -56,9 +56,9 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>90</y>
-       <width>41</width>
-       <height>31</height>
+       <y>60</y>
+       <width>40</width>
+       <height>30</height>
       </rect>
      </property>
      <property name="inputMethodHints">
@@ -71,10 +71,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>90</y>
-       <width>41</width>
-       <height>31</height>
+       <x>80</x>
+       <y>60</y>
+       <width>40</width>
+       <height>30</height>
       </rect>
      </property>
     </widget>
@@ -111,9 +111,9 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>50</y>
-       <width>101</width>
-       <height>31</height>
+       <y>20</y>
+       <width>100</width>
+       <height>30</height>
       </rect>
      </property>
     </widget>
@@ -142,6 +142,57 @@
      <property name="text">
       <string>Cancel</string>
      </property>
+    </widget>
+    <widget class="QGroupBox" name="weightBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>120</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <widget class="QLineEdit" name="weightVal">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>0</y>
+        <width>40</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhNone</set>
+      </property>
+      <property name="placeholderText">
+       <string>1.0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="weightLabel">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>5</y>
+        <width>60</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>weight:</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="editCurveButton">

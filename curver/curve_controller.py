@@ -108,9 +108,11 @@ class CurveController:
             curve.set_state(curve_last_state)
             self._draw_curve(curve)
 
-    def add_point(self, point: QtCore.QPointF, curve_id: str = None):
+    def add_point(self, point: QtCore.QPointF, curve_id: str = None, weight: float = None):
         curve = self.curves.get(curve_id, self._edited_curve)
-        curve.add_point(point)
+        if curve.weighted and weight is None:
+            weight = 1.
+        curve.add_point(point, weight)
         logger.info(
             f"Curve {curve.id}: Added point {point}. All points: {curve.points}"
         )
@@ -153,13 +155,15 @@ class CurveController:
         self._draw_curve(curve)
 
     def add_curve(
-        self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF]
+        self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF], weights: [float] = None
     ):
         logger.info(
             f"Adding curve {curve_id} of class {curve_cls} with points {curve_points}"
         )
+        if weights:
+            logger.info(f"Curve weights: {weights}")
         curve = curve_cls(curve_id)
-        curve.set_points(curve_points)
+        curve.set_points(curve_points, weights)
         self.curves[curve_id] = curve
         self.curve_entry[curve_id] = CurveEntry(curve)
         self._draw_curve(curve)
@@ -324,6 +328,10 @@ class CurveController:
             self.hide_curve_points(curve_id)
         else:
             self.show_curve_points(curve_id)
+
+    def is_weighted(self, curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        return curve.weighted
 
     def expose_curve(self, curve_id: str = None):
         logger.info(f"Exposing {curve_id}")

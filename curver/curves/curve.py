@@ -4,8 +4,10 @@ from curver import widgets, utils
 
 
 class Curve:
-    modes = utils.CurveModes
     type = "Curve"
+
+    modes = utils.CurveModes
+    weighted = False
 
     def __init__(self, curve_id: str):
         self.curve_id = curve_id
@@ -25,28 +27,28 @@ class Curve:
     def __str__(self) -> str:
         return f"{self.type}({self.points})"
 
-    def set_mode(self, mode):
+    def set_mode(self, mode, *args, **kwargs):
         raise NotImplementedError
 
-    def set_state(self, other):
+    def set_state(self, other, *args, **kwargs):
         raise NotImplementedError
 
-    def set_points(self, points: [QtCore.QPointF]):
+    def set_points(self, points: [QtCore.QPointF], *args, **kwargs):
         raise NotImplementedError
 
-    def add_point(self, point: QtCore.QPointF):
+    def add_point(self, point: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
-    def delete_point(self, point: QtCore.QPointF):
+    def delete_point(self, point: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF):
+    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
-    def add_points(self, points: [QtCore.QPointF]):
+    def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
         raise NotImplementedError
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
+    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
     def move_curve(self, vector: QtCore.QPointF, *args, **kwargs):
@@ -79,6 +81,6 @@ class Curve:
     def serialize_curve(self) -> dict:
         return {
             "type": self.type,
-            "_id": self.curve_id,
+            "id": self.curve_id,
             "points": [[p.x(), p.y()] for p in self.points],
         }

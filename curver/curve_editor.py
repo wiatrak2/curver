@@ -29,6 +29,8 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.mode = self.modes.NONE
         self._update_ui()
 
+        self.current_curve_type = None
+
         self.edit_curves_list = None
         self.edit_curve_window = None
 
@@ -71,22 +73,23 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def _update_ui(self):
         self.ui.addPointBox.setVisible(self.mode == self.modes.ADD)
+        self.ui.weightBox.setVisible(self.mode == self.modes.ADD and self.current_curve_type.weighted)
+        self.ui.weightVal.setText("1.0")
 
     # Button actions
 
     def add_curve_button_action(self):
         if self.mode == self.modes.NONE:
-            self.set_mode(self.modes.ADD)
             curve_type = self.ui.setCurveType.currentText()
             curve_cls = curves.types[curve_type]
             curve_id = f"{curve_type}_{len(self.controller.curves)+1}"  # TODO: unique names, even after removing curve
             self.ui.curveName.setText(curve_id)
+            self.current_curve_type = curve_cls
             self.controller.create_curve_start(curve_id, curve_cls)
+            self.set_mode(self.modes.ADD)
 
     def add_point_button_action(self):
-        x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
-        point = QtCore.QPointF(x, y)
-        self.controller.add_point(point)
+        self._add_point()
 
     def undo_add_point_button_action(self):
         self.controller.delete_point_idx(-1)
@@ -106,6 +109,7 @@ class CurveEditor(QtWidgets.QMainWindow):
             return
 
         self.controller.create_curve_finish()
+        self.current_curve_type = None
         self.set_mode(self.modes.NONE)
 
     def edit_curve_button_action(self):
@@ -121,6 +125,16 @@ class CurveEditor(QtWidgets.QMainWindow):
         )
         self._import_curve(filename[0])
 
+    def _add_point(self, point: QtCore.QPointF = None):
+        if point is None:
+            x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
+            point = QtCore.QPointF(x, y)
+        weight = None
+        if self.ui.weightBox.isVisible():
+            weight = float(self.ui.weightVal.text()) or 1.
+            self.ui.weightVal.setText("1.0")
+        self.controller.add_point(point, weight=weight)
+
     def _import_curve(self, filename):
         logger.info(f"Importing curve from {filename}.")
         try:
@@ -130,11 +144,14 @@ class CurveEditor(QtWidgets.QMainWindow):
             logger.warning(f"Could not load curve from {filename}.")
             return
         curve_cls = curves.types[curve_info.get("type", curves.Curve)]
-        curve_id = curve_info.get("curve_id", "")
+        curve_id = curve_info.get("id", "")
         curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
-        self.controller.add_curve(curve_id, curve_cls, curve_points)
+        curve_weights = None
+        if curve_cls.weighted:
+            curve_weights = curve_info.get("weights")
+        self.controller.add_curve(curve_id, curve_cls, curve_points, weights=curve_weights)
         logger.info(
-            f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points defined successfully imported."
+            f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points successfully imported."
         )
 
     def edit_curve_start(self, curve_id: str):
@@ -156,7 +173,7 @@ class CurveEditor(QtWidgets.QMainWindow):
     # Notifications from scene handling
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
-        self.controller.add_point(point)
+        self._add_point(point)
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()

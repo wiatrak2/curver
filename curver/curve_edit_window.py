@@ -61,6 +61,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.vectorMoveBox.setVisible(self.mode == self.modes.MOVE_BY_VECTOR)
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
+        self.ui.weightBox.setVisible(self.mode == self.modes.ADD_POINT and self.controller.is_weighted(self.curve_id))
+        self.ui.weightVal.setText("1.0")
 
     def _finish_edit(self):
         self.color_picker.close()
@@ -155,7 +157,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.controller.change_curve_color(color, self.curve_id)
 
     def _add_point(self, point: QtCore.QPointF):
-        self.controller.add_point(point)
+        weight = None
+        if self.controller.is_weighted(self.curve_id):
+            weight = float(self.ui.weightVal.text()) or 1.
+        self.controller.add_point(point, weight=weight)
         self.set_mode(self.modes.NONE)
 
     def _add_from_coordinates(self):
