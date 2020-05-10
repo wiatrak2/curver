@@ -72,8 +72,8 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>41</width>
-      <height>31</height>
+      <width>40</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="inputMethodHints">
@@ -85,8 +85,8 @@
      <rect>
       <x>60</x>
       <y>10</y>
-      <width>41</width>
-      <height>31</height>
+      <width>40</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="inputMethodHints">
@@ -325,8 +325,8 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>41</width>
-      <height>31</height>
+      <width>40</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="inputMethodHints">
@@ -338,8 +338,8 @@
      <rect>
       <x>60</x>
       <y>10</y>
-      <width>41</width>
-      <height>31</height>
+      <width>40</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="inputMethodHints">
@@ -364,7 +364,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>395</y>
+     <y>410</y>
      <width>121</width>
      <height>32</height>
     </rect>
@@ -377,7 +377,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>80</y>
+     <y>70</y>
      <width>101</width>
      <height>41</height>
     </rect>
@@ -393,8 +393,8 @@
      <rect>
       <x>60</x>
       <y>10</y>
-      <width>41</width>
-      <height>31</height>
+      <width>40</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="inputMethodHints">
@@ -413,6 +413,77 @@
     <property name="text">
      <string>weight:</string>
     </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="editWeightBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>370</y>
+     <width>230</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+   <widget class="QPushButton" name="editWeightButton">
+    <property name="geometry">
+     <rect>
+      <x>-10</x>
+      <y>0</y>
+      <width>121</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Edit Weight</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="editWeightValBox">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>-10</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+    <widget class="QLineEdit" name="editWeightVal">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>10</y>
+       <width>40</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="inputMethodHints">
+      <set>Qt::ImhNone</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="editWeightLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>weight:</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>

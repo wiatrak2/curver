@@ -62,7 +62,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
         self.ui.weightBox.setVisible(self.mode == self.modes.ADD_POINT and self.controller.is_weighted(self.curve_id))
+        self.ui.editWeightBox.setVisible(self.controller.is_weighted(self.curve_id))
+        self.ui.editWeightValBox.setVisible(self.mode == self.modes.EDIT_WEIGHT and self.controller.is_weighted(self.curve_id))
         self.ui.weightVal.setText("1.0")
+        self.ui.editWeightVal.setText("1.0")
 
     def _finish_edit(self):
         self.color_picker.close()
@@ -129,6 +132,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             self, "Save", "curve.json", ".json"
         )
         self._save_curve(filename[0])
+
+    def edit_weight_button(self):
+        self.set_mode(self.modes.EDIT_WEIGHT)
 
     def join_button(self):
         self.set_mode(self.modes.JOIN_CURVE)
@@ -200,6 +206,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
         self.controller.scale_curve(scale_factor)
 
+    def _edit_weight(self, point: QtCore.QPointF):
+        weight = float(self.ui.editWeightVal.text()) or 1.
+        self.controller.edit_point_weight(point, weight)
+        self.set_mode(self.modes.NONE)
+
     def _save_curve(self, filename):
         curve_dict = self.controller.serialize_curve()
         with open(filename, "w") as f:
@@ -222,6 +233,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         if self.mode == self.modes.JOIN_CURVE:
             if self._curve_join_window.mouse_click_action(point):
                 self.close()
+        if self.mode == self.modes.EDIT_WEIGHT:
+            return self._edit_weight(point)
 
     def _set_actions(self):
         self.ui.addPointButton.clicked.connect(self.add_point_button)
@@ -236,6 +249,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
         self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
+        self.ui.editWeightButton.clicked.connect(self.edit_weight_button)
         self.ui.joinSplitButton.clicked.connect(self.join_button)
         self.ui.undoButton.clicked.connect(self.undo_button)
         self.ui.cancelButton.clicked.connect(self.cancel_button)

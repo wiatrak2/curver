@@ -141,6 +141,16 @@ class CurveController:
         move_point = curve.get_nearest_point(point)
         curve.move_point(move_point, vector)
 
+    def edit_point_weight(self, point: QtCore.QPointF, weight: float = None, curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        if weight is None and curve.weighted:
+            weight = 1.0
+        weighted_point = curve.get_nearest_point(point)
+        logger.info(f"Setting point {weighted_point} weight to {weight}")
+        curve.edit_weight(weighted_point, weight)
+        self._draw_curve(curve)
+
+
     def add_points(self, points: [QtCore.QPointF], curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
         curve.add_points(points)

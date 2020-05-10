@@ -24,6 +24,9 @@ class BaseCurve(Curve):
         if point in self.points:
             self.points.remove(point)
 
+    def edit_weight(self, point: QtCore.QPointF, weight: float, *args, **kwargs):
+        return
+
     def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
         if point in self.points:
             self.points[self.points.index(point)] += vector

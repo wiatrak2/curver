@@ -42,6 +42,9 @@ class Curve:
     def delete_point(self, point: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
+    def edit_weight(self, point: QtCore.QPointF, weight: float, *args, **kwargs):
+        raise NotImplementedError
+
     def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 

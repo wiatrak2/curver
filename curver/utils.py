@@ -14,6 +14,7 @@ class CurveModes(Enum):
     SCALE_CURVE = 7
     EXPORT_CURVE = 8
     JOIN_CURVE = 9
+    EDIT_WEIGHT = 10
 
 
 class ControllerModes(Enum):
