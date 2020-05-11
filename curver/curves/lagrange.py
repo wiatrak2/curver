@@ -36,28 +36,28 @@ class Lagrange(BaseCurve):
         self._rotation_angle = 0.0
         self._scale_factor = 1.0
 
-    def set_mode(self, mode):
+    def set_mode(self, mode, *args, **kwargs):
         self.mode = mode
 
-    def set_points(self, points: [QtCore.QPointF]):
+    def set_points(self, points: [QtCore.QPointF], *args, **kwargs):
         points.sort(key=lambda p: p.x())
         self.points = points
 
-    def add_point(self, point: QtCore.QPointF):
+    def add_point(self, point: QtCore.QPointF, *args, **kwargs):
         if self.is_movable:
             self.points.append(point)
             self.points.sort(key=lambda p: p.x())
         else:
             self._make_moveable()
 
-    def delete_point(self, point: QtCore.QPointF):
+    def delete_point(self, point: QtCore.QPointF, *args, **kwargs):
         if self.is_movable:
             if point in self.points:
                 self.points.remove(point)
         else:
             self._make_moveable()
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF):
+    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
         pass
 
     def reverse_curve(self, *args, **kwargs):

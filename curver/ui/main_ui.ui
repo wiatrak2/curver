@@ -236,11 +236,23 @@
     <addaction name="separator"/>
     <addaction name="actionImportCurve"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionChange_color"/>
+   </widget>
    <addaction name="menutopbar"/>
+   <addaction name="menuEdit"/>
   </widget>
   <action name="actionImportCurve">
    <property name="text">
     <string>Import curve</string>
+   </property>
+  </action>
+  <action name="actionChange_color">
+   <property name="text">
+    <string>Change color</string>
    </property>
   </action>
  </widget>

@@ -27,6 +27,10 @@ class Curve:
     def __str__(self) -> str:
         return f"{self.type}({self.points})"
 
+    @classmethod
+    def construct_from_points(cls, curve_id: str, points: [QtCore.QPointF]):
+        raise NotImplementedError
+
     def set_mode(self, mode, *args, **kwargs):
         raise NotImplementedError
 
@@ -67,6 +71,9 @@ class Curve:
         raise NotImplementedError
 
     def delete_curve(self):
+        raise NotImplementedError
+
+    def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 
     def get_nearest_point(self, point: widgets.Point) -> QtCore.QPointF:

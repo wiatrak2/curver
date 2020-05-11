@@ -149,7 +149,7 @@ class CurveEditor(QtWidgets.QMainWindow):
         curve_weights = None
         if curve_cls.weighted:
             curve_weights = curve_info.get("weights")
-        self.controller.add_curve(curve_id, curve_cls, curve_points, weights=curve_weights)
+        self.controller.create_curve(curve_id, curve_cls, curve_points, weights=curve_weights)
         logger.info(
             f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points successfully imported."
         )

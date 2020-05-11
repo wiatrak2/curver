@@ -65,7 +65,6 @@ class Point(QtWidgets.QGraphicsEllipseItem, Item):
     def __deepcopy__(self, memo):
         new_point = Point(self.point)
         new_point.edit_mode = self.edit_mode
-        new_point.associated_segments = self.associated_segments
         return new_point
 
     def _setup_appearance(self):

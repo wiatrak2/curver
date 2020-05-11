@@ -164,16 +164,23 @@ class CurveController:
         curve.permute_points(p_1, p_2)
         self._draw_curve(curve)
 
-    def add_curve(
+    def create_curve(
         self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF], weights: [float] = None
     ):
         logger.info(
-            f"Adding curve {curve_id} of class {curve_cls} with points {curve_points}"
+            f"Creating curve {curve_id} of class {curve_cls} with points {curve_points}"
         )
         if weights:
             logger.info(f"Curve weights: {weights}")
         curve = curve_cls(curve_id)
         curve.set_points(curve_points, weights)
+        self.curves[curve_id] = curve
+        self.curve_entry[curve_id] = CurveEntry(curve)
+        self._draw_curve(curve)
+
+    def add_curve(self, curve: curves.Curve):
+        logger.info(f"Adding curve {curve} to controller.")
+        curve_id = curve.id
         self.curves[curve_id] = curve
         self.curve_entry[curve_id] = CurveEntry(curve)
         self._draw_curve(curve)
@@ -228,19 +235,14 @@ class CurveController:
 
     def split_curve(self, point: QtCore.QPointF, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
-        split_point = curve.get_nearest_point(point)
-        split_point_idx = curve.points.index(split_point)
-        logger.info(f"Spliting curve {curve_id}. Split point idx: {split_point_idx}")
-        left_curve_id = f"{curve_id}_L"
-        right_curve_id = f"{curve_id}_R"
-        self.add_curve(left_curve_id, type(curve), curve.points[:split_point_idx])
-        self.add_curve(right_curve_id, type(curve), curve.points[split_point_idx:])
-        self._draw_curve(self.curves[left_curve_id])
-        self._draw_curve(self.curves[right_curve_id])
+        logger.info(f"Spliting curve {curve_id}.")
+        curve_L, curve_R = curve.split_curve(point)
+        self.add_curve(curve_L)
+        self.add_curve(curve_R)
         self.delete_curve(curve_id)
         self._edited_curve = None
-        self.edit_curve_finish(left_curve_id)
-        self.edit_curve_finish(right_curve_id)
+        self.edit_curve_finish(curve_L.id)
+        self.edit_curve_finish(curve_R.id)
 
     def join_curves(self, left_curve_id: str, right_curve_id: str):
         self.set_curve_mode(utils.CurveModes.MOVE_BY_VECTOR, left_curve_id)
@@ -344,7 +346,6 @@ class CurveController:
         return curve.weighted
 
     def expose_curve(self, curve_id: str = None):
-        logger.info(f"Exposing {curve_id}")
         curve = self.curves.get(curve_id, self._edited_curve)
         segments_pen = QtGui.QPen(QtCore.Qt.black)
         segments_pen.setWidth(3)

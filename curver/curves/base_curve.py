@@ -6,6 +6,12 @@ from curver.curves import Curve
 
 
 class BaseCurve(Curve):
+    @classmethod
+    def construct_from_points(cls, curve_id: str, points: [QtCore.QPointF]):
+        new_curve = cls(curve_id)
+        new_curve.set_points(points)
+        return new_curve
+
     def set_mode(self, mode, *args, **kwargs):
         raise NotImplementedError
 
@@ -76,6 +82,14 @@ class BaseCurve(Curve):
 
     def delete_curve(self):
         self.points = []
+
+    def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
+        point = self.get_nearest_point(point)
+        point_idx = self.points.index(point)
+        curve_L_points, curve_R_points = self.points[:point_idx+1], self.points[point_idx:]
+        curve_L = self.construct_from_points(f"{self.curve_id}_L", curve_L_points)
+        curve_R = self.construct_from_points(f"{self.curve_id}_R", curve_R_points)
+        return curve_L, curve_R
 
     def get_nearest_point(self, point: QtCore.QPointF):
         nearest_point = None
