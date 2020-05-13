@@ -13,21 +13,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_curveEditWindow(object):
     def setupUi(self, curveEditWindow):
         curveEditWindow.setObjectName("curveEditWindow")
-        curveEditWindow.resize(400, 300)
+        curveEditWindow.resize(200, 650)
         self.curvesList = QtWidgets.QListWidget(curveEditWindow)
         self.curvesList.setGeometry(QtCore.QRect(10, 10, 181, 261))
         self.curvesList.setObjectName("curvesList")
         self.doneButton = QtWidgets.QPushButton(curveEditWindow)
-        self.doneButton.setGeometry(QtCore.QRect(220, 240, 140, 32))
+        self.doneButton.setGeometry(QtCore.QRect(30, 490, 140, 32))
         self.doneButton.setObjectName("doneButton")
         self.moveToFirstButton = QtWidgets.QPushButton(curveEditWindow)
-        self.moveToFirstButton.setGeometry(QtCore.QRect(220, 40, 140, 32))
+        self.moveToFirstButton.setGeometry(QtCore.QRect(30, 290, 140, 32))
         self.moveToFirstButton.setObjectName("moveToFirstButton")
         self.splitCurveButton = QtWidgets.QPushButton(curveEditWindow)
-        self.splitCurveButton.setGeometry(QtCore.QRect(220, 150, 140, 32))
+        self.splitCurveButton.setGeometry(QtCore.QRect(30, 400, 140, 32))
         self.splitCurveButton.setObjectName("splitCurveButton")
         self.mergeButton = QtWidgets.QPushButton(curveEditWindow)
-        self.mergeButton.setGeometry(QtCore.QRect(220, 70, 140, 32))
+        self.mergeButton.setGeometry(QtCore.QRect(30, 320, 140, 32))
         self.mergeButton.setObjectName("mergeButton")
 
         self.retranslateUi(curveEditWindow)
@@ -37,8 +37,6 @@ class Ui_curveEditWindow(object):
         _translate = QtCore.QCoreApplication.translate
         curveEditWindow.setWindowTitle(_translate("curveEditWindow", "Form"))
         self.doneButton.setText(_translate("curveEditWindow", "Done"))
-        self.moveToFirstButton.setText(
-            _translate("curveEditWindow", "Move to first point")
-        )
+        self.moveToFirstButton.setText(_translate("curveEditWindow", "Move to first point"))
         self.splitCurveButton.setText(_translate("curveEditWindow", "Split Curve"))
         self.mergeButton.setText(_translate("curveEditWindow", "Merge"))

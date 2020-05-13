@@ -8,7 +8,7 @@ import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, utils, curve_controller, curve_join_window
-from curver.ui.curve_edit_ui import Ui_curveEditWindow
+from curver.ui.curve_edit_ui import Ui_curveEditPanel
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -33,7 +33,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         else:
             self.controller: curve_controller.CurveController = controller
 
-        self.ui = Ui_curveEditWindow()
+        self._parent = parent
+        self.ui = Ui_curveEditPanel()
         self.ui.setupUi(self)
         self.color_picker = QtWidgets.QColorDialog(QtCore.Qt.black, parent=self)
         self._set_actions()
@@ -52,8 +53,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _setup_ui(self):
         self.ui.curveName.setText(self.curve_id)
-        utils.set_widget_geometry(self.color_picker, self, mode="left")
-        self.color_picker.show()
         self._update_ui()
 
     def _update_ui(self):
@@ -72,7 +71,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         if self._curve_join_window:
             self._curve_join_window.close()
         self.controller.rename_curve(self.curve_id, self.ui.curveName.text())
-        self.parent().edit_curve_finish()
+        self._parent.edit_curve_finish()
 
     def closeEvent(self, e):
         self._finish_edit()
@@ -143,7 +142,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._curve_join_window = curve_join_window.CurveJoinWindow(
             self.curve_id, curve_ids, parent=self
         )
-        utils.set_widget_geometry(self._curve_join_window, self.parent(), "right")
+        self.controller.set_panel_widget(self._curve_join_window)
         self._curve_join_window.show()
 
     def undo_button(self):
@@ -157,6 +156,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def done_button(self):
         self.set_mode(self.modes.NONE)
         self.close()
+
+    def change_color(self):
+        utils.set_widget_geometry(self.color_picker, self, mode="left")
+        self.color_picker.show()
 
     def _color_picker_action(self):
         color = self.color_picker.currentColor()

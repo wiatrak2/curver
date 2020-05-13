@@ -10,6 +10,7 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
 
         assert parent.controller, "Parent of CurveJoinWindow must have controller"
         self.controller: CurveController = parent.controller
+        self._parent = parent
 
         self.curve_id = curve_id
         self.curves = curves
@@ -25,6 +26,7 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
         return selected_curve_item.text()
 
     def closeEvent(self, e):
+        self.controller.set_panel_widget(self._parent)
         return super().closeEvent(e)
 
     def show(self, *args, **kwargs):

@@ -28,8 +28,9 @@ class CurveEntry:
 class CurveController:
     modes = utils.ControllerModes
 
-    def __init__(self, scene: QtWidgets.QGraphicsScene):
+    def __init__(self, scene: QtWidgets.QGraphicsScene, main_ui=None):
         self.scene = scene
+        self.main_ui = main_ui
 
         self.curves: Dict[str, curves.Curve] = {}
         self.curve_entry: Dict[str, CurveEntry] = {}
@@ -405,6 +406,14 @@ class CurveController:
     def serialize_curve(self, curve_id: str = None) -> dict:
         curve = self.curves.get(curve_id, self._edited_curve)
         return curve.serialize_curve()
+
+    def set_panel_widget(self, new_widget: QtWidgets.QWidget):
+        logger.info(f"Setting panel widget to {new_widget}")
+        if self.main_ui is None:
+            logger.warning("Could not update panel widget, as `main_ui` is not set.")
+        else:
+            self.main_ui.set_panel_widget(new_widget)
+
 
     def _draw_curve(
         self,

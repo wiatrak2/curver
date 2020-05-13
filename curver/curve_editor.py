@@ -7,6 +7,7 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, widgets, utils, curve_controller
 from curver.ui.main_ui import Ui_MainWindow
+from curver.add_curve_panel import addCurvePanel
 from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
 from copy import deepcopy
@@ -24,7 +25,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self._setup_editor_ui()
 
-        self.controller = curve_controller.CurveController(self.scene)
+        self.controller = curve_controller.CurveController(self.scene, main_ui=self)
+
+        self.add_curve_panel = addCurvePanel(self)
 
         self.mode = self.modes.NONE
         self._update_ui()
@@ -44,8 +47,18 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.mode = new_mode
         self._update_ui()
 
+    def set_panel_widget(self, new_widget):
+        logger.info(f"Setting panel widget to {new_widget}.")
+        current_layout_item = self.ui.panelLayout.itemAt(0)
+        if current_layout_item is None:
+            self.ui.panelLayout.addWidget(new_widget)
+        else:
+            current_widget = current_layout_item.widget()
+            current_widget.hide()
+            self.ui.mainLayout.replaceWidget(current_widget, new_widget)
+        new_widget.show()
+
     def _setup_editor_ui(self):
-        self.ui.setCurveType.addItems(curves.types.keys())
         canvas = self._create_canvas()
         self.ui.plane.setScene(canvas)
         self.ui.plane.scale(1, -1)
@@ -61,63 +74,14 @@ class CurveEditor(QtWidgets.QMainWindow):
         return scene
 
     def _connect_actions(self):
-        self.ui.addCurveButton.clicked.connect(self.add_curve_button_action)
-        self.ui.addPointButton.clicked.connect(self.add_point_button_action)
-        self.ui.undoAddPointButton.clicked.connect(self.undo_add_point_button_action)
-        self.ui.cancelAddCurveButton.clicked.connect(
-            self.cancel_add_curve_button_action
-        )
-        self.ui.saveCurveButton.clicked.connect(self.save_curve_button_action)
-        self.ui.editCurveButton.clicked.connect(self.edit_curve_button_action)
         self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
+        self.ui.actionChangeColor.triggered.connect(self.change_color_action)
 
     def _update_ui(self):
-        self.ui.addPointBox.setVisible(self.mode == self.modes.ADD)
-        self.ui.weightBox.setVisible(self.mode == self.modes.ADD and self.current_curve_type.weighted)
-        self.ui.weightVal.setText("1.0")
+        if self.mode == self.modes.NONE:
+            self.set_panel_widget(self.add_curve_panel)
 
     # Button actions
-
-    def add_curve_button_action(self):
-        if self.mode == self.modes.NONE:
-            curve_type = self.ui.setCurveType.currentText()
-            curve_cls = curves.types[curve_type]
-            curve_id = f"{curve_type}_{len(self.controller.curves)+1}"  # TODO: unique names, even after removing curve
-            self.ui.curveName.setText(curve_id)
-            self.current_curve_type = curve_cls
-            self.controller.create_curve_start(curve_id, curve_cls)
-            self.set_mode(self.modes.ADD)
-
-    def add_point_button_action(self):
-        self._add_point()
-
-    def undo_add_point_button_action(self):
-        self.controller.delete_point_idx(-1)
-
-    def cancel_add_curve_button_action(self):
-        self.controller.delete_curve()
-        self.ui.addPointBox.setHidden(True)
-        self.set_mode(self.modes.NONE)
-
-    def save_curve_button_action(self):
-        curve_id = self.ui.curveName.text()
-        curve_id_success = self.controller.rename_curve(curve_id)
-        if not curve_id_success:
-            msg_box = QtWidgets.QMessageBox(self)
-            msg_box.setText("Curve with given name already exists")
-            msg_box.exec_()
-            return
-
-        self.controller.create_curve_finish()
-        self.current_curve_type = None
-        self.set_mode(self.modes.NONE)
-
-    def edit_curve_button_action(self):
-        if self.mode == self.modes.NONE:
-            self.set_mode(self.modes.EDIT)
-            self.edit_curves_list = CurvesListWindow(self)
-            utils.set_widget_geometry(self.edit_curves_list, self, mode="left")
-            self.edit_curves_list.show(self.controller.curves)
 
     def import_curve_action(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(
@@ -125,15 +89,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         )
         self._import_curve(filename[0])
 
-    def _add_point(self, point: QtCore.QPointF = None):
-        if point is None:
-            x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
-            point = QtCore.QPointF(x, y)
-        weight = None
-        if self.ui.weightBox.isVisible():
-            weight = float(self.ui.weightVal.text()) or 1.
-            self.ui.weightVal.setText("1.0")
-        self.controller.add_point(point, weight=weight)
+    def change_color_action(self):
+        if self.edit_curve_window and self.mode == self.modes.EDIT:
+            self.edit_curve_window.change_color()
 
     def _import_curve(self, filename):
         logger.info(f"Importing curve from {filename}.")
@@ -155,10 +113,10 @@ class CurveEditor(QtWidgets.QMainWindow):
         )
 
     def edit_curve_start(self, curve_id: str):
+        self.set_mode(self.modes.EDIT)
         self.controller.edit_curve_start(curve_id)
         self.edit_curve_window = CurveEditWindow(curve_id, parent=self)
-        utils.set_widget_geometry(self.edit_curve_window, self, mode="left")
-        self.edit_curve_window.show()
+        self.set_panel_widget(self.edit_curve_window)
 
     def edit_curve_finish(self):
         self.controller.edit_curve_finish()
@@ -173,12 +131,11 @@ class CurveEditor(QtWidgets.QMainWindow):
     # Notifications from scene handling
 
     def _add_curve_scene_click_action(self, point: QtCore.QPointF):
-        self._add_point(point)
+        self.add_curve_panel.add_point(point)
 
     def _add_curve_scene_move_action(self, point: QtCore.QPointF):
         x, y = point.x(), point.y()
-        self.ui.xPos.setText(str(int(x)))
-        self.ui.yPos.setText(str(int(y)))
+        self.add_curve_panel.show_point_pos(x, y)
 
     def _edit_curve_scene_move_action(self, point: QtCore.QPointF):
         self.edit_curve_window.notify_scene_pos(point)

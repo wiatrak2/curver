@@ -5,15 +5,16 @@ from curver.ui.curve_edit_list_ui import Ui_curveEditWindow
 
 
 class CurvesListWindow(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, curves={}):
         super().__init__(parent)
 
         assert parent.controller, "Parent of CurvesListWindow must have controller"
         self.controller: CurveController = parent.controller
+        self._parent = parent
+        self.curves = curves
 
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
-        self.curves = {}
         self._set_actions()
 
     @property
@@ -25,11 +26,10 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self.controller.quit_expose_curve(self.selected_curve)
         for curve_id in self.curves:
             self.controller.hide_curve_details(curve_id)
-        self.parent().edit_curve_list_close()
+        self._parent.edit_curve_list_close()
         return super().closeEvent(e)
 
-    def show(self, curves, *args, **kwargs):
-        self.curves = curves
+    def show(self, *args, **kwargs):
         self.ui.curvesList.clear()
         self.ui.curvesList.addItems(self.curves)
         self.ui.curvesList.setCurrentRow(0)
@@ -42,11 +42,11 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self.controller.change_curve_points_visibility(self.selected_curve)
 
     def edit(self):
-        self.parent().edit_curve_start(self.selected_curve)
+        self._parent.edit_curve_start(self.selected_curve)
 
     def delete(self):
         self.ui.curvesList.takeItem(self.ui.curvesList.currentRow())
-        self.parent().delete_curve(self.selected_curve)
+        self._parent.delete_curve(self.selected_curve)
 
     def done(self):
         self.close()
