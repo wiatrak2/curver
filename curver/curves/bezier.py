@@ -30,13 +30,13 @@ class Bezier(BaseCurve):
     def de_casteljau(self, t):
         n = len(self.points)
         W_k_i = np.empty((n, n), dtype=QtCore.QPointF)
-        W_k_i[0,:] = self.points
+        W_k_i[0, :] = self.points
         for k in range(1, n):
-            for i in range(n-k):
-                W_k_i[k][i] = (1-t) * W_k_i[k-1][i] + t * W_k_i[k-1][i+1]
-        return W_k_i[n-1][0], W_k_i
+            for i in range(n - k):
+                W_k_i[k][i] = (1 - t) * W_k_i[k - 1][i] + t * W_k_i[k - 1][i + 1]
+        return W_k_i[n - 1][0], W_k_i
 
-    def split_curve(self, point:QtCore.QPointF, *args, **kwargs):
+    def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         nearest_point = None
         nearest_dist = 1e100
         for p in self.curve_points:
@@ -47,8 +47,10 @@ class Bezier(BaseCurve):
         point_idx = self.curve_points.index(nearest_point)
         t = self.t[point_idx]
         _, W_k_i = self.de_casteljau(t)
-        curve_L_points = list(W_k_i[:,0])
-        curve_R_points = [W_k_i[len(self.points)-1-i][i] for i in range(len(self.points))]
+        curve_L_points = list(W_k_i[:, 0])
+        curve_R_points = [
+            W_k_i[len(self.points) - 1 - i][i] for i in range(len(self.points))
+        ]
         curve_L = self.construct_from_points(f"{self.curve_id}_L", curve_L_points)
         curve_R = self.construct_from_points(f"{self.curve_id}_R", curve_R_points)
         return curve_L, curve_R
@@ -80,7 +82,7 @@ class Bezier(BaseCurve):
         control_points_line_pen: QtGui.QPen = None,
         convex_hull_pen: QtGui.QPen = None,
         *args,
-        **kwargs
+        **kwargs,
     ) -> (
         [QtWidgets.QGraphicsItem],
         [QtWidgets.QGraphicsItem],
@@ -93,7 +95,9 @@ class Bezier(BaseCurve):
         self.curve_points = [widgets.Point(self._interpolate(x)) for x in self.t]
 
         lines = [
-            widgets.Line(self.curve_points[i], self.curve_points[i + 1], pen=segments_pen)
+            widgets.Line(
+                self.curve_points[i], self.curve_points[i + 1], pen=segments_pen
+            )
             for i in range(len(self.curve_points) - 1)
         ]
 
@@ -118,9 +122,10 @@ class Bezier(BaseCurve):
             extra_segments += [
                 widgets.Line(
                     widgets.Point(convex_hull_points[i]),
-                    widgets.Point(convex_hull_points[(i+1) % n]),
-                    pen=convex_hull_pen
+                    widgets.Point(convex_hull_points[(i + 1) % n]),
+                    pen=convex_hull_pen,
                 )
-            for i in range(n)]
+                for i in range(n)
+            ]
 
         return control_points, lines, extra_segments

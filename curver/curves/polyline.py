@@ -51,8 +51,9 @@ class Polyline(BaseCurve):
             extra_segments += [
                 widgets.Line(
                     widgets.Point(convex_hull_points[i]),
-                    widgets.Point(convex_hull_points[(i+1) % n]),
-                    pen=convex_hull_pen
+                    widgets.Point(convex_hull_points[(i + 1) % n]),
+                    pen=convex_hull_pen,
                 )
-            for i in range(n)]
+                for i in range(n)
+            ]
         return points, lines, extra_segments

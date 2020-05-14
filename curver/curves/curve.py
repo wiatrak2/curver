@@ -49,13 +49,17 @@ class Curve:
     def edit_weight(self, point: QtCore.QPointF, weight: float, *args, **kwargs):
         raise NotImplementedError
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
+    def move_point(
+        self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs
+    ):
         raise NotImplementedError
 
     def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
         raise NotImplementedError
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
+    def permute_points(
+        self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs
+    ):
         raise NotImplementedError
 
     def move_curve(self, vector: QtCore.QPointF, *args, **kwargs):

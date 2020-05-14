@@ -37,6 +37,8 @@ class Ui_curveEditWindow(object):
         _translate = QtCore.QCoreApplication.translate
         curveEditWindow.setWindowTitle(_translate("curveEditWindow", "Form"))
         self.doneButton.setText(_translate("curveEditWindow", "Done"))
-        self.moveToFirstButton.setText(_translate("curveEditWindow", "Move to first point"))
+        self.moveToFirstButton.setText(
+            _translate("curveEditWindow", "Move to first point")
+        )
         self.splitCurveButton.setText(_translate("curveEditWindow", "Split Curve"))
         self.mergeButton.setText(_translate("curveEditWindow", "Merge"))

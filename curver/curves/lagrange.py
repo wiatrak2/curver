@@ -57,7 +57,9 @@ class Lagrange(BaseCurve):
         else:
             self._make_moveable()
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
+    def permute_points(
+        self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs
+    ):
         pass
 
     def reverse_curve(self, *args, **kwargs):

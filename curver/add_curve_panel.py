@@ -4,6 +4,7 @@ from curver import curves, widgets, utils, curve_controller
 from curver.ui.add_point_panel_ui import Ui_addCurveWidget
 from curver.curve_edit_list import CurvesListWindow
 
+
 class addCurvePanel(QtWidgets.QWidget):
     modes = utils.ControllerModes
 
@@ -32,7 +33,9 @@ class addCurvePanel(QtWidgets.QWidget):
 
     def _update_ui(self):
         self.ui.addPointBox.setVisible(self.mode == self.modes.ADD)
-        self.ui.weightBox.setVisible(self.mode == self.modes.ADD and self.current_curve_type.weighted)
+        self.ui.weightBox.setVisible(
+            self.mode == self.modes.ADD and self.current_curve_type.weighted
+        )
         self.ui.weightVal.setText("1.0")
 
     def _connect_actions(self):
@@ -81,7 +84,9 @@ class addCurvePanel(QtWidgets.QWidget):
 
     def edit_curve_button_action(self):
         if self.mode == self.modes.NONE:
-            self.edit_curves_list = CurvesListWindow(self._parent, self.controller.curve_ids())
+            self.edit_curves_list = CurvesListWindow(
+                self._parent, self.controller.curve_ids()
+            )
             self.controller.set_panel_widget(self.edit_curves_list)
 
     def _add_point(self, point: QtCore.QPointF = None):
@@ -90,7 +95,7 @@ class addCurvePanel(QtWidgets.QWidget):
             point = QtCore.QPointF(x, y)
         weight = None
         if self.ui.weightBox.isVisible():
-            weight = float(self.ui.weightVal.text()) or 1.
+            weight = float(self.ui.weightVal.text()) or 1.0
             self.ui.weightVal.setText("1.0")
         self.controller.add_point(point, weight=weight)
 

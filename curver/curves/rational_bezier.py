@@ -28,7 +28,7 @@ class RationalBezier(Bezier):
             weights = np.ones_like(points)
         self.weights = weights
 
-    def add_point(self, point: QtCore.QPointF, weight: float = 1.):
+    def add_point(self, point: QtCore.QPointF, weight: float = 1.0):
         logger.info(f"Point {point} weight: {weight}")
         super().add_point(point)
         self.weights.append(weight)
@@ -50,14 +50,19 @@ class RationalBezier(Bezier):
             weights = np.ones_like(points)
         self.weights += weights
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
+    def permute_points(
+        self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs
+    ):
         if point_1 in self.points and point_2 in self.points:
             p_1_idx, p_2_idx = self.points.index(point_1), self.points.index(point_2)
             self.points[p_1_idx], self.points[p_2_idx] = (
                 self.points[p_2_idx],
                 self.points[p_1_idx],
             )
-            self.weights[p_1_idx], self.weights[p_2_idx] = self.weights[p_2_idx], self.weights[p_1_idx]
+            self.weights[p_1_idx], self.weights[p_2_idx] = (
+                self.weights[p_2_idx],
+                self.weights[p_1_idx],
+            )
 
     def reverse_curve(self, *args, **kwargs):
         super().reverse_curve()
@@ -76,8 +81,12 @@ class RationalBezier(Bezier):
                 for i in range(len(self.points))
             ]
         )
-        new_x = np.sum(xs * bernsteins * self.weights) / np.sum(bernsteins * self.weights)
-        new_y = np.sum(ys * bernsteins * self.weights) / np.sum(bernsteins * self.weights)
+        new_x = np.sum(xs * bernsteins * self.weights) / np.sum(
+            bernsteins * self.weights
+        )
+        new_y = np.sum(ys * bernsteins * self.weights) / np.sum(
+            bernsteins * self.weights
+        )
         return QtCore.QPointF(new_x, new_y)
 
     def serialize_curve(self) -> dict:

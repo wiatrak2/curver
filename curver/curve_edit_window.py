@@ -62,9 +62,15 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.vectorMoveBox.setVisible(self.mode == self.modes.MOVE_BY_VECTOR)
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
-        self.ui.weightBox.setVisible(self.mode == self.modes.ADD_POINT and self.controller.is_weighted(self.curve_id))
+        self.ui.weightBox.setVisible(
+            self.mode == self.modes.ADD_POINT
+            and self.controller.is_weighted(self.curve_id)
+        )
         self.ui.editWeightBox.setVisible(self.controller.is_weighted(self.curve_id))
-        self.ui.editWeightValBox.setVisible(self.mode == self.modes.EDIT_WEIGHT and self.controller.is_weighted(self.curve_id))
+        self.ui.editWeightValBox.setVisible(
+            self.mode == self.modes.EDIT_WEIGHT
+            and self.controller.is_weighted(self.curve_id)
+        )
         self.ui.weightVal.setText("1.0")
         self.ui.editWeightVal.setText("1.0")
 
@@ -205,7 +211,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def _add_point(self, point: QtCore.QPointF):
         weight = None
         if self.controller.is_weighted(self.curve_id):
-            weight = float(self.ui.weightVal.text()) or 1.
+            weight = float(self.ui.weightVal.text()) or 1.0
         self.controller.add_point(point, weight=weight)
         self.set_mode(self.modes.NONE)
 
@@ -247,7 +253,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.controller.scale_curve(scale_factor)
 
     def _edit_weight(self, point: QtCore.QPointF):
-        weight = float(self.ui.editWeightVal.text()) or 1.
+        weight = float(self.ui.editWeightVal.text()) or 1.0
         self.controller.edit_point_weight(point, weight)
         self.set_mode(self.modes.NONE)
 

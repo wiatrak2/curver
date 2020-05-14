@@ -111,10 +111,12 @@ class CurveController:
             curve.set_state(curve_last_state)
             self._draw_curve(curve)
 
-    def add_point(self, point: QtCore.QPointF, curve_id: str = None, weight: float = None):
+    def add_point(
+        self, point: QtCore.QPointF, curve_id: str = None, weight: float = None
+    ):
         curve = self.curves.get(curve_id, self._edited_curve)
         if curve.weighted and weight is None:
-            weight = 1.
+            weight = 1.0
         curve.add_point(point, weight)
         logger.info(
             f"Curve {curve.id}: Added point {point}. All points: {curve.points}"
@@ -144,7 +146,9 @@ class CurveController:
         move_point = curve.get_nearest_point(point)
         curve.move_point(move_point, vector)
 
-    def edit_point_weight(self, point: QtCore.QPointF, weight: float = None, curve_id: str = None):
+    def edit_point_weight(
+        self, point: QtCore.QPointF, weight: float = None, curve_id: str = None
+    ):
         curve = self.curves.get(curve_id, self._edited_curve)
         if weight is None and curve.weighted:
             weight = 1.0
@@ -152,7 +156,6 @@ class CurveController:
         logger.info(f"Setting point {weighted_point} weight to {weight}")
         curve.edit_weight(weighted_point, weight)
         self._draw_curve(curve)
-
 
     def add_points(self, points: [QtCore.QPointF], curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
@@ -168,7 +171,11 @@ class CurveController:
         self._draw_curve(curve)
 
     def create_curve(
-        self, curve_id: str, curve_cls: curves.Curve, curve_points: [QtCore.QPointF], weights: [float] = None
+        self,
+        curve_id: str,
+        curve_cls: curves.Curve,
+        curve_points: [QtCore.QPointF],
+        weights: [float] = None,
     ):
         logger.info(
             f"Creating curve {curve_id} of class {curve_cls} with points {curve_points}"

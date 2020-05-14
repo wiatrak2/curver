@@ -34,14 +34,18 @@ class BaseCurve(Curve):
     def edit_weight(self, point: QtCore.QPointF, weight: float, *args, **kwargs):
         return
 
-    def move_point(self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs):
+    def move_point(
+        self, point: QtCore.QPointF, vector: QtCore.QPointF, *args, **kwargs
+    ):
         if point in self.points:
             self.points[self.points.index(point)] += vector
 
     def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
         self.points += points
 
-    def permute_points(self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs):
+    def permute_points(
+        self, point_1: QtCore.QPointF, point_2: QtCore.QPointF, *args, **kwargs
+    ):
         if point_1 in self.points and point_2 in self.points:
             p_1_idx, p_2_idx = self.points.index(point_1), self.points.index(point_2)
             self.points[p_1_idx], self.points[p_2_idx] = (
@@ -87,7 +91,10 @@ class BaseCurve(Curve):
     def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         point = self.get_nearest_point(point)
         point_idx = self.points.index(point)
-        curve_L_points, curve_R_points = self.points[:point_idx+1], self.points[point_idx:]
+        curve_L_points, curve_R_points = (
+            self.points[: point_idx + 1],
+            self.points[point_idx:],
+        )
         curve_L = self.construct_from_points(f"{self.curve_id}_L", curve_L_points)
         curve_R = self.construct_from_points(f"{self.curve_id}_R", curve_R_points)
         return curve_L, curve_R
@@ -113,7 +120,7 @@ class BaseCurve(Curve):
     def _get_convex_hull(self) -> [QtCore.QPointF]:
         points = np.array([(p.x(), p.y()) for p in self.points])
         hull = ConvexHull(points)
-        xs, ys = points[hull.vertices,0], points[hull.vertices,1]
+        xs, ys = points[hull.vertices, 0], points[hull.vertices, 1]
         return [QtCore.QPointF(x, y) for (x, y) in zip(xs, ys)]
 
     def get_items(
