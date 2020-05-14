@@ -25,7 +25,7 @@ class Curve:
         return self.curve_id
 
     def __str__(self) -> str:
-        return f"{self.type}({self.points})"
+        return f"[{self.type}] {self.id}"
 
     @classmethod
     def construct_from_points(cls, curve_id: str, points: [QtCore.QPointF]):

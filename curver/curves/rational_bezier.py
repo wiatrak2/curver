@@ -82,5 +82,5 @@ class RationalBezier(Bezier):
 
     def serialize_curve(self) -> dict:
         curve_dict = super().serialize_curve()
-        curve_dict["weights"]: self.weights
+        curve_dict["weights"] = self.weights
         return curve_dict

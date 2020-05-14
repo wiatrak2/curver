@@ -20,5 +20,5 @@ class CurverGraphicsScene(QtWidgets.QGraphicsScene):
 
     def mousePressEvent(self, event):
         if self.notify_click:
-            self.parent().notify_scene_click(event.scenePos())
+            self.parent().mouse_click_action(event.scenePos())
         return super().mousePressEvent(event)

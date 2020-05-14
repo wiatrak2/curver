@@ -10,11 +10,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1088, 728)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_Curver(object):
+    def setupUi(self, Curver):
+        Curver.setObjectName("Curver")
+        Curver.resize(1088, 728)
+        self.centralwidget = QtWidgets.QWidget(Curver)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(20, 30, 1051, 651))
@@ -30,30 +30,30 @@ class Ui_MainWindow(object):
         self.mainLayout.addLayout(self.panelLayout, 0, 0, 1, 1)
         self.mainLayout.setColumnStretch(0, 1)
         self.mainLayout.setColumnStretch(1, 5)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Curver.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(Curver)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Curver.setStatusBar(self.statusbar)
+        self.menubar = QtWidgets.QMenuBar(Curver)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1088, 22))
         self.menubar.setObjectName("menubar")
         self.menutopbar = QtWidgets.QMenu(self.menubar)
         self.menutopbar.setObjectName("menutopbar")
-        MainWindow.setMenuBar(self.menubar)
-        self.actionImportCurve = QtWidgets.QAction(MainWindow)
+        Curver.setMenuBar(self.menubar)
+        self.actionImportCurve = QtWidgets.QAction(Curver)
         self.actionImportCurve.setObjectName("actionImportCurve")
-        self.actionChangeColor = QtWidgets.QAction(MainWindow)
+        self.actionChangeColor = QtWidgets.QAction(Curver)
         self.actionChangeColor.setObjectName("actionChangeColor")
         self.menutopbar.addSeparator()
         self.menutopbar.addAction(self.actionImportCurve)
         self.menubar.addAction(self.menutopbar.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Curver)
+        QtCore.QMetaObject.connectSlotsByName(Curver)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, Curver):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.menutopbar.setTitle(_translate("MainWindow", "Menu"))
-        self.actionImportCurve.setText(_translate("MainWindow", "Import curve"))
-        self.actionChangeColor.setText(_translate("MainWindow", "Change color"))
+        Curver.setWindowTitle(_translate("Curver", "Curver"))
+        self.menutopbar.setTitle(_translate("Curver", "Menu"))
+        self.actionImportCurve.setText(_translate("Curver", "Import curve"))
+        self.actionChangeColor.setText(_translate("Curver", "Change color"))

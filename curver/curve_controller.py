@@ -78,12 +78,13 @@ class CurveController:
     def edit_curve_finish(self, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
         if curve:
+            self.set_convex_hull_visibility(False, curve.id)
             self._set_curve_points_moveability(curve.id, allow=False)
             self.hide_curve_points(curve.id)
             self.hide_curve_details(curve.id)
             self._edited_curve = None
             self._initial_edited_curve = None
-            self._set_mode(self.modes.NONE)
+        self._set_mode(self.modes.NONE)
 
     def edit_curve_cancel(self):
         logger.info(f"Setting initial state = {self._initial_edited_curve.points}")
@@ -447,7 +448,6 @@ class CurveController:
         segments_pen: QtGui.QPen = None,
         control_points_line_pen: QtGui.QPen = None,
     ):
-
         curve_entry = self.curve_entry[curve.id]
         if segments_pen is None:
             segments_pen = curve_entry.line_pen

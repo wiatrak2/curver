@@ -26,7 +26,8 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
         return selected_curve_item.text()
 
     def closeEvent(self, e):
-        self.controller.set_panel_widget(self._parent)
+        if not self._split_curve_mode:
+            self.controller.set_panel_widget(self._parent)
         return super().closeEvent(e)
 
     def show(self, *args, **kwargs):
@@ -49,15 +50,14 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
     def _split_curve(self, point: QtCore.QPointF):
         self.controller.split_curve(point, self.curve_id)
 
-    def mouse_click_action(self, point: QtCore.QPointF) -> bool:
-        """
-        Return True if splitting curve succeed.
-        """
+    def notify_scene_pos(self, point: QtCore.QPointF):
+        pass
+
+    def mouse_click_action(self, point: QtCore.QPointF):
         if self._split_curve_mode:
             self._split_curve(point)
-            self._split_curve_mode = False
-            return True
-        return False
+            self._parent.close()
+            self.close()
 
     def _set_actions(self):
         self.ui.moveToFirstButton.clicked.connect(self._move_to_curve_button)

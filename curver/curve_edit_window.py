@@ -90,7 +90,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         if self._curve_join_window:
             self._curve_join_window.close()
         self.controller.rename_curve(self.curve_id, self.ui.curveName.text())
-        self.controller.set_convex_hull_visibility(False, self.curve_id)
         self._parent.edit_curve_finish()
 
     def closeEvent(self, e):
@@ -272,8 +271,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         if self.mode == self.modes.ROTATE_CURVE:
             return
         if self.mode == self.modes.JOIN_CURVE:
-            if self._curve_join_window.mouse_click_action(point):
-                self.close()
+            return
         if self.mode == self.modes.EDIT_WEIGHT:
             return self._edit_weight(point)
 

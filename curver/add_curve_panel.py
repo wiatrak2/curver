@@ -46,7 +46,6 @@ class addCurvePanel(QtWidgets.QWidget):
         self.ui.editCurveButton.clicked.connect(self.edit_curve_button_action)
 
     def add_curve_button_action(self):
-        print(self.mode)
         if self.mode == self.modes.NONE:
             curve_type = self.ui.setCurveType.currentText()
             curve_cls = curves.types[curve_type]
@@ -57,7 +56,7 @@ class addCurvePanel(QtWidgets.QWidget):
             self.set_mode(self.modes.ADD)
 
     def add_point_button_action(self):
-        self.add_point()
+        self._add_point()
 
     def undo_add_point_button_action(self):
         self.controller.delete_point_idx(-1)
@@ -85,7 +84,7 @@ class addCurvePanel(QtWidgets.QWidget):
             self.edit_curves_list = CurvesListWindow(self._parent, self.controller.curve_ids())
             self.controller.set_panel_widget(self.edit_curves_list)
 
-    def add_point(self, point: QtCore.QPointF = None):
+    def _add_point(self, point: QtCore.QPointF = None):
         if point is None:
             x, y = float(self.ui.xPos.text()), float(self.ui.yPos.text())
             point = QtCore.QPointF(x, y)
@@ -95,6 +94,13 @@ class addCurvePanel(QtWidgets.QWidget):
             self.ui.weightVal.setText("1.0")
         self.controller.add_point(point, weight=weight)
 
-    def show_point_pos(self, x, y):
+    def _show_point_pos(self, x, y):
         self.ui.xPos.setText(str(int(x)))
         self.ui.yPos.setText(str(int(y)))
+
+    def mouse_click_action(self, point: QtCore.QPointF):
+        self._add_point(point)
+
+    def notify_scene_pos(self, point: QtCore.QPointF):
+        x, y = point.x(), point.y()
+        self._show_point_pos(x, y)

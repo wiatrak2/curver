@@ -76,18 +76,6 @@ class Point(QtWidgets.QGraphicsEllipseItem, Item):
         self.setPen(self.pen)
         self.setBrush(self.brush)
 
-    def set_scene_pos(self, point: QtCore.QPointF):
-        pos_change = point - self.point
-        return self.move_by_vector(pos_change)
-
-    def move_by_vector(self, vec: QtCore.QPointF):
-        new_pos = self.point + vec
-        new_point = Point(new_pos)
-        for segment in self.associated_segments:
-            segment.notify_point_change(self, new_point)
-        self.moveBy(vec.x(), vec.y())
-        self.point = new_pos
-
     def mousePressEvent(self, event):
         return super().mousePressEvent(event)
 

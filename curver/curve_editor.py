@@ -6,7 +6,7 @@ import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
 from curver import curves, widgets, utils, curve_controller
-from curver.ui.main_ui import Ui_MainWindow
+from curver.ui.main_ui import Ui_Curver
 from curver.add_curve_panel import addCurvePanel
 from curver.curve_edit_window import CurveEditWindow
 from copy import deepcopy
@@ -20,7 +20,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_Curver()
         self.ui.setupUi(self)
         self._setup_editor_ui()
 
@@ -39,6 +39,10 @@ class CurveEditor(QtWidgets.QMainWindow):
     @property
     def scene(self) -> widgets.CurverGraphicsScene:
         return self.ui.plane.scene()
+
+    @property
+    def panel_widget(self) -> QtWidgets.QWidget:
+        return self.ui.panelLayout.itemAt(0).widget()
 
     # Setup methods
 
@@ -127,31 +131,12 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     # Notifications from scene handling
 
-    def _add_curve_scene_click_action(self, point: QtCore.QPointF):
-        self.add_curve_panel.add_point(point)
-
-    def _add_curve_scene_move_action(self, point: QtCore.QPointF):
-        x, y = point.x(), point.y()
-        self.add_curve_panel.show_point_pos(x, y)
-
-    def _edit_curve_scene_move_action(self, point: QtCore.QPointF):
-        self.edit_curve_window.notify_scene_pos(point)
-
-    def _edit_curve_scene_click_action(self, point: QtCore.QPointF):
-        return self.edit_curve_window.mouse_click_action(point)
-
     def notify_scene_pos(self, point: QtCore.QPointF):
         if self.controller.mode == self.controller.modes.NONE:
             return
-        if self.controller.mode == self.controller.modes.ADD:
-            return self._add_curve_scene_move_action(point)
-        if self.controller.mode == self.controller.modes.EDIT:
-            return self._edit_curve_scene_move_action(point)
+        self.panel_widget.notify_scene_pos(point)
 
-    def notify_scene_click(self, point: QtCore.QPointF):
+    def mouse_click_action(self, point: QtCore.QPointF):
         if self.controller.mode == self.controller.modes.NONE:
             return
-        if self.controller.mode == self.controller.modes.ADD:
-            return self._add_curve_scene_click_action(point)
-        if self.controller.mode == self.controller.modes.EDIT:
-            return self._edit_curve_scene_click_action(point)
+        self.panel_widget.mouse_click_action(point)
