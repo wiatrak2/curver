@@ -1,11 +1,11 @@
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, widgets, utils, curve_controller
+from curver import curves, widgets, utils, CurveController
 from curver.ui.add_point_panel_ui import Ui_addCurveWidget
-from curver.curve_edit_list import CurvesListWindow
+from curver.panels import CurvesListWindow
 
 
-class addCurvePanel(QtWidgets.QWidget):
+class AddCurvePanel(QtWidgets.QWidget):
     modes = utils.ControllerModes
 
     def __init__(self, parent=None, *args, **kwargs):

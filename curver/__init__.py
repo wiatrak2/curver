@@ -1,1 +1,2 @@
-from curver import curve_controller
+from curver.curve_controller import CurveController
+from curver.curve_editor import CurveEditor

@@ -7,7 +7,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, utils, curve_controller, curve_join_window
+from curver import curves, utils,  panels, CurveController
 from curver.ui.curve_edit_ui import Ui_curveEditPanel
 
 daiquiri.setup(level=logging.INFO)
@@ -21,7 +21,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self,
         curve_id: str,
         parent=None,
-        controller: curve_controller.CurveController = None,
+        controller: CurveController = None,
     ):
         super().__init__(parent)
         self.curve_id = curve_id
@@ -29,9 +29,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             assert (
                 parent.controller
             ), "parent of CurveEditWindow must have `controller` attribute"
-            self.controller: curve_controller.CurveController = parent.controller
+            self.controller: CurveController = parent.controller
         else:
-            self.controller: curve_controller.CurveController = controller
+            self.controller: CurveController = controller
 
         self._parent = parent
         self.ui = Ui_curveEditPanel()
@@ -167,7 +167,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.JOIN_CURVE)
         curve_ids = self.controller.curve_ids()
         curve_ids.remove(self.curve_id)
-        self._curve_join_window = curve_join_window.CurveJoinWindow(
+        self._curve_join_window = panels.CurveJoinWindow(
             self.curve_id, curve_ids, parent=self
         )
         self.controller.set_panel_widget(self._curve_join_window)

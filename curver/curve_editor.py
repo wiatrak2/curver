@@ -1,15 +1,13 @@
 import json
 import logging
+from copy import deepcopy
 from enum import Enum
 
 import daiquiri
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
-from curver import curves, widgets, utils, curve_controller
+from curver import CurveController, curves, panels, utils, widgets
 from curver.ui.main_ui import Ui_Curver
-from curver.add_curve_panel import addCurvePanel
-from curver.curve_edit_window import CurveEditWindow
-from copy import deepcopy
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -24,9 +22,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self._setup_editor_ui()
 
-        self.controller = curve_controller.CurveController(self.scene, main_ui=self)
+        self.controller = CurveController(self.scene, main_ui=self)
 
-        self.add_curve_panel = addCurvePanel(self)
+        self.add_curve_panel = panels.AddCurvePanel(self)
 
         self.mode = self.modes.NONE
         self._update_ui()
@@ -118,7 +116,7 @@ class CurveEditor(QtWidgets.QMainWindow):
     def edit_curve_start(self, curve_id: str):
         self.set_mode(self.modes.EDIT)
         self.controller.edit_curve_start(curve_id)
-        self.edit_curve_window = CurveEditWindow(curve_id, parent=self)
+        self.edit_curve_window = panels.CurveEditWindow(curve_id, parent=self)
         self.set_panel_widget(self.edit_curve_window)
 
     def edit_curve_finish(self):

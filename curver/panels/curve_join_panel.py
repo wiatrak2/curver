@@ -1,6 +1,6 @@
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver.curve_controller import CurveController
+from curver import CurveController
 from curver.ui.curve_join_ui import Ui_curveEditWindow
 
 
