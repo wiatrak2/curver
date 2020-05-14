@@ -79,6 +79,9 @@ class Curve:
     def get_nearest_point(self, point: widgets.Point) -> QtCore.QPointF:
         raise NotImplementedError
 
+    def _get_convex_hull(self) -> [QtCore.QPointF]:
+        raise NotImplementedError
+
     def get_items(
         self, *args, **kwargs
     ) -> (

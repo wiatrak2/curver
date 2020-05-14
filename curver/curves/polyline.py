@@ -25,8 +25,10 @@ class Polyline(BaseCurve):
 
     def get_items(
         self,
+        convex_hull=False,
         points_pen: QtGui.QPen = None,
         segments_pen: QtGui.QPen = None,
+        convex_hull_pen: QtGui.QPen = None,
         *args,
         **kwargs
     ) -> (
@@ -39,4 +41,18 @@ class Polyline(BaseCurve):
             widgets.line.Line(points[i], points[i + 1], pen=segments_pen)
             for i in range(len(points) - 1)
         ]
-        return points, lines, []
+
+        extra_segments = []
+        if convex_hull:
+            if convex_hull_pen is None:
+                convex_hull_pen = QtGui.QPen(QtGui.QColor(34, 153, 84))
+            convex_hull_points = self._get_convex_hull()
+            n = len(convex_hull_points)
+            extra_segments += [
+                widgets.Line(
+                    widgets.Point(convex_hull_points[i]),
+                    widgets.Point(convex_hull_points[(i+1) % n]),
+                    pen=convex_hull_pen
+                )
+            for i in range(n)]
+        return points, lines, extra_segments

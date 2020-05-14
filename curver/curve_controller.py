@@ -18,6 +18,7 @@ class CurveEntry:
     def __init__(self, curve: curves.Curve):
         self.curve = curve
         self.visible = True, True, True  # points, segments, details
+        self.show_convex_hull = False
         self.line_pen = QtGui.QPen(QtCore.Qt.black)
         self.points: [widgets.Point] = []
         self.segments: [widgets.Segment] = []
@@ -268,6 +269,22 @@ class CurveController:
         self.delete_curve(right_curve_id)
         self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
 
+    def set_convex_hull_visibility(self, visible=False, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.info(f"Setting visibility of curve {curve_id} convex hull to {visible}.")
+        curve_entry = self.curve_entry[curve_id]
+        curve_entry.show_convex_hull = visible
+        self._draw_curve(curve_entry.curve)
+
+    def change_convex_hull_visibility(self, curve_id: str = None):
+        if curve_id is None:
+            curve_id = self._edited_curve.id
+        logger.info(f"Changing visibility of curve {curve_id} convex hull.")
+        curve_entry = self.curve_entry[curve_id]
+        curve_entry.show_convex_hull = not curve_entry.show_convex_hull
+        self._draw_curve(curve_entry.curve)
+
     def show_curve(self, curve_id: str = None):
         if curve_id is None:
             curve_id = self._edited_curve.id
@@ -414,6 +431,12 @@ class CurveController:
         else:
             self.main_ui.set_panel_widget(new_widget)
 
+    def add_to_menu_bar(self, menu: QtWidgets.QMenu):
+        logger.info(f"Adding {menu} to menu bar")
+        if self.main_ui is None:
+            logger.warning("Could not update menu bar as `main_ui` is not set.")
+        else:
+            return self.main_ui.add_to_menu_bar(menu)
 
     def _draw_curve(
         self,
@@ -432,6 +455,8 @@ class CurveController:
             points_pen=points_pen,
             segments_pen=segments_pen,
             control_points_line_pen=control_points_line_pen,
+            control_points_line=not curve_entry.show_convex_hull,
+            convex_hull=curve_entry.show_convex_hull,
         )
 
         curve_new_items = segments.copy()

@@ -8,7 +8,6 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from curver import curves, widgets, utils, curve_controller
 from curver.ui.main_ui import Ui_MainWindow
 from curver.add_curve_panel import addCurvePanel
-from curver.curve_edit_list import CurvesListWindow
 from curver.curve_edit_window import CurveEditWindow
 from copy import deepcopy
 
@@ -58,6 +57,9 @@ class CurveEditor(QtWidgets.QMainWindow):
             self.ui.mainLayout.replaceWidget(current_widget, new_widget)
         new_widget.show()
 
+    def add_to_menu_bar(self, menu):
+        return self.ui.menubar.addMenu(menu)
+
     def _setup_editor_ui(self):
         canvas = self._create_canvas()
         self.ui.plane.setScene(canvas)
@@ -75,7 +77,6 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     def _connect_actions(self):
         self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
-        self.ui.actionChangeColor.triggered.connect(self.change_color_action)
 
     def _update_ui(self):
         if self.mode == self.modes.NONE:
@@ -88,10 +89,6 @@ class CurveEditor(QtWidgets.QMainWindow):
             self, "Import curve", filter="*.json"
         )
         self._import_curve(filename[0])
-
-    def change_color_action(self):
-        if self.edit_curve_window and self.mode == self.modes.EDIT:
-            self.edit_curve_window.change_color()
 
     def _import_curve(self, filename):
         logger.info(f"Importing curve from {filename}.")

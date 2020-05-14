@@ -36,15 +36,16 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self._parent = parent
         self.ui = Ui_curveEditPanel()
         self.ui.setupUi(self)
-        self.color_picker = QtWidgets.QColorDialog(QtCore.Qt.black, parent=self)
-        self._set_actions()
 
         self.mode = self.modes.NONE
 
+        self.color_picker = QtWidgets.QColorDialog(QtCore.Qt.black, parent=self)
+        self.menu_bar_actions = []
         self._curve_join_window = None
         self._edited_point = None  # Used for points permutation
 
         self._setup_ui()
+        self._set_actions()
 
     def set_mode(self, new_mode):
         self.mode = new_mode
@@ -54,6 +55,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def _setup_ui(self):
         self.ui.curveName.setText(self.curve_id)
         self._update_ui()
+        self._setup_menu_bar()
 
     def _update_ui(self):
         self.ui.addPointBox.setVisible(self.mode == self.modes.ADD_POINT)
@@ -66,15 +68,36 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.weightVal.setText("1.0")
         self.ui.editWeightVal.setText("1.0")
 
+    def _setup_menu_bar(self):
+        edit_menu = QtWidgets.QMenu("Edit", self)
+        view_menu = QtWidgets.QMenu("View", self)
+        change_color_action = QtWidgets.QAction("Change color", self)
+        change_color_action.triggered.connect(self._show_color_picker)
+        edit_menu.addAction(change_color_action)
+        convex_hull_action = QtWidgets.QAction("Show/hide convex hull", self)
+        convex_hull_action.triggered.connect(self._show_convex_hull)
+        show_other_curves_action = QtWidgets.QAction("Show other curves", self)
+        show_other_curves_action.triggered.connect(self._show_other_curves)
+        hide_other_curves_action = QtWidgets.QAction("Hide other curves", self)
+        hide_other_curves_action.triggered.connect(self._hide_other_curves)
+        view_menu.addAction(convex_hull_action)
+        view_menu.addAction(show_other_curves_action)
+        view_menu.addAction(hide_other_curves_action)
+        self.menu_bar_actions.append(self.controller.add_to_menu_bar(edit_menu))
+        self.menu_bar_actions.append(self.controller.add_to_menu_bar(view_menu))
+
     def _finish_edit(self):
-        self.color_picker.close()
         if self._curve_join_window:
             self._curve_join_window.close()
         self.controller.rename_curve(self.curve_id, self.ui.curveName.text())
+        self.controller.set_convex_hull_visibility(False, self.curve_id)
         self._parent.edit_curve_finish()
 
     def closeEvent(self, e):
         self._finish_edit()
+        self.color_picker.close()
+        for menu_action in self.menu_bar_actions:
+            menu_action.setVisible(False)
         return super().closeEvent(e)
 
     def notify_scene_pos(self, point: QtCore.QPointF):
@@ -157,9 +180,24 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.NONE)
         self.close()
 
-    def change_color(self):
+    def _show_color_picker(self):
         utils.set_widget_geometry(self.color_picker, self, mode="left")
         self.color_picker.show()
+
+    def _show_convex_hull(self):
+        self.controller.change_convex_hull_visibility(self.curve_id)
+
+    def _hide_other_curves(self):
+        all_curves = self.controller.curve_ids()
+        all_curves.remove(self.curve_id)
+        for curve in all_curves:
+            self.controller.hide_curve(curve)
+
+    def _show_other_curves(self):
+        all_curves = self.controller.curve_ids()
+        all_curves.remove(self.curve_id)
+        for curve in all_curves:
+            self.controller.show_curve_segments(curve)
 
     def _color_picker_action(self):
         color = self.color_picker.currentColor()

@@ -74,9 +74,11 @@ class Bezier(BaseCurve):
         self,
         n=1000,
         control_points_line=True,
+        convex_hull=False,
         points_pen: QtGui.QPen = None,
         segments_pen: QtGui.QPen = None,
         control_points_line_pen: QtGui.QPen = None,
+        convex_hull_pen: QtGui.QPen = None,
         *args,
         **kwargs
     ) -> (
@@ -95,12 +97,12 @@ class Bezier(BaseCurve):
             for i in range(len(self.curve_points) - 1)
         ]
 
-        control_points_lines = []
+        extra_segments = []
         if control_points_line:
             if control_points_line_pen is None:
                 control_points_line_pen = QtGui.QPen(QtCore.Qt.gray)
                 control_points_line_pen.setDashPattern([5, 5])
-            control_points_lines = [
+            extra_segments += [
                 widgets.Line(
                     control_points[i],
                     control_points[i + 1],
@@ -108,5 +110,17 @@ class Bezier(BaseCurve):
                 )
                 for i in range(len(control_points) - 1)
             ]
+        if convex_hull:
+            if convex_hull_pen is None:
+                convex_hull_pen = QtGui.QPen(QtGui.QColor(34, 153, 84))
+            convex_hull_points = self._get_convex_hull()
+            n = len(convex_hull_points)
+            extra_segments += [
+                widgets.Line(
+                    widgets.Point(convex_hull_points[i]),
+                    widgets.Point(convex_hull_points[(i+1) % n]),
+                    pen=convex_hull_pen
+                )
+            for i in range(n)]
 
-        return control_points, lines, control_points_lines
+        return control_points, lines, extra_segments

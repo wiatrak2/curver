@@ -45,8 +45,9 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self._parent.edit_curve_start(self.selected_curve)
 
     def delete(self):
-        self.ui.curvesList.takeItem(self.ui.curvesList.currentRow())
         self._parent.delete_curve(self.selected_curve)
+        self.curves.remove(self.selected_curve)
+        self.ui.curvesList.takeItem(self.ui.curvesList.currentRow())
 
     def done(self):
         self.close()

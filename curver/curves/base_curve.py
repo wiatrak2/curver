@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import ConvexHull
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from curver import widgets
@@ -108,6 +109,12 @@ class BaseCurve(Curve):
     ):
         point = self.get_nearest_point(old_point.point)
         self.points[self.points.index(point)] = new_point.point
+
+    def _get_convex_hull(self) -> [QtCore.QPointF]:
+        points = np.array([(p.x(), p.y()) for p in self.points])
+        hull = ConvexHull(points)
+        xs, ys = points[hull.vertices,0], points[hull.vertices,1]
+        return [QtCore.QPointF(x, y) for (x, y) in zip(xs, ys)]
 
     def get_items(
         self, *args, **kwargs

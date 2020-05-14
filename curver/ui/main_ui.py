@@ -39,8 +39,6 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menutopbar = QtWidgets.QMenu(self.menubar)
         self.menutopbar.setObjectName("menutopbar")
-        self.menuEdit = QtWidgets.QMenu(self.menubar)
-        self.menuEdit.setObjectName("menuEdit")
         MainWindow.setMenuBar(self.menubar)
         self.actionImportCurve = QtWidgets.QAction(MainWindow)
         self.actionImportCurve.setObjectName("actionImportCurve")
@@ -48,9 +46,7 @@ class Ui_MainWindow(object):
         self.actionChangeColor.setObjectName("actionChangeColor")
         self.menutopbar.addSeparator()
         self.menutopbar.addAction(self.actionImportCurve)
-        self.menuEdit.addAction(self.actionChangeColor)
         self.menubar.addAction(self.menutopbar.menuAction())
-        self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -59,6 +55,5 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.menutopbar.setTitle(_translate("MainWindow", "Menu"))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.actionImportCurve.setText(_translate("MainWindow", "Import curve"))
         self.actionChangeColor.setText(_translate("MainWindow", "Change color"))
