@@ -66,7 +66,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             self.mode == self.modes.ADD_POINT
             and self.controller.is_weighted(self.curve_id)
         )
-        self.ui.editWeightBox.setVisible(self.controller.is_weighted(self.curve_id))
+        self.ui.editWeightButton.setVisible(self.controller.is_weighted(self.curve_id))
         self.ui.editWeightValBox.setVisible(
             self.mode == self.modes.EDIT_WEIGHT
             and self.controller.is_weighted(self.curve_id)

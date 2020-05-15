@@ -1,11 +1,21 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 
 class CurverGraphicsScene(QtWidgets.QGraphicsScene):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, width=700, height=500, line_len=1000, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.notify_click = False
         self.notify_position = False
+        self._setup(width, height, line_len)
+
+    def _setup(self, width, height, line_len):
+        self.setSceneRect(-10, -10, width, height)
+        self.setBackgroundBrush(QtCore.Qt.white)
+        for x in range(-line_len, line_len, 10):
+            self.addLine(x, -line_len, x, line_len, pen=QtGui.QPen(QtGui.QColor(234, 237, 237)))
+            self.addLine(-line_len, x, line_len, x, pen=QtGui.QPen(QtGui.QColor(234, 237, 237)))
+        self.addLine(0, -line_len, 0, line_len)
+        self.addLine(-line_len, 0, line_len, 0)
 
     def __deepcopy__(self, memo):
         new_scene = CurverGraphicsScene()

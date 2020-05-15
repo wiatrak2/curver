@@ -7,19 +7,35 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>620</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QGroupBox" name="mainPanelBox">
+  <widget class="QPushButton" name="addCurveButton">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>166</width>
-     <height>580</height>
+     <x>30</x>
+     <y>80</y>
+     <width>140</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add Curve</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="addPointBox">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>140</y>
+     <width>180</width>
+     <height>280</height>
     </rect>
    </property>
    <property name="title">
@@ -28,17 +44,111 @@
    <property name="flat">
     <bool>true</bool>
    </property>
-   <widget class="QGroupBox" name="addPointBox">
+   <widget class="QLineEdit" name="xPos">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>60</y>
+      <width>40</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="inputMethodHints">
+     <set>Qt::ImhNone</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="yPos">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>120</y>
-      <width>131</width>
-      <height>281</height>
+      <x>110</x>
+      <y>60</y>
+      <width>40</width>
+      <height>30</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addPointButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>130</y>
+      <width>140</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add Point</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveCurveButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>250</y>
+      <width>140</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Done</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="curveName">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>140</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="undoAddPointButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>160</y>
+      <width>140</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Undo</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="cancelAddCurveButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>220</y>
+      <width>140</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cancel</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="weightBox">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>100</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
     </property>
     <property name="title">
      <string/>
@@ -46,11 +156,11 @@
     <property name="flat">
      <bool>true</bool>
     </property>
-    <widget class="QLineEdit" name="xPos">
+    <widget class="QLineEdit" name="weightVal">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>60</y>
+       <x>70</x>
+       <y>0</y>
        <width>40</width>
        <height>30</height>
       </rect>
@@ -58,173 +168,47 @@
      <property name="inputMethodHints">
       <set>Qt::ImhNone</set>
      </property>
-    </widget>
-    <widget class="QLineEdit" name="yPos">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>60</y>
-       <width>40</width>
-       <height>30</height>
-      </rect>
+     <property name="placeholderText">
+      <string>1.0</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="addPointButton">
+    <widget class="QLabel" name="weightLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>130</y>
-       <width>113</width>
-       <height>32</height>
+       <y>5</y>
+       <width>60</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>Add Point</string>
+      <string>weight:</string>
      </property>
-    </widget>
-    <widget class="QPushButton" name="saveCurveButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>250</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Done</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="curveName">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>100</width>
-       <height>30</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="undoAddPointButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>160</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Undo</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="cancelAddCurveButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>220</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Cancel</string>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="weightBox">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>100</y>
-       <width>120</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="acceptDrops">
-      <bool>false</bool>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string/>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <widget class="QLineEdit" name="weightVal">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>0</y>
-        <width>40</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="inputMethodHints">
-       <set>Qt::ImhNone</set>
-      </property>
-      <property name="placeholderText">
-       <string>1.0</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="weightLabel">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>5</y>
-        <width>60</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>weight:</string>
-      </property>
-     </widget>
     </widget>
    </widget>
-   <widget class="QPushButton" name="addCurveButton">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>80</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Add Curve</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="setCurveType">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>50</y>
-      <width>104</width>
-      <height>26</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="editCurveButton">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>400</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Edit Curve</string>
-    </property>
-   </widget>
+  </widget>
+  <widget class="QPushButton" name="editCurveButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>500</y>
+     <width>140</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Edit Curve</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="setCurveType">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>50</y>
+     <width>140</width>
+     <height>30</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <resources/>

@@ -196,7 +196,7 @@ class CurveController:
         self._draw_curve(curve)
 
     def delete_curve(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.info(f"Deleting curve {curve_id}.")
         curve = self.curves.pop(curve_id)
@@ -278,7 +278,7 @@ class CurveController:
         self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
 
     def set_convex_hull_visibility(self, visible=False, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.info(f"Setting visibility of curve {curve_id} convex hull to {visible}.")
         curve_entry = self.curve_entry[curve_id]
@@ -286,7 +286,7 @@ class CurveController:
         self._draw_curve(curve_entry.curve)
 
     def change_convex_hull_visibility(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.info(f"Changing visibility of curve {curve_id} convex hull.")
         curve_entry = self.curve_entry[curve_id]
@@ -294,7 +294,7 @@ class CurveController:
         self._draw_curve(curve_entry.curve)
 
     def show_curve(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Showing {curve_id}.")
         self.show_curve_points(curve_id)
@@ -302,7 +302,7 @@ class CurveController:
         self.show_curve_details(curve_id)
 
     def hide_curve(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Hiding {curve_id}.")
         self.hide_curve_points(curve_id)
@@ -310,43 +310,43 @@ class CurveController:
         self.hide_curve_details(curve_id)
 
     def show_curve_points(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Showing {curve_id} points.")
         self._set_points_visibility(curve_id, True)
 
     def hide_curve_points(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Hiding {curve_id} points.")
         self._set_points_visibility(curve_id, False)
 
     def show_curve_segments(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Showing {curve_id} segments.")
         self._set_segments_visibility(curve_id, True)
 
     def hide_curve_segments(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Hiding {curve_id} segments.")
         self._set_segments_visibility(curve_id, False)
 
     def show_curve_details(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Showing {curve_id} details.")
         self._set_details_visibility(curve_id, True)
 
     def hide_curve_details(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Hiding {curve_id} details.")
         self._set_details_visibility(curve_id, False)
 
     def change_curve_visibility(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         curve_entry = self.curve_entry[curve_id]
         logger.info(
@@ -358,7 +358,7 @@ class CurveController:
             self.show_curve(curve_id)
 
     def change_curve_points_visibility(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         curve_entry = self.curve_entry[curve_id]
         logger.info(f"Changing visibility of {curve_id} points.")
@@ -378,7 +378,7 @@ class CurveController:
         self._draw_curve(curve, segments_pen=segments_pen)
 
     def quit_expose_curve(self, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         if curve_id in self.curve_entry:
             curve_entry = self.curve_entry[curve_id]
@@ -421,7 +421,7 @@ class CurveController:
         )
 
     def change_curve_color(self, color: QtGui.QColor, curve_id: str = None):
-        if curve_id is None:
+        if curve_id is None and self._edited_curve:
             curve_id = self._edited_curve.id
         logger.debug(f"Changing {curve_id} color to {color.name()}.")
         curve_entry = self.curve_entry[curve_id]

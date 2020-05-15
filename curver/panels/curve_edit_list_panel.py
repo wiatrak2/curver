@@ -20,6 +20,8 @@ class CurvesListWindow(QtWidgets.QMainWindow):
     @property
     def selected_curve(self):
         selected_curve_item = self.ui.curvesList.currentItem()
+        if selected_curve_item is None:
+            return None
         return selected_curve_item.text()
 
     def closeEvent(self, e):
@@ -56,7 +58,8 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         if previous is not None:
             previous_curve_id = previous.text()
             self.controller.quit_expose_curve(previous_curve_id)
-        self.controller.expose_curve(self.selected_curve)
+        if self.selected_curve is not None:
+            self.controller.expose_curve(self.selected_curve)
 
     def _set_actions(self):
         self.ui.changeCurveVisibilityButton.clicked.connect(self.change_visibility)

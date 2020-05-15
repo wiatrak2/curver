@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1088</width>
+    <width>1107</width>
     <height>728</height>
    </rect>
   </property>
@@ -17,10 +17,10 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>1051</width>
-      <height>651</height>
+      <x>0</x>
+      <y>20</y>
+      <width>1101</width>
+      <height>661</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="mainLayout" columnstretch="1,5">
@@ -39,7 +39,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1088</width>
+     <width>1107</width>
      <height>22</height>
     </rect>
    </property>

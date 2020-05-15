@@ -13,11 +13,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Curver(object):
     def setupUi(self, Curver):
         Curver.setObjectName("Curver")
-        Curver.resize(1088, 728)
+        Curver.resize(1107, 728)
         self.centralwidget = QtWidgets.QWidget(Curver)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(20, 30, 1051, 651))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 20, 1101, 661))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.mainLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -35,7 +35,7 @@ class Ui_Curver(object):
         self.statusbar.setObjectName("statusbar")
         Curver.setStatusBar(self.statusbar)
         self.menubar = QtWidgets.QMenuBar(Curver)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1088, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1107, 22))
         self.menubar.setObjectName("menubar")
         self.menutopbar = QtWidgets.QMenu(self.menubar)
         self.menutopbar.setObjectName("menutopbar")
