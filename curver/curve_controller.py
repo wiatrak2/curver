@@ -24,6 +24,9 @@ class CurveEntry:
         self.segments: [widgets.Segment] = []
         self.details: [QtWidgets.QGraphicsItem] = []
         self.edition_history: [curves.Curve] = []
+        self.curve_functionality = utils.CurveFunctionality.get_functionalities(
+            self.curve
+        )
 
 
 class CurveController:
@@ -276,10 +279,26 @@ class CurveController:
         self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
 
     def raise_degree(self, curve_id: str = None):
-        curve = self.curves.get(curve_id, self._edited_curve)
-        logger.info(f"Raising degree of {curve.id}.")
-        curve.raise_degree()
-        self._draw_curve(curve)
+        if curve_id is None and self._edited_curve:
+            curve_id = self._edited_curve.id
+        curve_entry = self.curve_entry[curve_id]
+        if curve_entry.curve_functionality.degree_modifier:
+            logger.info(
+                f"Raising degree of {curve_entry.curve.id} (current: {curve_entry.curve.n})."
+            )
+            curve_entry.curve.raise_degree()
+            self._draw_curve(curve_entry.curve)
+
+    def reduce_degree(self, curve_id: str = None):
+        if curve_id is None and self._edited_curve:
+            curve_id = self._edited_curve.id
+        curve_entry = self.curve_entry[curve_id]
+        if curve_entry.curve_functionality.degree_modifier:
+            logger.info(
+                f"Reducing degree of {curve_entry.curve.id} (current: {curve_entry.curve.n})."
+            )
+            curve_entry.curve.reduce_degree()
+            self._draw_curve(curve_entry.curve)
 
     def set_convex_hull_visibility(self, visible=False, curve_id: str = None):
         if curve_id is None and self._edited_curve:
@@ -372,8 +391,10 @@ class CurveController:
             self.show_curve_points(curve_id)
 
     def get_curve_functionality(self, curve_id: str = None):
-        curve = self.curves.get(curve_id, self._edited_curve)
-        return utils.CurveFunctionality.get_functionalities(curve)
+        if curve_id is None and self._edited_curve:
+            curve_id = self._edited_curve.id
+        curve_entry = self.curve_entry[curve_id]
+        return curve_entry.curve_functionality
 
     def expose_curve(self, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)

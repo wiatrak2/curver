@@ -22,29 +22,52 @@ class Bezier(BaseCurve):
         self.t = np.array([])
         self.curve_points = []
 
+    @property
+    def n(self):
+        return len(self.points)
+
     def set_mode(self, mode):
         if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
             self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
     def raise_degree(self):
-        n = len(self.points)
-        new_points = [i / n * self.points[i-1] + (n - i) / n * self.points[i % n] for i in range(n + 1)]
+        new_points = [
+            i / self.n * self.points[i - 1]
+            + (self.n - i) / self.n * self.points[i % self.n]
+            for i in range(self.n + 1)
+        ]
+        self.set_points(new_points)
+
+    def reduce_degree(self):
+        new_points_L = [self.points[0]]
+        for i in range(1, self.n // 2):
+            new_points_L.append(
+                (1 + i / (self.n - i)) * self.points[i]
+                - i / (self.n - i) * new_points_L[i - 1]
+            )
+        new_points_R = [self.points[-1]]
+        for i in range(self.n - 1, self.n // 2, -1):
+            new_points_R.append(
+                self.n / i * self.points[i - 1]
+                + (1 - self.n / i) * new_points_R[self.n - i - 1]
+            )
+        middle_point = 0.5 * new_points_L[-1] + 0.5 * new_points_R[-1]
+        new_points = new_points_L[:-1] + [middle_point] + new_points_R[:-1][::-1]
         self.set_points(new_points)
 
     def de_casteljau(self, t):
-        n = len(self.points)
-        W_k_i = np.empty((n, n), dtype=QtCore.QPointF)
+        W_k_i = np.empty((self.n, self.n), dtype=QtCore.QPointF)
         W_k_i[0, :] = self.points
-        for k in range(1, n):
-            for i in range(n - k):
+        for k in range(1, self.n):
+            for i in range(self.n - k):
                 W_k_i[k][i] = (1 - t) * W_k_i[k - 1][i] + t * W_k_i[k - 1][i + 1]
-        return W_k_i[n - 1][0], W_k_i
+        return W_k_i[self.n - 1][0], W_k_i
 
     def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         nearest_point = None
         nearest_dist = 1e100
-        for p in self.curve_poidnts:
+        for p in self.curve_points:
             dist_square = np.power(p.x - point.x(), 2) + np.power(p.y - point.y(), 2)
             if dist_square < nearest_dist:
                 nearest_point = p
@@ -68,10 +91,7 @@ class Bezier(BaseCurve):
         xs = np.array([p.x() for p in self.points])
         ys = np.array([p.y() for p in self.points])
         bernsteins = np.array(
-            [
-                self._bernstein(len(self.points) - 1, i, x)
-                for i in range(len(self.points))
-            ]
+            [self._bernstein(self.n - 1, i, x) for i in range(self.n)]
         )
         new_x = np.sum(xs * bernsteins)
         new_y = np.sum(ys * bernsteins)

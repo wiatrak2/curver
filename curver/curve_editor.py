@@ -69,7 +69,9 @@ class CurveEditor(QtWidgets.QMainWindow):
         self.ui.plane.setMouseTracking(True)
         self._connect_actions()
 
-    def _create_canvas(self, width=700, height=500, line_len=1000) -> QtWidgets.QGraphicsScene:
+    def _create_canvas(
+        self, width=700, height=500, line_len=1000
+    ) -> QtWidgets.QGraphicsScene:
         scene = widgets.CurverGraphicsScene(width, height, line_len, parent=self)
         return scene
 

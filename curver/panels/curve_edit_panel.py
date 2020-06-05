@@ -7,7 +7,7 @@ from enum import Enum
 import daiquiri
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import curves, utils,  panels, CurveController
+from curver import curves, utils, panels, CurveController
 from curver.ui.curve_edit_ui import Ui_curveEditPanel
 
 daiquiri.setup(level=logging.INFO)
@@ -18,10 +18,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     modes = curves.utils.CurveModes
 
     def __init__(
-        self,
-        curve_id: str,
-        parent=None,
-        controller: CurveController = None,
+        self, curve_id: str, parent=None, controller: CurveController = None,
     ):
         super().__init__(parent)
         self.curve_id = curve_id
@@ -34,7 +31,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             self.controller: CurveController = controller
 
         self._parent = parent
-        self.curve_functionality: utils.CurveFunctionality = self.controller.get_curve_functionality(self.curve_id)
+        self.curve_functionality: utils.CurveFunctionality = self.controller.get_curve_functionality(
+            self.curve_id
+        )
 
         self.ui = Ui_curveEditPanel()
         self.ui.setupUi(self)
@@ -65,13 +64,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.rotateCurveBox.setVisible(self.mode == self.modes.ROTATE_CURVE)
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
         self.ui.weightBox.setVisible(
-            self.mode == self.modes.ADD_POINT
-            and self.curve_functionality.weighted
+            self.mode == self.modes.ADD_POINT and self.curve_functionality.weighted
         )
         self.ui.editWeightButton.setVisible(self.curve_functionality.weighted)
         self.ui.editWeightValBox.setVisible(
-            self.mode == self.modes.EDIT_WEIGHT
-            and self.curve_functionality.weighted
+            self.mode == self.modes.EDIT_WEIGHT and self.curve_functionality.weighted
         )
         self.ui.weightVal.setText("1.0")
         self.ui.editWeightVal.setText("1.0")
@@ -93,8 +90,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         view_menu.addAction(hide_other_curves_action)
         if self.curve_functionality.degree_modifier:
             raise_degree_action = QtWidgets.QAction("Raise degree", self)
+            reduce_degree_action = QtWidgets.QAction("Reduce degree", self)
             raise_degree_action.triggered.connect(self._raise_degree)
+            reduce_degree_action.triggered.connect(self._reduce_degree)
             edit_menu.addAction(raise_degree_action)
+            edit_menu.addAction(reduce_degree_action)
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(edit_menu))
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(view_menu))
 
@@ -197,6 +197,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _raise_degree(self):
         self.controller.raise_degree(self.curve_id)
+
+    def _reduce_degree(self):
+        self.controller.reduce_degree(self.curve_id)
 
     def _show_convex_hull(self):
         self.controller.change_convex_hull_visibility(self.curve_id)

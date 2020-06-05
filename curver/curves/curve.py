@@ -78,9 +78,6 @@ class Curve:
     def delete_curve(self):
         raise NotImplementedError
 
-    def raise_degree(self):
-        raise NotImplementedError
-
     def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         raise NotImplementedError
 

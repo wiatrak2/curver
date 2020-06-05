@@ -82,12 +82,8 @@ class RationalBezier(Bezier):
             ]
         )
         weights = np.array(self.weights)
-        new_x = np.sum(xs * bernsteins * weights) / np.sum(
-            bernsteins * weights
-        )
-        new_y = np.sum(ys * bernsteins * weights) / np.sum(
-            bernsteins * weights
-        )
+        new_x = np.sum(xs * bernsteins * weights) / np.sum(bernsteins * weights)
+        new_y = np.sum(ys * bernsteins * weights) / np.sum(bernsteins * weights)
         return QtCore.QPointF(new_x, new_y)
 
     def serialize_curve(self) -> dict:

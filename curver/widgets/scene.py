@@ -12,8 +12,12 @@ class CurverGraphicsScene(QtWidgets.QGraphicsScene):
         self.setSceneRect(-10, -10, width, height)
         self.setBackgroundBrush(QtCore.Qt.white)
         for x in range(-line_len, line_len, 10):
-            self.addLine(x, -line_len, x, line_len, pen=QtGui.QPen(QtGui.QColor(234, 237, 237)))
-            self.addLine(-line_len, x, line_len, x, pen=QtGui.QPen(QtGui.QColor(234, 237, 237)))
+            self.addLine(
+                x, -line_len, x, line_len, pen=QtGui.QPen(QtGui.QColor(234, 237, 237))
+            )
+            self.addLine(
+                -line_len, x, line_len, x, pen=QtGui.QPen(QtGui.QColor(234, 237, 237))
+            )
         self.addLine(0, -line_len, 0, line_len)
         self.addLine(-line_len, 0, line_len, 0)
 

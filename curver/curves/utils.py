@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class CurveModes(Enum):
     NONE = 0
     ADD_POINT = 1

@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets
 
 from curver.curves import Curve
 
+
 class ControllerModes(Enum):
     NONE = 0
     ADD = 1
@@ -19,8 +20,7 @@ class CurveFunctionality:
     @classmethod
     def get_functionalities(cls, curve: Curve):
         return CurveFunctionality(
-            weighted=curve.weighted,
-            degree_modifier=curve.type == "Bezier",
+            weighted=curve.weighted, degree_modifier=curve.type == "Bezier",
         )
 
 
