@@ -15,7 +15,7 @@ logger = daiquiri.getLogger(__name__)
 
 
 class CurveEditWindow(QtWidgets.QMainWindow):
-    modes = utils.CurveModes
+    modes = curves.utils.CurveModes
 
     def __init__(
         self,
@@ -34,6 +34,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             self.controller: CurveController = controller
 
         self._parent = parent
+        self.curve_functionality: utils.CurveFunctionality = self.controller.get_curve_functionality(self.curve_id)
+
         self.ui = Ui_curveEditPanel()
         self.ui.setupUi(self)
 
@@ -64,12 +66,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.scaleCurveBox.setVisible(self.mode == self.modes.SCALE_CURVE)
         self.ui.weightBox.setVisible(
             self.mode == self.modes.ADD_POINT
-            and self.controller.is_weighted(self.curve_id)
+            and self.curve_functionality.weighted
         )
-        self.ui.editWeightButton.setVisible(self.controller.is_weighted(self.curve_id))
+        self.ui.editWeightButton.setVisible(self.curve_functionality.weighted)
         self.ui.editWeightValBox.setVisible(
             self.mode == self.modes.EDIT_WEIGHT
-            and self.controller.is_weighted(self.curve_id)
+            and self.curve_functionality.weighted
         )
         self.ui.weightVal.setText("1.0")
         self.ui.editWeightVal.setText("1.0")
@@ -89,6 +91,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         view_menu.addAction(convex_hull_action)
         view_menu.addAction(show_other_curves_action)
         view_menu.addAction(hide_other_curves_action)
+        if self.curve_functionality.degree_modifier:
+            raise_degree_action = QtWidgets.QAction("Raise degree", self)
+            raise_degree_action.triggered.connect(self._raise_degree)
+            edit_menu.addAction(raise_degree_action)
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(edit_menu))
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(view_menu))
 
@@ -189,8 +195,14 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         utils.set_widget_geometry(self.color_picker, self, mode="left")
         self.color_picker.show()
 
+    def _raise_degree(self):
+        self.controller.raise_degree(self.curve_id)
+
     def _show_convex_hull(self):
         self.controller.change_convex_hull_visibility(self.curve_id)
+
+    def _bezier_raise_degree(self):
+        self.controller.raise_degree(self.curve_id)
 
     def _hide_other_curves(self):
         all_curves = self.controller.curve_ids()
@@ -210,7 +222,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
 
     def _add_point(self, point: QtCore.QPointF):
         weight = None
-        if self.controller.is_weighted(self.curve_id):
+        if self.curve_functionality.weighted:
             weight = float(self.ui.weightVal.text()) or 1.0
         self.controller.add_point(point, weight=weight)
         self.set_mode(self.modes.NONE)

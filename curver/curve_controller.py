@@ -255,19 +255,17 @@ class CurveController:
         self.edit_curve_finish(curve_R.id)
 
     def join_curves(self, left_curve_id: str, right_curve_id: str):
-        self.set_curve_mode(utils.CurveModes.MOVE_BY_VECTOR, left_curve_id)
+        self.set_curve_mode(curves.utils.CurveModes.MOVE_BY_VECTOR, left_curve_id)
         logger.info(f"Moving curve {left_curve_id} to the position of {right_curve_id}")
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
 
         move_vec = right_curve.points[0] - left_curve.points[0]
         self.move_curve(move_vec, left_curve)
-        self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
+        self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
 
-    def merge_curves(
-        self, left_curve_id: str, right_curve_id: str, join_to_first_point=True
-    ):
-        self.set_curve_mode(utils.CurveModes.ADD_POINT, left_curve_id)
+    def merge_curves(self, left_curve_id: str, right_curve_id: str):
+        self.set_curve_mode(curves.utils.CurveModes.ADD_POINT, left_curve_id)
         logger.info(f"Merging curves: {left_curve_id}, {right_curve_id}")
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
@@ -275,7 +273,13 @@ class CurveController:
             right_curve.points.pop(0)
         self.add_points(right_curve.points, left_curve_id)
         self.delete_curve(right_curve_id)
-        self.set_curve_mode(utils.CurveModes.NONE, left_curve_id)
+        self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
+
+    def raise_degree(self, curve_id: str = None):
+        curve = self.curves.get(curve_id, self._edited_curve)
+        logger.info(f"Raising degree of {curve.id}.")
+        curve.raise_degree()
+        self._draw_curve(curve)
 
     def set_convex_hull_visibility(self, visible=False, curve_id: str = None):
         if curve_id is None and self._edited_curve:
@@ -367,9 +371,9 @@ class CurveController:
         else:
             self.show_curve_points(curve_id)
 
-    def is_weighted(self, curve_id: str = None):
+    def get_curve_functionality(self, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
-        return curve.weighted
+        return utils.CurveFunctionality.get_functionalities(curve)
 
     def expose_curve(self, curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)

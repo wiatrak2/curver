@@ -27,6 +27,11 @@ class Bezier(BaseCurve):
             self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
+    def raise_degree(self):
+        n = len(self.points)
+        new_points = [i / n * self.points[i-1] + (n - i) / n * self.points[i % n] for i in range(n + 1)]
+        self.set_points(new_points)
+
     def de_casteljau(self, t):
         n = len(self.points)
         W_k_i = np.empty((n, n), dtype=QtCore.QPointF)
@@ -39,7 +44,7 @@ class Bezier(BaseCurve):
     def split_curve(self, point: QtCore.QPointF, *args, **kwargs):
         nearest_point = None
         nearest_dist = 1e100
-        for p in self.curve_points:
+        for p in self.curve_poidnts:
             dist_square = np.power(p.x - point.x(), 2) + np.power(p.y - point.y(), 2)
             if dist_square < nearest_dist:
                 nearest_point = p

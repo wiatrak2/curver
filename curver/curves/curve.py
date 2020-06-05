@@ -1,6 +1,7 @@
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import widgets, utils
+from curver import widgets
+from curver.curves import utils
 
 
 class Curve:
@@ -75,6 +76,9 @@ class Curve:
         raise NotImplementedError
 
     def delete_curve(self):
+        raise NotImplementedError
+
+    def raise_degree(self):
         raise NotImplementedError
 
     def split_curve(self, point: QtCore.QPointF, *args, **kwargs):

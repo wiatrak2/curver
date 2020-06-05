@@ -1,26 +1,27 @@
 from enum import Enum
+from dataclasses import dataclass
 
 from PyQt5 import QtWidgets
 
-
-class CurveModes(Enum):
-    NONE = 0
-    ADD_POINT = 1
-    DELETE_POINT = 2
-    MOVE_BY_VECTOR = 3
-    PERMUTE_POINTS = 4
-    REVERSE_POINTS = 5
-    ROTATE_CURVE = 6
-    SCALE_CURVE = 7
-    EXPORT_CURVE = 8
-    JOIN_CURVE = 9
-    EDIT_WEIGHT = 10
-
+from curver.curves import Curve
 
 class ControllerModes(Enum):
     NONE = 0
     ADD = 1
     EDIT = 2
+
+
+@dataclass
+class CurveFunctionality:
+    weighted: bool = False
+    degree_modifier: bool = False
+
+    @classmethod
+    def get_functionalities(cls, curve: Curve):
+        return CurveFunctionality(
+            weighted=curve.weighted,
+            degree_modifier=curve.type == "Bezier",
+        )
 
 
 def set_widget_geometry(
