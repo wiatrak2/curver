@@ -8,7 +8,7 @@ authors = ["Wojciech Pratkowiecki <wpratkowiecki@gmail.com>"]
 curver = "curver.main:main"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 PyQt5 = "^5.15.0"
 daiquiri = "^2.1.1"
 numpy = "^1.18.5"
