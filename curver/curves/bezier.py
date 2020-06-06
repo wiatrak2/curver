@@ -19,12 +19,16 @@ class Bezier(BaseCurve):
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
         self._edition_relative_position: [QtCore.QPointF] = None
-        self.t = np.array([])
+        self.t_values = np.array([])
         self.curve_points = []
 
     @property
     def n(self):
         return len(self.points)
+
+    @property
+    def _weights(self) -> np.ndarray:
+        return np.ones(self.n)
 
     def set_mode(self, mode):
         if mode == self.modes.ROTATE_CURVE or mode == self.modes.SCALE_CURVE:
@@ -73,7 +77,7 @@ class Bezier(BaseCurve):
                 nearest_point = p
                 nearest_dist = dist_square
         point_idx = self.curve_points.index(nearest_point)
-        t = self.t[point_idx]
+        t = self.t_values[point_idx]
         _, W_k_i = self.de_casteljau(t)
         curve_L_points = list(W_k_i[:, 0])
         curve_R_points = [
@@ -83,19 +87,20 @@ class Bezier(BaseCurve):
         curve_R = self.construct_from_points(f"{self.curve_id}_R", curve_R_points)
         return curve_L, curve_R
 
-    @staticmethod
-    def _bernstein(n, i, t):
-        return scipy.special.binom(n, i) * np.power(t, i) * np.power(1 - t, n - i)
-
-    def _interpolate(self, x, *args, **kwargs):
-        xs = np.array([p.x() for p in self.points])
-        ys = np.array([p.y() for p in self.points])
-        bernsteins = np.array(
-            [self._bernstein(self.n - 1, i, x) for i in range(self.n)]
-        )
-        new_x = np.sum(xs * bernsteins)
-        new_y = np.sum(ys * bernsteins)
-        return QtCore.QPointF(new_x, new_y)
+    def _interpolate(self, t: float, *args, **kwargs) -> QtCore.QPointF:
+        """
+        Computing a point's value on the Bezier curve.
+        Method invented by P. Wozny and F. Chudy in "Linear-time geometric algorithm for evaluating Bézier curves" paper.
+        """
+        h = 1.0
+        Q = self.points[0]
+        for k in range(1, self.n):
+            h = (self._weights[k] * h * t * (self.n - k)) / (
+                self._weights[k - 1] * k * (1 - t)
+                + self._weights[k] * h * t * (self.n - k)
+            )
+            Q = (1 - h) * Q + h * self.points[k]
+        return Q
 
     def get_items(
         self,
@@ -116,8 +121,8 @@ class Bezier(BaseCurve):
         control_points = [widgets.Point(p, pen=points_pen) for p in self.points]
         self.curve_points = [widgets.Point(self.points[0])]
 
-        self.t = np.linspace(0, 1, n)
-        self.curve_points = [widgets.Point(self._interpolate(x)) for x in self.t]
+        self.t_values = np.linspace(0, 1, n)
+        self.curve_points = [widgets.Point(self._interpolate(x)) for x in self.t_values]
 
         lines = [
             widgets.Line(

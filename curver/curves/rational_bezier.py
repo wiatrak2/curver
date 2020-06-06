@@ -22,6 +22,10 @@ class RationalBezier(Bezier):
         super().__init__(curve_id)
         self.weights = []
 
+    @property
+    def _weights(self) -> np.ndarray:
+        return self.weights
+
     def set_points(self, points: [QtCore.QPointF], weights: [float] = None):
         super().set_points(points)
         if weights is None:
@@ -71,20 +75,6 @@ class RationalBezier(Bezier):
     def delete_curve(self):
         super().delete_curve()
         self.weights = []
-
-    def _interpolate(self, x, *args, **kwargs):
-        xs = np.array([p.x() for p in self.points])
-        ys = np.array([p.y() for p in self.points])
-        bernsteins = np.array(
-            [
-                self._bernstein(len(self.points) - 1, i, x)
-                for i in range(len(self.points))
-            ]
-        )
-        weights = np.array(self.weights)
-        new_x = np.sum(xs * bernsteins * weights) / np.sum(bernsteins * weights)
-        new_y = np.sum(ys * bernsteins * weights) / np.sum(bernsteins * weights)
-        return QtCore.QPointF(new_x, new_y)
 
     def serialize_curve(self) -> dict:
         curve_dict = super().serialize_curve()

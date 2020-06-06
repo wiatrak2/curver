@@ -8,9 +8,11 @@ from curver.curves import Curve
 
 class BaseCurve(Curve):
     @classmethod
-    def construct_from_points(cls, curve_id: str, points: [QtCore.QPointF]):
+    def construct_from_points(
+        cls, curve_id: str, points: [QtCore.QPointF], *args, **kwargs
+    ):
         new_curve = cls(curve_id)
-        new_curve.set_points(points)
+        new_curve.set_points(points, *args, **kwargs)
         return new_curve
 
     def set_mode(self, mode, *args, **kwargs):
