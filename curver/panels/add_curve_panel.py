@@ -1,6 +1,6 @@
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
-from curver import curves, widgets, utils, CurveController
+from curver import curves, utils, CurveController
 from curver.ui.add_point_panel_ui import Ui_addCurveWidget
 from curver.panels import CurvesListWindow
 
@@ -84,10 +84,10 @@ class AddCurvePanel(QtWidgets.QWidget):
 
     def edit_curve_button_action(self):
         if self.mode == self.modes.NONE:
-            self.edit_curves_list = CurvesListWindow(
+            edit_curves_list = CurvesListWindow(
                 self._parent, self.controller.curve_ids()
             )
-            self.controller.set_panel_widget(self.edit_curves_list)
+            self.controller.set_panel_widget(edit_curves_list)
 
     def _add_point(self, point: QtCore.QPointF = None):
         if point is None:

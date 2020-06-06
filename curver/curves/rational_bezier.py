@@ -1,12 +1,10 @@
 import logging
 import scipy.special
-from copy import deepcopy
 
 import daiquiri
 import numpy as np
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
 
-from curver import widgets
 from curver.curves import Bezier
 
 daiquiri.setup(level=logging.INFO)

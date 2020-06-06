@@ -1,11 +1,9 @@
 import json
 import logging
 import numpy as np
-from copy import deepcopy
-from enum import Enum
 
 import daiquiri
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 from curver import curves, utils, panels, CurveController
 from curver.ui.curve_edit_ui import Ui_curveEditPanel
@@ -258,12 +256,11 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.controller.reverse_curve()
         self.set_mode(self.modes.NONE)
 
-    def _rotate_curve_slider(self, curve_positions):
+    def _rotate_curve_slider(self):
         angle = self.ui.rotationSlider.value() / self.ui.rotationSlider.maximum()
         self.controller.rotate_curve(angle)
 
     def _scale_curve_slider(self):
-        SCALE_STEP = 0.1
         scale_factor = np.power(10, (self.ui.scaleSlider.value() * 2 / 100) - 1)
         self.controller.scale_curve(scale_factor)
 

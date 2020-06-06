@@ -1,4 +1,4 @@
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 from curver import widgets
 from curver.curves import utils

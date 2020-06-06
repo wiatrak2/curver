@@ -1,12 +1,16 @@
 import numpy as np
 from scipy.spatial import ConvexHull
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 from curver import widgets
 from curver.curves import Curve
 
 
 class BaseCurve(Curve):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._edition_relative_position: [QtCore.QPointF] = None
+
     @classmethod
     def construct_from_points(
         cls, curve_id: str, points: [QtCore.QPointF], *args, **kwargs

@@ -1,10 +1,8 @@
 import json
 import logging
-from copy import deepcopy
-from enum import Enum
 
 import daiquiri
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets
 
 from curver import CurveController, curves, panels, utils, widgets
 from curver.ui.main_ui import Ui_Curver

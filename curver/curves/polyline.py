@@ -16,7 +16,6 @@ class Polyline(BaseCurve):
 
     def __init__(self, curve_id: str):
         super().__init__(curve_id)
-        self._edition_relative_position: [QtCore.QPointF] = None
 
     def set_mode(self, mode):
         self.mode = mode

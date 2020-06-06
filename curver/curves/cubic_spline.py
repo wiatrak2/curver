@@ -1,5 +1,4 @@
 import logging
-from copy import deepcopy
 
 import daiquiri
 import numpy as np
@@ -80,10 +79,8 @@ class CubicSpline(Lagrange):
     def get_items(
         self,
         n=1000,
-        control_points_line=True,
         points_pen: QtGui.QPen = None,
         segments_pen: QtGui.QPen = None,
-        control_points_line_pen: QtGui.QPen = None,
         *args,
         **kwargs
     ) -> (

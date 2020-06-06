@@ -1,4 +1,4 @@
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets
 
 from curver import CurveController
 from curver.ui.curve_edit_list_ui import Ui_curveEditWindow
