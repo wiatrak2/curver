@@ -162,9 +162,9 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def export_curve_button(self):
         self.set_mode(self.modes.EXPORT_CURVE)
         filename = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save", "curve.json", ".json"
+            self, "Save", f"{self.curve_id}.json", ".json"
         )
-        self._save_curve(filename[0])
+        self._export_curve_to_file(filename[0])
 
     def edit_weight_button(self):
         self.set_mode(self.modes.EDIT_WEIGHT)
@@ -272,10 +272,10 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.controller.edit_point_weight(point, weight)
         self.set_mode(self.modes.NONE)
 
-    def _save_curve(self, filename):
+    def _export_curve_to_file(self, filename):
         curve_dict = self.controller.serialize_curve()
         with open(filename, "w") as f:
-            json.dump(curve_dict, f)
+            json.dump([curve_dict], f)
         self.set_mode(self.modes.NONE)
 
     def mouse_click_action(self, point: QtCore.QPointF):

@@ -7,7 +7,7 @@ import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from curver import widgets
-from curver.curves import BaseCurve
+from curver.curves import BaseCurve, utils
 
 daiquiri.setup(level=logging.INFO)
 logger = daiquiri.getLogger(__name__)
@@ -35,11 +35,15 @@ class Bezier(BaseCurve):
             self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
-    def smooth_join_curve(self, other):
+    def smooth_join_curve(self, other, c1_continuity=True):
         move_vec = self.points[-1] - other.points[0]
         other.move_curve(move_vec)
         if len(self.points) >= 2 and len(other.points) >= 2:
             smooth_join_vector = self.points[-1] - self.points[-2]
+            if not c1_continuity:
+                smooth_join_vector *= utils.dist(
+                    other.points[0], other.points[1]
+                ) / utils.vector_length(smooth_join_vector)
             other.points[1] = other.points[0] + smooth_join_vector
 
     def raise_degree(self):
@@ -111,7 +115,7 @@ class Bezier(BaseCurve):
 
     def get_items(
         self,
-        n=1000,
+        n=500,
         control_points_line=True,
         convex_hull=False,
         points_pen: QtGui.QPen = None,

@@ -53,7 +53,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>410</y>
+     <y>440</y>
      <width>140</width>
      <height>30</height>
     </rect>
@@ -75,7 +75,7 @@
     <string>Merge</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="smoothJoinButton">
+  <widget class="QPushButton" name="smoothJoinC1Button">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -85,7 +85,20 @@
     </rect>
    </property>
    <property name="text">
-    <string>Smooth join</string>
+    <string>Smooth join C1</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="smoothJoinG1Button">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>410</y>
+     <width>140</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Smooth join G1</string>
    </property>
   </widget>
  </widget>

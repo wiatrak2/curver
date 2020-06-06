@@ -278,7 +278,9 @@ class CurveController:
         self.delete_curve(right_curve_id)
         self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
 
-    def smooth_join_curves(self, left_curve_id: str, right_curve_id: str):
+    def smooth_join_curves(
+        self, left_curve_id: str, right_curve_id: str, c1_continuity=True
+    ):
         self.set_curve_mode(curves.utils.CurveModes.JOIN_CURVE, left_curve_id)
         self.set_curve_mode(curves.utils.CurveModes.MOVE_BY_VECTOR, right_curve_id)
 
@@ -286,12 +288,18 @@ class CurveController:
         left_curve_entry = self.curve_entry[left_curve_id]
         right_curve_entry = self.curve_entry[right_curve_id]
         if left_curve_entry.curve_functionality.smooth_join:
-            left_curve_entry.curve.smooth_join_curve(right_curve_entry.curve)
+            left_curve_entry.curve.smooth_join_curve(
+                right_curve_entry.curve, c1_continuity=c1_continuity
+            )
 
         self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
         self.set_curve_mode(curves.utils.CurveModes.NONE, right_curve_id)
 
-        self._draw_curve(right_curve_entry.curve, draw_points=right_curve_entry.visible[0], draw_details=right_curve_entry.visible[2])
+        self._draw_curve(
+            right_curve_entry.curve,
+            draw_points=right_curve_entry.visible[0],
+            draw_details=right_curve_entry.visible[2],
+        )
 
     def raise_degree(self, curve_id: str = None):
         if curve_id is None and self._edited_curve:

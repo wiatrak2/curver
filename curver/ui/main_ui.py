@@ -44,8 +44,11 @@ class Ui_Curver(object):
         self.actionImportCurve.setObjectName("actionImportCurve")
         self.actionChangeColor = QtWidgets.QAction(Curver)
         self.actionChangeColor.setObjectName("actionChangeColor")
+        self.actionExportScene = QtWidgets.QAction(Curver)
+        self.actionExportScene.setObjectName("actionExportScene")
         self.menutopbar.addSeparator()
         self.menutopbar.addAction(self.actionImportCurve)
+        self.menutopbar.addAction(self.actionExportScene)
         self.menubar.addAction(self.menutopbar.menuAction())
 
         self.retranslateUi(Curver)
@@ -55,5 +58,6 @@ class Ui_Curver(object):
         _translate = QtCore.QCoreApplication.translate
         Curver.setWindowTitle(_translate("Curver", "Curver"))
         self.menutopbar.setTitle(_translate("Curver", "Menu"))
-        self.actionImportCurve.setText(_translate("Curver", "Import curve"))
+        self.actionImportCurve.setText(_translate("Curver", "Import"))
         self.actionChangeColor.setText(_translate("Curver", "Change color"))
+        self.actionExportScene.setText(_translate("Curver", "Export scene"))

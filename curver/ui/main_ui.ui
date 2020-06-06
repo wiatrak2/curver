@@ -49,17 +49,23 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionImportCurve"/>
+    <addaction name="actionExportScene"/>
    </widget>
    <addaction name="menutopbar"/>
   </widget>
   <action name="actionImportCurve">
    <property name="text">
-    <string>Import curve</string>
+    <string>Import</string>
    </property>
   </action>
   <action name="actionChangeColor">
    <property name="text">
     <string>Change color</string>
+   </property>
+  </action>
+  <action name="actionExportScene">
+   <property name="text">
+    <string>Export scene</string>
    </property>
   </action>
  </widget>

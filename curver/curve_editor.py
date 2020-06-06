@@ -76,7 +76,8 @@ class CurveEditor(QtWidgets.QMainWindow):
         return scene
 
     def _connect_actions(self):
-        self.ui.actionImportCurve.triggered.connect(self.import_curve_action)
+        self.ui.actionImportCurve.triggered.connect(self._import_curve_action)
+        self.ui.actionExportScene.triggered.connect(self._export_scene_action)
 
     def _update_ui(self):
         if self.mode == self.modes.NONE:
@@ -84,7 +85,7 @@ class CurveEditor(QtWidgets.QMainWindow):
 
     # Button actions
 
-    def import_curve_action(self):
+    def _import_curve_action(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(
             self, "Import curve", filter="*.json"
         )
@@ -94,22 +95,39 @@ class CurveEditor(QtWidgets.QMainWindow):
         logger.info(f"Importing curve from {filename}.")
         try:
             with open(filename, "r") as f:
-                curve_info = json.load(f)
+                curves_list = json.load(f)
         except:
             logger.warning(f"Could not load curve from {filename}.")
             return
-        curve_cls = curves.types[curve_info.get("type", curves.Curve)]
-        curve_id = curve_info.get("id", "")
-        curve_points = [QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])]
-        curve_weights = None
-        if curve_cls.weighted:
-            curve_weights = curve_info.get("weights")
-        self.controller.create_curve(
-            curve_id, curve_cls, curve_points, weights=curve_weights
+        for curve_info in curves_list:
+            curve_cls = curves.types[curve_info.get("type", curves.Curve)]
+            curve_id = curve_info.get("id", "")
+            curve_points = [
+                QtCore.QPointF(x, y) for (x, y) in curve_info.get("points", [])
+            ]
+            curve_weights = None
+            if curve_cls.weighted:
+                curve_weights = curve_info.get("weights")
+            self.controller.create_curve(
+                curve_id, curve_cls, curve_points, weights=curve_weights
+            )
+            logger.info(
+                f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points successfully imported."
+            )
+
+    def _export_scene_action(self):
+        filename = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save", "scene.json", ".json"
         )
-        logger.info(
-            f"Curve {curve_id} of type {curve_cls.type} with {len(curve_points)} points successfully imported."
-        )
+        self._export_scene_to_file(filename[0])
+
+    def _export_scene_to_file(self, filename: str):
+        all_curves = self.controller.curve_ids()
+        curves_dict = [
+            self.controller.serialize_curve(curve_id) for curve_id in all_curves
+        ]
+        with open(filename, "w") as f:
+            json.dump(curves_dict, f)
 
     def edit_curve_start(self, curve_id: str):
         self.set_mode(self.modes.EDIT)

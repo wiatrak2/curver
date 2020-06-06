@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import numpy as np
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from curver.widgets import Item

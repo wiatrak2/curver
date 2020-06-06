@@ -12,6 +12,7 @@ class CurvesListWindow(QtWidgets.QMainWindow):
         self.controller: CurveController = parent.controller
         self._parent = parent
         self.curves = curves
+        self.curves.sort()
 
         self.ui = Ui_curveEditWindow()
         self.ui.setupUi(self)
