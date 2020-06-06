@@ -160,9 +160,9 @@ class CurveController:
         curve.edit_weight(weighted_point, weight)
         self._draw_curve(curve)
 
-    def add_points(self, points: [QtCore.QPointF], curve_id: str = None):
+    def merge_points(self, points: [QtCore.QPointF], curve_id: str = None):
         curve = self.curves.get(curve_id, self._edited_curve)
-        curve.add_points(points)
+        curve.merge_points(points)
         self._draw_curve(curve)
 
     def permute_points(
@@ -263,7 +263,7 @@ class CurveController:
         left_curve = self.curves[left_curve_id]
         right_curve = self.curves[right_curve_id]
 
-        move_vec = right_curve.points[0] - left_curve.points[0]
+        move_vec = right_curve.points[0] - left_curve.points[-1]
         self.move_curve(move_vec, left_curve)
         self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
 
@@ -274,9 +274,24 @@ class CurveController:
         right_curve = self.curves[right_curve_id]
         if left_curve.points[-1] == right_curve.points[0]:
             right_curve.points.pop(0)
-        self.add_points(right_curve.points, left_curve_id)
+        self.merge_points(right_curve.points, left_curve_id)
         self.delete_curve(right_curve_id)
         self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
+
+    def smooth_join_curves(self, left_curve_id: str, right_curve_id: str):
+        self.set_curve_mode(curves.utils.CurveModes.JOIN_CURVE, left_curve_id)
+        self.set_curve_mode(curves.utils.CurveModes.MOVE_BY_VECTOR, right_curve_id)
+
+        logger.info(f"Smoothly joining curves: {left_curve_id}, {right_curve_id}")
+        left_curve_entry = self.curve_entry[left_curve_id]
+        right_curve_entry = self.curve_entry[right_curve_id]
+        if left_curve_entry.curve_functionality.smooth_join:
+            left_curve_entry.curve.smooth_join_curve(right_curve_entry.curve)
+
+        self.set_curve_mode(curves.utils.CurveModes.NONE, left_curve_id)
+        self.set_curve_mode(curves.utils.CurveModes.NONE, right_curve_id)
+
+        self._draw_curve(right_curve_entry.curve, draw_points=right_curve_entry.visible[0], draw_details=right_curve_entry.visible[2])
 
     def raise_degree(self, curve_id: str = None):
         if curve_id is None and self._edited_curve:

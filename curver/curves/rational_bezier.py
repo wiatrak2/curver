@@ -48,8 +48,8 @@ class RationalBezier(Bezier):
             point_idx = self.points.index(point)
             self.weights[point_idx] = weight
 
-    def add_points(self, points: [QtCore.QPointF], weights: [float] = None):
-        super().add_points(points)
+    def merge_points(self, points: [QtCore.QPointF], weights: [float] = None):
+        super().merge_points(points)
         if weights is None:
             weights = np.ones_like(points)
         self.weights += weights

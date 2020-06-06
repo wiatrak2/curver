@@ -35,6 +35,13 @@ class Bezier(BaseCurve):
             self._edition_relative_position = deepcopy(self.points)
         self.mode = mode
 
+    def smooth_join_curve(self, other):
+        move_vec = self.points[-1] - other.points[0]
+        other.move_curve(move_vec)
+        if len(self.points) >= 2 and len(other.points) >= 2:
+            smooth_join_vector = self.points[-1] - self.points[-2]
+            other.points[1] = other.points[0] + smooth_join_vector
+
     def raise_degree(self):
         new_points = [
             i / self.n * self.points[i - 1]

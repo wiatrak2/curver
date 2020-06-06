@@ -1,6 +1,6 @@
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 
-from curver import CurveController
+from curver import CurveController, utils
 from curver.ui.curve_join_ui import Ui_curveEditWindow
 
 
@@ -14,6 +14,10 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
 
         self.curve_id = curve_id
         self.curves = curves
+        self.curve_functionality: utils.CurveFunctionality = self.controller.get_curve_functionality(
+            self.curve_id
+        )
+
         self._split_curve_mode = False
 
         self.ui = Ui_curveEditWindow()
@@ -33,6 +37,7 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
     def show(self, *args, **kwargs):
         self.ui.curvesList.clear()
         self.ui.curvesList.addItems(self.curves)
+        self.ui.smoothJoinButton.setVisible(self.curve_functionality.smooth_join)
         return super().show(*args, **kwargs)
 
     def _move_to_curve_button(self):
@@ -40,6 +45,9 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
 
     def _merge_button(self):
         self.controller.merge_curves(self.curve_id, self.selected_curve)
+
+    def _smooth_join_button(self):
+        self.controller.smooth_join_curves(self.curve_id, self.selected_curve)
 
     def _split_curve_button(self):
         self._split_curve_mode = True
@@ -63,4 +71,5 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
         self.ui.moveToFirstButton.clicked.connect(self._move_to_curve_button)
         self.ui.mergeButton.clicked.connect(self._merge_button)
         self.ui.splitCurveButton.clicked.connect(self._split_curve_button)
+        self.ui.smoothJoinButton.clicked.connect(self._smooth_join_button)
         self.ui.doneButton.clicked.connect(self._done_button)

@@ -55,7 +55,7 @@ class Curve:
     ):
         raise NotImplementedError
 
-    def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
+    def merge_points(self, points: [QtCore.QPointF], *args, **kwargs):
         raise NotImplementedError
 
     def permute_points(

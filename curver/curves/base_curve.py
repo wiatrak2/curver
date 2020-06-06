@@ -42,7 +42,7 @@ class BaseCurve(Curve):
         if point in self.points:
             self.points[self.points.index(point)] += vector
 
-    def add_points(self, points: [QtCore.QPointF], *args, **kwargs):
+    def merge_points(self, points: [QtCore.QPointF], *args, **kwargs):
         self.points += points
 
     def permute_points(

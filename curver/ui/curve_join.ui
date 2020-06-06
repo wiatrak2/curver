@@ -75,6 +75,19 @@
     <string>Merge</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="smoothJoinButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>380</y>
+     <width>140</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Smooth join</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

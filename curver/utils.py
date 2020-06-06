@@ -16,11 +16,14 @@ class ControllerModes(Enum):
 class CurveFunctionality:
     weighted: bool = False
     degree_modifier: bool = False
+    smooth_join: bool = False
 
     @classmethod
     def get_functionalities(cls, curve: Curve):
         return CurveFunctionality(
-            weighted=curve.weighted, degree_modifier=curve.type == "Bezier",
+            weighted=curve.weighted,
+            degree_modifier=curve.type == "Bezier",
+            smooth_join=curve.type == "Bezier",
         )
 
 

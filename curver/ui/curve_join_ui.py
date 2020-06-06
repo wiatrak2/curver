@@ -29,6 +29,9 @@ class Ui_curveEditWindow(object):
         self.mergeButton = QtWidgets.QPushButton(curveEditWindow)
         self.mergeButton.setGeometry(QtCore.QRect(30, 350, 140, 30))
         self.mergeButton.setObjectName("mergeButton")
+        self.smoothJoinButton = QtWidgets.QPushButton(curveEditWindow)
+        self.smoothJoinButton.setGeometry(QtCore.QRect(30, 380, 140, 30))
+        self.smoothJoinButton.setObjectName("smoothJoinButton")
 
         self.retranslateUi(curveEditWindow)
         QtCore.QMetaObject.connectSlotsByName(curveEditWindow)
@@ -37,8 +40,7 @@ class Ui_curveEditWindow(object):
         _translate = QtCore.QCoreApplication.translate
         curveEditWindow.setWindowTitle(_translate("curveEditWindow", "Form"))
         self.doneButton.setText(_translate("curveEditWindow", "Done"))
-        self.moveToFirstButton.setText(
-            _translate("curveEditWindow", "Move to first point")
-        )
+        self.moveToFirstButton.setText(_translate("curveEditWindow", "Move to first point"))
         self.splitCurveButton.setText(_translate("curveEditWindow", "Split Curve"))
         self.mergeButton.setText(_translate("curveEditWindow", "Merge"))
+        self.smoothJoinButton.setText(_translate("curveEditWindow", "Smooth join"))
