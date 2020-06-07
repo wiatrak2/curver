@@ -74,6 +74,13 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
             self._parent.close()
             self.close()
 
+    def _curve_selection_change(self, current, previous):
+        if previous is not None:
+            previous_curve_id = previous.text()
+            self.controller.quit_expose_curve(previous_curve_id)
+        if self.selected_curve is not None:
+            self.controller.expose_curve(self.selected_curve)
+
     def _set_actions(self):
         self.ui.moveToFirstButton.clicked.connect(self._move_to_curve_button)
         self.ui.mergeButton.clicked.connect(self._merge_button)
@@ -81,3 +88,4 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
         self.ui.smoothJoinG1Button.clicked.connect(self._smooth_join_g1_button)
         self.ui.splitCurveButton.clicked.connect(self._split_curve_button)
         self.ui.doneButton.clicked.connect(self._done_button)
+        self.ui.curvesList.currentItemChanged.connect(self._curve_selection_change)

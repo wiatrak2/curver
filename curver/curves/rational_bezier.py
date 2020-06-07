@@ -21,13 +21,13 @@ class RationalBezier(Bezier):
         self.weights = []
 
     @property
-    def _weights(self) -> np.ndarray:
+    def _weights(self) -> [float]:
         return self.weights
 
     def set_points(self, points: [QtCore.QPointF], weights: [float] = None):
         super().set_points(points)
         if weights is None:
-            weights = np.ones_like(points)
+            weights = list(np.ones_like(points))
         self.weights = weights
 
     def add_point(self, point: QtCore.QPointF, weight: float = 1.0):
@@ -49,7 +49,7 @@ class RationalBezier(Bezier):
     def merge_points(self, points: [QtCore.QPointF], weights: [float] = None):
         super().merge_points(points)
         if weights is None:
-            weights = np.ones_like(points)
+            weights = list(np.ones_like(points))
         self.weights += weights
 
     def permute_points(
