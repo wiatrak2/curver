@@ -28,6 +28,8 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
     @property
     def selected_curve(self):
         selected_curve_item = self.ui.curvesList.currentItem()
+        if selected_curve_item is None:
+            return None
         return selected_curve_item.text()
 
     def closeEvent(self, e):
@@ -43,23 +45,28 @@ class CurveJoinWindow(QtWidgets.QMainWindow):
         return super().show(*args, **kwargs)
 
     def _move_to_curve_button(self):
-        self.controller.join_curves(self.curve_id, self.selected_curve)
+        if self.selected_curve:
+            self.controller.join_curves(self.curve_id, self.selected_curve)
 
     def _merge_button(self):
-        self.controller.merge_curves(self.curve_id, self.selected_curve)
+        if self.selected_curve:
+            self.controller.merge_curves(self.curve_id, self.selected_curve)
 
     def _smooth_join_c1_button(self):
-        self.controller.smooth_join_curves(self.curve_id, self.selected_curve)
+        if self.selected_curve:
+            self.controller.smooth_join_curves(self.curve_id, self.selected_curve)
 
     def _smooth_join_g1_button(self):
-        self.controller.smooth_join_curves(
-            self.curve_id, self.selected_curve, c1_continuity=False
-        )
+        if self.selected_curve:
+            self.controller.smooth_join_curves(
+                self.curve_id, self.selected_curve, c1_continuity=False
+            )
 
     def _split_curve_button(self):
         self._split_curve_mode = True
 
     def _done_button(self):
+        self._split_curve_mode = False
         self.close()
 
     def _split_curve(self, point: QtCore.QPointF):

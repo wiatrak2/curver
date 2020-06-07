@@ -72,8 +72,12 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.editWeightVal.setText("1.0")
 
     def _setup_menu_bar(self):
+        main_menu = QtWidgets.QMenu("Curve", self)
         edit_menu = QtWidgets.QMenu("Edit", self)
         view_menu = QtWidgets.QMenu("View", self)
+        export_curve_action = QtWidgets.QAction("Export curve", self)
+        export_curve_action.triggered.connect(self._export_curve_action)
+        main_menu.addAction(export_curve_action)
         change_color_action = QtWidgets.QAction("Change color", self)
         change_color_action.triggered.connect(self._show_color_picker)
         edit_menu.addAction(change_color_action)
@@ -93,6 +97,7 @@ class CurveEditWindow(QtWidgets.QMainWindow):
             reduce_degree_action.triggered.connect(self._reduce_degree)
             edit_menu.addAction(raise_degree_action)
             edit_menu.addAction(reduce_degree_action)
+        self.menu_bar_actions.append(self.controller.add_to_menu_bar(main_menu))
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(edit_menu))
         self.menu_bar_actions.append(self.controller.add_to_menu_bar(view_menu))
 
@@ -157,13 +162,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def scale_curve_final_button(self):
         self.set_mode(self.modes.NONE)
 
-    def export_curve_button(self):
-        self.set_mode(self.modes.EXPORT_CURVE)
-        filename = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save", f"{self.curve_id}.json", ".json"
-        )
-        self._export_curve_to_file(filename[0])
-
     def edit_weight_button(self):
         self.set_mode(self.modes.EDIT_WEIGHT)
 
@@ -188,6 +186,13 @@ class CurveEditWindow(QtWidgets.QMainWindow):
     def done_button(self):
         self.set_mode(self.modes.NONE)
         self.close()
+
+    def _export_curve_action(self):
+        self.set_mode(self.modes.EXPORT_CURVE)
+        filename = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save", f"{self.curve_id}.json", ".json"
+        )
+        self._export_curve_to_file(filename[0])
 
     def _show_color_picker(self):
         utils.set_widget_geometry(self.color_picker, self, mode="left")
@@ -270,6 +275,8 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.set_mode(self.modes.NONE)
 
     def _export_curve_to_file(self, filename):
+        if filename == "":
+            return
         curve_dict = self.controller.serialize_curve()
         with open(filename, "w") as f:
             json.dump([curve_dict], f)
@@ -305,7 +312,6 @@ class CurveEditWindow(QtWidgets.QMainWindow):
         self.ui.rotateDoneButton.clicked.connect(self.rotate_curve_final_button)
         self.ui.scaleCurveButton.clicked.connect(self.scale_curve_button)
         self.ui.scaleDoneButton.clicked.connect(self.scale_curve_final_button)
-        self.ui.exportCurveButton.clicked.connect(self.export_curve_button)
         self.ui.editWeightButton.clicked.connect(self.edit_weight_button)
         self.ui.joinSplitButton.clicked.connect(self.join_button)
         self.ui.undoButton.clicked.connect(self.undo_button)

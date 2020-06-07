@@ -165,19 +165,6 @@
     <string>Undo</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="exportCurveButton">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>305</y>
-     <width>120</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Export</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="deletePointButton">
    <property name="geometry">
     <rect>
@@ -415,7 +402,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>340</y>
+     <y>310</y>
      <width>120</width>
      <height>30</height>
     </rect>
@@ -497,7 +484,6 @@
   <zorder>permutePointsButton</zorder>
   <zorder>curveName</zorder>
   <zorder>undoButton</zorder>
-  <zorder>exportCurveButton</zorder>
   <zorder>deletePointButton</zorder>
   <zorder>vectorMoveBox</zorder>
   <zorder>vectorMoveButton</zorder>
